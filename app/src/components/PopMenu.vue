@@ -1,0 +1,96 @@
+<template>
+  <q-menu>
+    <q-list style="min-width: 100px">
+      <q-item clickable v-close-popup class="text-negative" @click="pwd.show = true">
+        <q-item-section>
+          <span><q-icon name="update" class="q-pr-sm"/>修改密码</span>
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <q-item clickable v-close-popup class="text-negative">
+        <q-item-section>
+          <span><q-icon name="logout" class="q-pr-sm"/>退出</span>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-menu>
+  <q-dialog v-model="pwd.show" :persistent="forceChpwd" transition-show="scale" transition-hide="scale">
+    <q-card style="width: 350px">
+      <q-card-section>
+        <div class="text-subtitle1 row items-center">
+          <q-icon name="update" size="sm" color="primary"></q-icon>
+          <span>修改密码</span>
+        </div>
+      </q-card-section>
+
+      <q-card-section class="q-py-none">
+        <q-form style="width: 300px" class="q-px-md q-gutter-y-xs">
+          <q-input label="输入旧密码" v-model="pwd.oldpwd" dense type="password"
+                   clearable clear-icon="close" maxlength="32" lazy-rules
+                   :rules="[val => true || '']"
+          />
+          <q-input label="输入新密码" v-model="pwd.newpwd" dense ref="pwdRef1" type="password"
+                   clearable clear-icon="close" maxlength="32" lazy-rules
+                   :rules="[val => testpwd(val) || '密码应包括数字、字母和特殊符号中的至少两种，且不少于6位']"
+          />
+          <q-input label="确认新密码" v-model="pwd.newpwd2" dense ref="pwdRef2" type="password"
+                   clearable clear-icon="close" maxlength="32" lazy-rules
+                   :rules="[val => val === pwd.newpwd || '两次输入的密码不一致']"
+          />
+          <p class="text-warning" v-if="forceChpwd">
+            <q-icon name="info"/> 请修改您的初始密码
+          </p>
+        </q-form>
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-pa-md">
+        <q-btn flat label="取消" @click="clear" v-close-popup v-if="!forceChpwd" />
+        <q-btn flat label="确定" @click="chpwd" color="primary" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script>
+
+import {ref} from 'vue'
+
+export default {
+  name: 'PopMenu',
+  props: {
+    forceChpwd: Boolean
+  },
+  setup(props) {
+    const pwd = ref({show: props.forceChpwd, oldpwd: '', newpwd: '', newpwd2: ''})
+    const pwdRef1 = ref(null)
+    const pwdRef2 = ref(null)
+    return {
+      pwd,
+      pwdRef1, pwdRef2,
+      testpwd(val) {
+        let c = 0
+        if (/\d/.test(val)) c++
+        if (/[a-zA-Z]/.test(val)) c++
+        if (/[^\da-zA-Z]/.test(val)) c++
+        return c >= 2 && val.length >= 6 && val.length <= 32
+      },
+      chpwd() {
+        pwdRef1.value.validate()
+        pwdRef2.value.validate()
+        if (pwdRef1.value.hasError || pwdRef2.value.hasError)
+          return
+        console.log('chpwd!')
+        this.clear()
+      },
+      clear() {
+        pwd.value.show = false
+        pwd.value.oldpwd = pwd.value.newpwd = pwd.value.newpwd2 = ''
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
