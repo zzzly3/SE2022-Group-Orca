@@ -1,4 +1,7 @@
-package com.orca.back.common;
+package com.orca.back.utils.common;
+
+import com.orca.back.utils.constants.CommonCode;
+import com.orca.back.utils.constants.ErrorCode;
 
 public class Result<T> {
     private String code;
@@ -23,22 +26,22 @@ public class Result<T> {
 
     public static Result success(){
         Result result = new Result<>();
-        result.setCode("0");
-        result.setMsg("success");
+        result.setCode(CommonCode.SUCCESS_CODE);
+        result.setMsg(CommonCode.SUCCESS_MSG);
         return result;
     }
 
     public static <T> Result<T> success(T data){
         Result<T> result = new Result<>(data);
-        result.setCode("0");
-        result.setMsg("success");
+        result.setCode(CommonCode.SUCCESS_CODE);
+        result.setMsg(CommonCode.SUCCESS_MSG);
         return result;
     }
 
-    public static Result error(String code, String msg){
+    public static Result error(ErrorCode errorCode){
         Result result = new Result();
-        result.setCode(code);
-        result.setMsg(msg);
+        result.setCode(errorCode.getCode());
+        result.setMsg(errorCode.getMsg());
         return result;
     }
 
