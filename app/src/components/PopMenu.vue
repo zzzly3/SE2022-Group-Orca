@@ -99,8 +99,10 @@ export default {
       },
       clear,
       async logout() {
-        if (await user.do_logout())
+        if (await user.do_logout() || 1) {
+          user.login = false
           await router.replace('/login')
+        }
       }
     }
   }
