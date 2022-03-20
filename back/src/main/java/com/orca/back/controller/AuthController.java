@@ -1,9 +1,9 @@
 package com.orca.back.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.orca.back.entity.Info;
-import com.orca.back.utils.common.InputCheck;
+import com.orca.back.entity.ResetInfo;
+import com.orca.back.entity.SessionInfo;
+import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 import com.orca.back.entity.User;
 import com.orca.back.mapper.UserMapper;
@@ -21,12 +21,17 @@ public class AuthController {
     @Resource
     UserMapper userMapper;
 
-    InputCheck check = new InputCheck();
+    Checker check = new Checker();
 
     @PostMapping("/register")
-    public Result<?> onSubmit(@RequestBody User user) {
+    public Result<?> onSubmit(@RequestBody User user, HttpServletRequest request) {
+        ErrorCode err;
+        /*检查管理员权限*/
+        err = check.checkAdmin(request);
+        if (err != null)
+            return Result.error(err);
         /*非法输入*/
-        ErrorCode err = check.checkRegistry(user);
+        err = check.checkRegistry(user);
         if (err != null)
             return Result.error(err);
         /*重复用户(仅筛选学号/工号)*/
@@ -58,30 +63,43 @@ public class AuthController {
 
 
     @PostMapping("/resetpw")
-    public Result<?> resetpw(@RequestBody User user){
-        /*密码格式错误*/
-        String pw = user.getPassword();
-        ErrorCode err = check.checkPassword(pw);
+    public Result<?> resetpw(@RequestBody ResetInfo info, HttpServletRequest request){
+        ErrorCode err = null;
+        /*用户是否登入*/
+        err = check.checkLogin(request);
         if (err != null)
             return Result.error(err);
-        /*OK，重设密码*/
-        User res = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, user.getNumber()));
-        res.setPassword(user.getPassword());
-        res.setIsFirst(0);
-        userMapper.updateById(res);
+        /*原密码是否匹配*/
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(u_id);
+        if (!info.getOriginPw().equals(user.getPassword()))
+            return Result.error(ErrorCode.E_102);
+        /*密码格式错误*/
+        String newPw = info.getNewPw();
+        err = check.checkPassword(newPw);
+        if (err != null)
+            return Result.error(err);
+        /*OK*/
+        user.setPassword(user.getPassword());
+        user.setIsFirst(0);
+        userMapper.updateById(user);
         return Result.success();
     }
 
 
     @RequestMapping("/getinfo")
-    public Info getInfo(HttpServletRequest request){
-        Info res = new Info();
-        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
-        if (u_id == null){
+    public SessionInfo getInfo(HttpServletRequest request){
+        SessionInfo res = new SessionInfo();
+        ErrorCode err = null;
+        /*用户是否登录*/
+        err = check.checkLogin(request);
+        if (err != null){
             res.setLogin(false);
-            res.setResult(Result.error(ErrorCode.E_109));
+            res.setResult(Result.error(err));
             return res;
         }
+        /*checked*/
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
         User user = userMapper.selectById(u_id);
         user.setPassword(null);
         res.setUser(user);
@@ -92,6 +110,12 @@ public class AuthController {
 
     @RequestMapping("/logout")
     public Result<?> logout (HttpServletRequest request){
+        /*检查用户登入*/
+        ErrorCode err = null;
+        err = check.checkLogin(request);
+        if (err != null)
+            return Result.error(err);
+        /*logout*/
         request.getSession().removeAttribute("UserId");
         return Result.success();
     }
