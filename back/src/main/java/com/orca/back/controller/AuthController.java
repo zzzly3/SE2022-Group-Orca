@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping
-@CrossOrigin
+@CrossOrigin(allowedHeaders = "*", origins = "http://localhost:9876", allowCredentials = "true")
 public class AuthController {
 
     @Resource
@@ -83,16 +83,18 @@ public class AuthController {
         return Result.success();
     }
 
-
     @RequestMapping("/getinfo")
     public SessionInfo getInfo(HttpServletRequest request){
         SessionInfo res = new SessionInfo();
         ErrorCode err = null;
         /*用户是否登录*/
         err = check.checkLogin(request);
+        System.out.println("HAHA");
+        System.out.println(err);
         if (err != null){
             res.setLogin(false);
             res.setResult(Result.success());
+            System.out.println(res.isLogin());
             return res;
         }
         /*checked*/
@@ -105,6 +107,7 @@ public class AuthController {
         return res;
     }
 
+    @CrossOrigin(origins = "http://localhost:9876", allowCredentials = "true")
     @RequestMapping("/logout")
     public Result<?> logout (HttpServletRequest request){
         /*检查用户登入*/
