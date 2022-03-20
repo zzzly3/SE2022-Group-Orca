@@ -1,10 +1,17 @@
 package com.orca.back.utils.common;
 
 import com.orca.back.entity.User;
+import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.CommonCode;
 import com.orca.back.utils.constants.ErrorCode;
 
-public class InputCheck {
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+public class Checker {
+
+    @Resource
+    UserMapper userMapper;
 
     public ErrorCode checkRegistry(User user){
         String success = CommonCode.SUCCESS_CODE;
@@ -55,6 +62,15 @@ public class InputCheck {
             if (user.getRole() == 2 && num.length() != 8)
                 return ErrorCode.E_107;
         }
+        /*角色*/
+        if (user.getRole() == null)
+            return ErrorCode.E_110;
+        else{
+            Integer role = user.getRole();
+            if (role < 1 || role > 2)
+                return ErrorCode.E_110;
+        }
+
         return null;
     }
 
@@ -71,6 +87,27 @@ public class InputCheck {
         }
         Integer vary = alpha + digit + special;
         if (vary < 2) return ErrorCode.E_108;
+        return null;
+    }
+
+
+    public ErrorCode checkAdmin(HttpServletRequest request){
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
+        if (u_id == null){
+            return ErrorCode.E_109;
+        }
+        User admin = userMapper.selectById(u_id);
+        if (admin.getIsAdmin() == 0)
+            return ErrorCode.E_111;
+        return null;
+    }
+
+
+    public ErrorCode checkLogin(HttpServletRequest request){
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
+        if (u_id == null){
+            return ErrorCode.E_109;
+        }
         return null;
     }
 
