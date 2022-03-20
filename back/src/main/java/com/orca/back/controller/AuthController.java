@@ -28,9 +28,13 @@ public class AuthController {
     public Result<?> onSubmit(@RequestBody User user, HttpServletRequest request) {
         ErrorCode err;
         /*检查管理员权限*/
-        err = check.checkAdmin(request);
-        if (err != null)
-            return Result.error(err);
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
+        if (u_id == null){
+            return Result.error(ErrorCode.E_109);
+        }
+        User admin = userMapper.selectById(u_id);
+        if (admin.getIsAdmin() == 0)
+            return Result.error(ErrorCode.E_111);
         /*非法输入*/
         err = check.checkRegistry(user);
         if (err != null)
