@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 @TableName("user")
 public class User {
-    private Integer identifier;
-    private Integer phone;
+    private String identifier;
+    private String phone;
     private String password;
     private String email;
     private String name;
@@ -18,19 +18,19 @@ public class User {
     private Integer isFirst;
     private Integer isAdmin;
 
-    public Integer getIdentifier(){
+    public String  getIdentifier(){
         return identifier;
     }
 
-    public void setIdentifier(Integer identifier) {
+    public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
 
-    public Integer getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(Integer phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 

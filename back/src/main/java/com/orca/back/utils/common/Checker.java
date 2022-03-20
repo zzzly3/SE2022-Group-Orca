@@ -20,14 +20,14 @@ public class Checker {
         if (user.getIdentifier() == null)
             return ErrorCode.E_103;
         else{
-            String id = Integer.toString(user.getIdentifier());
+            String id = user.getIdentifier();
             if (id.length() != 18)
                 return ErrorCode.E_103;
         }
         /*手机号(选填)*/
         if (user.getPhone() != null)
         {
-            String phone = Integer.toString(user.getPhone());
+            String phone = user.getPhone();
             if (phone.length() != 11 || phone.charAt(0) != '1')
                 return ErrorCode.E_104;
         }
