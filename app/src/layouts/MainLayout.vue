@@ -1,11 +1,11 @@
 <template>
 
-  <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="page_path[0].name === '主页'"/>
+  <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>
 <!--  <div class="bg-blur-white fullscreen" style="z-index: -1"/>-->
 
   <q-layout view="lHh lpR fFf">
 
-    <q-header class="bg-my-white text-basic">
+    <q-header :class="is_home ? 'bg-my-white text-basic' : 'bg-white text-basic'">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" class="lt-md text-primary" />
         <q-breadcrumbs style="font-size: 16px" class="lt-md q-ml-md">
@@ -30,7 +30,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer :width="250" show-if-above v-model="leftDrawerOpen" side="left" class="bg-my-white">
+    <q-drawer :width="250" show-if-above v-model="leftDrawerOpen" side="left" :class="is_home ? 'bg-my-white' : 'bg-white'">
       <div class="text-center q-pr-xl q-py-lg">
         <q-img src="~assets/title.png" width="55%" style="opacity: 0.9"></q-img>
       </div>
@@ -117,6 +117,9 @@ export default {
       }
       return [{'name': '主页', icon: 'home'}]
     })
+    const is_home = computed(() => {
+      return page_path.value[0].name === '主页'
+    })
 
     console.log(page.value)
 
@@ -125,6 +128,7 @@ export default {
       user,
       menu,
       page_path,
+      is_home,
       toggleLeftDrawer () {
         leftDrawerOpen.value = !leftDrawerOpen.value
       }
