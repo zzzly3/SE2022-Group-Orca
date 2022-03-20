@@ -60,7 +60,7 @@ export default {
         wait.value = true
         if (await user.do_login(id.value, pwd.value)) {
           if (user.login_redirect !== '' && user.login_redirect !== '/login') {
-            const t = ''
+            const t = user.login_redirect
             user.login_redirect = ''
             await router.replace(t)
           }
