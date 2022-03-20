@@ -86,16 +86,18 @@ export default {
     const emailRef = ref<QValidate|null>(null)
     const nameRef = ref<QValidate|null>(null)
 
+    const clear = () => {
+        show.value = false
+        name.value = id.value = pid.value = phone.value = email.value = ''
+    }
+
     return {
       name, id, pid, phone, email, type,
       nameRef, idRef, pidRef, phoneRef, emailRef, typeRef,
       types,
       show, loading,
       rules,
-      clear() {
-        show.value = false
-        name.value = id.value = pid.value = phone.value = email.value = ''
-      },
+      clear,
       async submit() {
         if (!idRef.value || !nameRef.value || !pidRef.value || !phoneRef.value || !emailRef.value || !typeRef.value)
           return
@@ -110,7 +112,7 @@ export default {
         loading.value = true
         if (await user.add_user({id:id.value, name:name.value, pid:pid.value, phone:phone.value, email:email.value, type:type.value.value})) {
           // TODO: emit 'user list update'
-          this.clear()
+          clear()
         }
         loading.value = false
       }

@@ -69,6 +69,12 @@ export default {
     const pwdRef1 = ref<QValidate|null>(null)
     const pwdRef2 = ref<QValidate|null>(null)
     const user = useUserStore()
+    const router = useRouter()
+
+    const clear = () => {
+      pwd.value.show = false
+      pwd.value.oldpwd = pwd.value.newpwd = pwd.value.newpwd2 = ''
+    }
     return {
       pwd,
       pwdRef1, pwdRef2,
@@ -88,16 +94,13 @@ export default {
           return
         pwd.value.loading = true
         if (await user.chpwd(pwd.value.oldpwd, pwd.value.newpwd))
-          this.clear()
+          clear()
         pwd.value.loading = false
       },
-      clear() {
-        pwd.value.show = false
-        pwd.value.oldpwd = pwd.value.newpwd = pwd.value.newpwd2 = ''
-      },
+      clear,
       async logout() {
         if (await user.do_logout())
-          await useRouter().replace('/login')
+          await router.replace('/login')
       }
     }
   }

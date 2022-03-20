@@ -101,7 +101,7 @@ export default {
     const $route = useRoute()
 
     const menu = computed(() => {
-      return menu_data.filter(i => user.login && user.type in i.allow)
+      return menu_data.filter(i => (user.login && i.allow.indexOf(user.type) > -1))
     })
 
     const page = computed(() => {

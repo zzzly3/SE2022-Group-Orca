@@ -30,7 +30,7 @@ export const useUserStore = defineStore('user', {
       if (r !== false && r.login) {
         this.login = true
         this.name = r.user.name
-        this.force_chpwd = r.user.isFirst
+        this.force_chpwd = Boolean(r.user.isFirst)
         if (r.user.isAdmin)
           this.type = 'admin'
         else if (Number(r.user.role) === 1)
