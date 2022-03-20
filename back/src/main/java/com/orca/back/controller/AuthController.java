@@ -55,10 +55,6 @@ public class AuthController {
         }
         /*session*/
         request.getSession().setAttribute("UserId", res.getNumber());
-        /*初次登录重设密码*/
-        if (res.getIsFirst() == 1){
-            return Result.error(ErrorCode.E_100);
-        }
         return Result.success();
     }
 
@@ -96,7 +92,7 @@ public class AuthController {
         err = check.checkLogin(request);
         if (err != null){
             res.setLogin(false);
-            res.setResult(Result.error(err));
+            res.setResult(Result.success());
             return res;
         }
         /*checked*/
