@@ -18,7 +18,7 @@
 
   <q-page-container>
     <q-page class="column items-center justify-evenly">
-      <q-card style="width: 350px">
+      <q-card style="width: 350px" class="bg-grey-1 q-mb-xl">
         <q-card-section>
           <div class="text-h6 q-px-md">登录</div>
         </q-card-section>
@@ -30,7 +30,7 @@
           </q-form>
         </q-card-section>
         <q-card-actions align="center" class="q-pb-xl">
-          <q-btn label="登 录" style="width: 85%" size="md" icon="login" color="blue-12"/>
+          <q-btn @click="login" :loading="wait" label="登 录" style="width: 85%" size="md" icon="login" color="blue-12"/>
         </q-card-actions>
       </q-card>
     </q-page>
@@ -40,13 +40,34 @@
 
 <script lang="ts">
 import {ref} from 'vue'
+import {useRouter} from 'vue-router';
+import {useUserStore} from 'stores/user';
+
 export default {
   name: 'LoginPage',
   setup() {
     const id = ref('')
     const pwd = ref('')
+    const wait = ref(false)
+    const user = useUserStore()
+    const router = useRouter()
+    if (user.login)
+      router.replace('/')
     return {
-      id, pwd
+      id, pwd,
+      wait,
+      async login() {
+        wait.value = true
+        if (await user.do_login(id.value, pwd.value)) {
+          if (user.login_redirect !== '') {
+            user.login_redirect = ''
+            await router.replace(user.login_redirect)
+          }
+          else
+            await router.replace('/')
+        }
+        wait.value = false
+      }
     }
   }
 }

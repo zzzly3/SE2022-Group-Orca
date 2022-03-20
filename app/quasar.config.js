@@ -88,13 +88,22 @@ module.exports = configure(function (ctx) {
       server: {
         type: 'http'
       },
-      port: 8080,
+      port: 9876,
       open: true // opens browser window automatically
     },
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-framework
     framework: {
-      config: {},
+      config: {
+        notify: {
+          position: 'top'
+        },
+        loadingBar: {
+          skipHijack: true,
+          color: 'primary',
+          size: '0.3rem'
+        }
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
@@ -107,7 +116,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: ['Notify', 'LoadingBar']
     },
 
     // animations: 'all', // --- includes all animations

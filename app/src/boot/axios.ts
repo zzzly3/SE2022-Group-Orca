@@ -1,5 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import {Notify} from 'quasar';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -13,7 +14,7 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' });
+const api = axios.create({ baseURL: 'http://127.0.0.1:8888' });
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
@@ -27,4 +28,26 @@ export default boot(({ app }) => {
   //       so you can easily perform requests against your app's API
 });
 
-export { api };
+async function post(url: string, data: object, notify = true) {
+  try {
+    const r = await api.post(url, data)
+    if (Number(r.data.result.code) === 200) {
+      return r.data.data
+    }
+    Notify.create({
+      type: 'negative',
+      message: r.data.result.msg
+    })
+    return false
+  }
+  catch (e) {
+    if (notify)
+      Notify.create({
+        type: 'negative',
+        message: '网络异常'
+      })
+    return false
+  }
+}
+
+export { api, post };
