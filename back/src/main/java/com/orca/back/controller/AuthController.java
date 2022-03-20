@@ -7,7 +7,6 @@ import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 import com.orca.back.entity.User;
 import com.orca.back.mapper.UserMapper;
-import com.orca.back.utils.constants.CommonCode;
 import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api")
 @CrossOrigin(allowedHeaders = "*", origins = "http://localhost:9876", allowCredentials = "true")
 public class AuthController {
 
@@ -29,9 +28,13 @@ public class AuthController {
     public Result<?> onSubmit(@RequestBody User user, HttpServletRequest request) {
         ErrorCode err;
         /*检查管理员权限*/
-        err = check.checkAdmin(request);
-        if (err != null)
-            return Result.error(err);
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
+        if (u_id == null){
+            return Result.error(ErrorCode.E_109);
+        }
+        User admin = userMapper.selectById(u_id);
+        if (admin.getIsAdmin() == 0)
+            return Result.error(ErrorCode.E_111);
         /*非法输入*/
         err = check.checkRegistry(user);
         if (err != null)
@@ -49,6 +52,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public Result<?> login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response){
+        response.setHeader("Set-Cookie", "SameSite=None");
         /*检查用户名和密码*/
         User res = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, user.getNumber()).eq(User::getPassword, user.getPassword()));
         if (res == null){
@@ -78,20 +82,20 @@ public class AuthController {
         if (err != null)
             return Result.error(err);
         /*OK*/
-        user.setPassword(user.getPassword());
+
+        user.setPassword(newPw);
         user.setIsFirst(0);
         userMapper.updateById(user);
         return Result.success();
     }
 
     @RequestMapping("/getinfo")
-    public Result<SessionInfo> getInfo(HttpServletRequest request){
+    public Result<SessionInfo> getInfo(HttpServletRequest request, HttpServletResponse response){
+
         SessionInfo res = new SessionInfo();
         ErrorCode err = null;
         /*用户是否登录*/
         err = check.checkLogin(request);
-        System.out.println("HAHA");
-        System.out.println(err);
         if (err != null){
             res.setLogin(false);
             return Result.success(res);
@@ -114,7 +118,7 @@ public class AuthController {
         if (err != null)
             return Result.error(err);
         /*logout*/
-        request.getSession().removeAttribute("UserId");
+        request.getSession(false).removeAttribute("UserId");
         return Result.success();
     }
 }
