@@ -88,7 +88,7 @@ import {useUserStore} from '../stores/user'
 import PopMenu from '../components/PopMenu'
 
 const menu_data = [
-  {name: '用户管理', icon: 'manage_accounts', allow: [1], submenu: [
+  {name: '用户管理', icon: 'manage_accounts', allow: ['admin'], submenu: [
       {name: '用户列表', icon: 'list_alt', page: 'user_list'},
     ]}
 ]
