@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:9876", allowCredentials = "true")
 public class AuthController {
 
     @Resource
