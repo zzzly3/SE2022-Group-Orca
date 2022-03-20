@@ -82,23 +82,29 @@ import {useRoute} from 'vue-router'
 import {useUserStore} from '../stores/user'
 import PopMenu from '../components/PopMenu'
 
+const menu_data = [
+  {name: '用户管理', icon: 'manage_accounts', allow: [1], submenu: [
+      {name: '用户列表', icon: 'list_alt', page: 'user_list'},
+    ]}
+]
+
 export default {
   components: {PopMenu},
   setup () {
     const leftDrawerOpen = ref(false)
     const user = useUserStore()
-    const menu = ref([
-      {name: '用户管理', icon: 'manage_accounts', submenu: [
-          {name: '用户列表', icon: 'list_alt', page: 'user_list'},
-      ]}
-    ])
     const $route = useRoute()
+
+    const menu = computed(() => {
+      return menu_data.filter(i => user.login && user.type in i.allow)
+    })
+
     const page = computed(() => {
       const t = $route.path.split('/')
       return t[t.length - 1]
     })
     const page_path = computed(() => {
-      for (const i of menu.value) {
+      for (const i of menu_data) {
         for (const j of i.submenu) {
           if (j.page === page.value)
             return [i, j]
@@ -106,6 +112,7 @@ export default {
       }
       return [{'name': '主页', icon: 'home'}]
     })
+
     console.log(page.value)
 
     return {

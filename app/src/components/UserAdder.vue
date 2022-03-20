@@ -49,8 +49,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from 'vue';
+import {QValidate} from 'components/models';
+import {useUserStore} from 'stores/user';
 
 const types = [
   {label: '学生', value: 'student'},
@@ -60,6 +62,7 @@ const types = [
 export default {
   name: 'UserAdder',
   setup() {
+    const user = useUserStore()
     const show = ref(false)
     const name = ref('')
     const id = ref('')
@@ -75,12 +78,12 @@ export default {
       id_s: /^\d{6}$/,
       id_t: /^\d{8}$/
     }
-    const idRef = ref(null)
-    const typeRef = ref(null)
-    const pidRef = ref(null)
-    const phoneRef = ref(null)
-    const emailRef = ref(null)
-    const nameRef = ref(null)
+    const idRef = ref<QValidate|null>(null)
+    const typeRef = ref<QValidate|null>(null)
+    const pidRef = ref<QValidate|null>(null)
+    const phoneRef = ref<QValidate|null>(null)
+    const emailRef = ref<QValidate|null>(null)
+    const nameRef = ref<QValidate|null>(null)
 
     return {
       name, id, pid, phone, email, type,
@@ -92,7 +95,7 @@ export default {
         show.value = false
         name.value = id.value = pid.value = phone.value = email.value = ''
       },
-      submit() {
+      async submit() {
         if (!idRef.value || !nameRef.value || !pidRef.value || !phoneRef.value || !emailRef.value || !typeRef.value)
           return
         idRef.value.validate()
@@ -103,8 +106,10 @@ export default {
         typeRef.value.validate()
         if (idRef.value.hasError || nameRef.value.hasError || pidRef.value.hasError || phoneRef.value.hasError || emailRef.value.hasError || typeRef.value.hasError)
           return
-        console.log('submit!')
-        this.clear()
+        if (await user.add_user({id:id.value, name:name.value, pid:pid.value, phone:phone.value, email:email.value, type:type.value})) {
+          // TODO: emit 'user list update'
+          this.clear()
+        }
       }
     }
   }

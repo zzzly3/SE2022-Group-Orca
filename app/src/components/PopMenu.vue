@@ -7,7 +7,7 @@
         </q-item-section>
       </q-item>
       <q-separator />
-      <q-item clickable v-close-popup class="text-negative">
+      <q-item clickable v-close-popup class="text-negative" @click="logout">
         <q-item-section>
           <span><q-icon name="logout" class="q-pr-sm"/>退出</span>
         </q-item-section>
@@ -51,9 +51,12 @@
   </q-dialog>
 </template>
 
-<script>
+<script lang="ts">
 
 import {ref} from 'vue'
+import {useUserStore} from 'stores/user';
+import {useRouter} from 'vue-router';
+import {QValidate} from './models'
 
 export default {
   name: 'PopMenu',
@@ -61,14 +64,15 @@ export default {
     forceChpwd: Boolean,
     hidden: Boolean
   },
-  setup(props) {
+  setup(props: { forceChpwd: boolean; hidden: boolean; }) {
     const pwd = ref({show: props.forceChpwd, oldpwd: '', newpwd: '', newpwd2: ''})
-    const pwdRef1 = ref(null)
-    const pwdRef2 = ref(null)
+    const pwdRef1 = ref<QValidate|null>(null)
+    const pwdRef2 = ref<QValidate|null>(null)
+    const user = useUserStore()
     return {
       pwd,
       pwdRef1, pwdRef2,
-      testpwd(val) {
+      testpwd(val: string) {
         let c = 0
         if (/\d/.test(val)) c++
         if (/[a-zA-Z]/.test(val)) c++
@@ -76,6 +80,8 @@ export default {
         return c >= 2 && val.length >= 6 && val.length <= 32
       },
       chpwd() {
+        if (!pwdRef1.value || !pwdRef2.value)
+          return
         pwdRef1.value.validate()
         pwdRef2.value.validate()
         if (pwdRef1.value.hasError || pwdRef2.value.hasError)
@@ -86,6 +92,10 @@ export default {
       clear() {
         pwd.value.show = false
         pwd.value.oldpwd = pwd.value.newpwd = pwd.value.newpwd2 = ''
+      },
+      async logout() {
+        if (await user.do_logout())
+          await useRouter().replace('/login')
       }
     }
   }

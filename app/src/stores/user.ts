@@ -20,7 +20,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     name: '[未登录]',
     login: false,
-    force_chpwd: true,
+    force_chpwd: false,
     login_redirect: '',
     type: 1
   }),
@@ -48,6 +48,16 @@ export const useUserStore = defineStore('user', {
         } else {
           return true
         }
+      }
+      return false
+    },
+    async do_logout() {
+      return await post('logout', {}) !== false
+    },
+    async add_user({id, name, pid, phone, email, type}: {id: string, name: string, pid: string, phone: string, email: string, type: string}) {
+      if (await post('register', {identifier: pid, phone, email, name, role: type, number: id}) !== false) {
+        useQuasar().notify({type:'positive', message:'添加成功'})
+        return true
       }
       return false
     }
