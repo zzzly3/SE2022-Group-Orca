@@ -44,8 +44,8 @@
       </q-card-section>
 
       <q-card-actions align="right" class="q-pa-md">
-        <q-btn flat label="取消" @click="clear" v-close-popup v-if="!forceChpwd" />
-        <q-btn flat label="确定" @click="chpwd" color="primary" />
+        <q-btn flat label="取消" @click="clear" :disable="pwd.loading" v-close-popup v-if="!forceChpwd" />
+        <q-btn flat label="确定" @click="chpwd" :loading="pwd.loading" color="primary" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -65,7 +65,7 @@ export default {
     hidden: Boolean
   },
   setup(props: { forceChpwd: boolean; hidden: boolean; }) {
-    const pwd = ref({show: props.forceChpwd, oldpwd: '', newpwd: '', newpwd2: ''})
+    const pwd = ref({show: props.forceChpwd, oldpwd: '', newpwd: '', newpwd2: '', loading: false})
     const pwdRef1 = ref<QValidate|null>(null)
     const pwdRef2 = ref<QValidate|null>(null)
     const user = useUserStore()
@@ -79,15 +79,17 @@ export default {
         if (/[^\da-zA-Z]/.test(val)) c++
         return c >= 2 && val.length >= 6 && val.length <= 32
       },
-      chpwd() {
+      async chpwd() {
         if (!pwdRef1.value || !pwdRef2.value)
           return
         pwdRef1.value.validate()
         pwdRef2.value.validate()
         if (pwdRef1.value.hasError || pwdRef2.value.hasError)
           return
-        console.log('chpwd!')
-        this.clear()
+        pwd.value.loading = true
+        if (await user.chpwd(pwd.value.oldpwd, pwd.value.newpwd))
+          this.clear()
+        pwd.value.loading = false
       },
       clear() {
         pwd.value.show = false

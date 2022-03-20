@@ -41,8 +41,8 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn flat label="取消" @click="clear" v-close-popup color="negative" />
-          <q-btn flat label="确定" @click="submit" color="primary" />
+          <q-btn flat label="取消" @click="clear" :disable="loading" v-close-popup color="negative" />
+          <q-btn flat label="确定" @click="submit" :loading="loading" color="primary" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -63,6 +63,7 @@ export default {
   name: 'UserAdder',
   setup() {
     const user = useUserStore()
+    const loading = ref(false)
     const show = ref(false)
     const name = ref('')
     const id = ref('')
@@ -89,7 +90,7 @@ export default {
       name, id, pid, phone, email, type,
       nameRef, idRef, pidRef, phoneRef, emailRef, typeRef,
       types,
-      show,
+      show, loading,
       rules,
       clear() {
         show.value = false
@@ -106,10 +107,12 @@ export default {
         typeRef.value.validate()
         if (idRef.value.hasError || nameRef.value.hasError || pidRef.value.hasError || phoneRef.value.hasError || emailRef.value.hasError || typeRef.value.hasError)
           return
+        loading.value = true
         if (await user.add_user({id:id.value, name:name.value, pid:pid.value, phone:phone.value, email:email.value, type:type.value})) {
           // TODO: emit 'user list update'
           this.clear()
         }
+        loading.value = false
       }
     }
   }

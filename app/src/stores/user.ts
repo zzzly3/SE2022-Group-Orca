@@ -27,7 +27,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     async load_user_info() {
       const r = await post('getinfo', {}, false)
-      if (r.login) {
+      if (r !== false && r.login) {
         this.login = true
         this.name = r.user.name
         this.force_chpwd = r.user.isFirst
@@ -57,6 +57,13 @@ export const useUserStore = defineStore('user', {
     async add_user({id, name, pid, phone, email, type}: {id: string, name: string, pid: string, phone: string, email: string, type: string}) {
       if (await post('register', {identifier: pid, phone, email, name, role: type, number: id}) !== false) {
         useQuasar().notify({type:'positive', message:'添加成功'})
+        return true
+      }
+      return false
+    },
+    async chpwd(oldpwd: string, newpwd: string) {
+      if (await post('resetpw', {originPw: oldpwd, newPw: newpwd}) !== false) {
+        useQuasar().notify({type:'positive', message:'修改成功'})
         return true
       }
       return false

@@ -28,16 +28,18 @@ export default boot(({ app }) => {
   //       so you can easily perform requests against your app's API
 });
 
+// false means fail
 async function post(url: string, data: object, notify = true) {
   try {
     const r = await api.post(url, data)
-    if (Number(r.data.result.code) === 200) {
+    if (Number(r.data.code) === 200) {
       return r.data.data
     }
-    Notify.create({
-      type: 'negative',
-      message: r.data.result.msg
-    })
+    if (notify)
+      Notify.create({
+        type: 'negative',
+        message: r.data.msg
+      })
     return false
   }
   catch (e) {

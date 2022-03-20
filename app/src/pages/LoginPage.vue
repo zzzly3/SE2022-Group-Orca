@@ -26,7 +26,7 @@
         <q-card-section>
           <q-form class="q-pt-md q-px-md q-gutter-y-lg">
             <q-input label="学/工号" v-model="id" maxlength="8" dense outlined/>
-            <q-input label="密码" v-model="pwd" maxlength="32" dense outlined/>
+            <q-input label="密码" v-model="pwd" maxlength="32" type="password" dense outlined/>
           </q-form>
         </q-card-section>
         <q-card-actions align="center" class="q-pb-xl">
