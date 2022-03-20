@@ -56,10 +56,10 @@ public class Checker {
         else{
             String num = Integer.toString(user.getNumber());
             /*学生*/
-            if (user.getRole() == 1 && num.length() != 6)
+            if (user.getRole() == 2 && num.length() != 6)
                 return ErrorCode.E_107;
             /*老师*/
-            if (user.getRole() == 2 && num.length() != 8)
+            if (user.getRole() == 1 && num.length() != 8)
                 return ErrorCode.E_107;
         }
         /*角色*/
