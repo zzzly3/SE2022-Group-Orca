@@ -7,6 +7,7 @@ import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 import com.orca.back.entity.User;
 import com.orca.back.mapper.UserMapper;
+import com.orca.back.utils.constants.CommonCode;
 import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,6 +87,8 @@ public class AuthController {
     @RequestMapping("/getinfo")
     public SessionInfo getInfo(HttpServletRequest request){
         SessionInfo res = new SessionInfo();
+        res.setCode(CommonCode.SUCCESS_CODE);
+        res.setMsg(CommonCode.SUCCESS_MSG);
         ErrorCode err = null;
         /*用户是否登录*/
         err = check.checkLogin(request);
@@ -93,7 +96,6 @@ public class AuthController {
         System.out.println(err);
         if (err != null){
             res.setLogin(false);
-            res.setResult(Result.success());
             System.out.println(res.isLogin());
             return res;
         }
@@ -103,7 +105,6 @@ public class AuthController {
         user.setPassword(null);
         res.setUser(user);
         res.setLogin(true);
-        res.setResult(Result.success());
         return res;
     }
 
