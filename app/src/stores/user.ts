@@ -31,11 +31,11 @@ export const useUserStore = defineStore('user', {
         this.login = true
         this.name = r.user.name
         this.force_chpwd = r.user.isFirst
-        if (Number(r.user.role) === 1)
+        if (r.user.isAdmin)
           this.type = 'admin'
-        else if (Number(r.user.role) === 2)
+        else if (Number(r.user.role) === 1)
           this.type = 'teacher'
-        else if (Number(r.user.role) === 3)
+        else if (Number(r.user.role) === 2)
           this.type = 'student'
       } else {
         this.login = false

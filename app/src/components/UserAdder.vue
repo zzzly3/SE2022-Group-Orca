@@ -70,7 +70,7 @@ export default {
     const pid = ref('')
     const phone = ref('')
     const email = ref('')
-    const type = ref('')
+    const type = ref({label: '', value: ''})
     const rules = {
       name: /^[^0-9]+$/,
       pid: /^\d{17}(?:\d|X)$/,
@@ -108,7 +108,7 @@ export default {
         if (idRef.value.hasError || nameRef.value.hasError || pidRef.value.hasError || phoneRef.value.hasError || emailRef.value.hasError || typeRef.value.hasError)
           return
         loading.value = true
-        if (await user.add_user({id:id.value, name:name.value, pid:pid.value, phone:phone.value, email:email.value, type:type.value})) {
+        if (await user.add_user({id:id.value, name:name.value, pid:pid.value, phone:phone.value, email:email.value, type:type.value.value})) {
           // TODO: emit 'user list update'
           this.clear()
         }
