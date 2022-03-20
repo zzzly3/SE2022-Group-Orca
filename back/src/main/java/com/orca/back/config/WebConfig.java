@@ -23,8 +23,8 @@ public class WebConfig implements WebMvcConfigurer{
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://localhost:9876");
-        config.addAllowedHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS);
-        config.addAllowedMethod(HttpMethod.POST);
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
 
         source.registerCorsConfiguration("/**", config);
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));

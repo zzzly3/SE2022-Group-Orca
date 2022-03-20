@@ -8,38 +8,20 @@ import lombok.Data;
 public class SessionInfo {
     private User user;
     private boolean login;
-    private String code;
-    private String msg;
 
-    public boolean isLogin() {
-        return login;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public User getUser() {
-        return user;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void setLogin(boolean login) {
         this.login = login;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public User getUser() {
+        return user;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public boolean isLogin() {
+        return login;
     }
 }

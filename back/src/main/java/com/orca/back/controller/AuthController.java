@@ -85,10 +85,8 @@ public class AuthController {
     }
 
     @RequestMapping("/getinfo")
-    public SessionInfo getInfo(HttpServletRequest request){
+    public Result<SessionInfo> getInfo(HttpServletRequest request){
         SessionInfo res = new SessionInfo();
-        res.setCode(CommonCode.SUCCESS_CODE);
-        res.setMsg(CommonCode.SUCCESS_MSG);
         ErrorCode err = null;
         /*用户是否登录*/
         err = check.checkLogin(request);
@@ -96,8 +94,7 @@ public class AuthController {
         System.out.println(err);
         if (err != null){
             res.setLogin(false);
-            System.out.println(res.isLogin());
-            return res;
+            return Result.success(res);
         }
         /*checked*/
         Integer u_id = (Integer) request.getSession().getAttribute("UserId");
@@ -105,7 +102,7 @@ public class AuthController {
         user.setPassword(null);
         res.setUser(user);
         res.setLogin(true);
-        return res;
+        return Result.success(res);
     }
 
     @CrossOrigin(origins = "http://localhost:9876", allowCredentials = "true")
