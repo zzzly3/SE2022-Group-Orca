@@ -1,5 +1,5 @@
 <template>
-  <q-menu>
+  <q-menu v-if="!hidden">
     <q-list style="min-width: 100px">
       <q-item clickable v-close-popup class="text-negative" @click="pwd.show = true">
         <q-item-section>
@@ -58,7 +58,8 @@ import {ref} from 'vue'
 export default {
   name: 'PopMenu',
   props: {
-    forceChpwd: Boolean
+    forceChpwd: Boolean,
+    hidden: Boolean
   },
   setup(props) {
     const pwd = ref({show: props.forceChpwd, oldpwd: '', newpwd: '', newpwd2: ''})
