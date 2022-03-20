@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import {post} from 'boot/axios';
-import {useQuasar} from 'quasar';
+import {Notify} from 'quasar';
 
 const demo_list = [
   {id: 1, name: 'test', type: 'admin'},
@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', {
       if (await post('login', {number: id, password: pwd}) !== false) {
         await this.load_user_info()
         if (this.login === false) {
-          useQuasar().notify({type:'negative', message: '登录失败'})
+          Notify.create({type:'negative', message: '登录失败'})
           return false
         } else {
           return true
@@ -56,14 +56,14 @@ export const useUserStore = defineStore('user', {
     },
     async add_user({id, name, pid, phone, email, type}: {id: string, name: string, pid: string, phone: string, email: string, type: string}) {
       if (await post('register', {identifier: pid, phone, email, name, role: type, number: id}) !== false) {
-        useQuasar().notify({type:'positive', message:'添加成功'})
+        Notify.create({type:'positive', message:'添加成功'})
         return true
       }
       return false
     },
     async chpwd(oldpwd: string, newpwd: string) {
       if (await post('resetpw', {originPw: oldpwd, newPw: newpwd}) !== false) {
-        useQuasar().notify({type:'positive', message:'修改成功'})
+        Notify.create({type:'positive', message:'修改成功'})
         return true
       }
       return false
