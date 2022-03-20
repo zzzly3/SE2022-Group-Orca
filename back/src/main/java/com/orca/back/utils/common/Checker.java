@@ -25,14 +25,14 @@ public class Checker {
                 return ErrorCode.E_103;
         }
         /*手机号(选填)*/
-        if (user.getPhone() != null)
+        if (user.getPhone() != null && user.getPhone().length() > 0)
         {
             String phone = user.getPhone();
             if (phone.length() != 11 || phone.charAt(0) != '1')
                 return ErrorCode.E_104;
         }
         /*邮箱（选填）*/
-        if (user.getEmail() != null)
+        if (user.getEmail() != null && user.getEmail().length() > 0)
         {
             String email = user.getEmail();
             Integer apos = email.indexOf('@');
