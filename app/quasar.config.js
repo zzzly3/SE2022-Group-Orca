@@ -88,6 +88,11 @@ module.exports = configure(function (ctx) {
       server: {
         type: 'http'
       },
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8888'
+        }
+      },
       port: 9876,
       open: true // opens browser window automatically
     },
