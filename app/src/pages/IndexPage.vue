@@ -1,6 +1,9 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <q-img src="~assets/home-bg-1.png"/>
+    <div></div>
+<!--    <div style="position: absolute; top: 0; left: 0; height: 100%; width: 100%; z-index: -2">-->
+<!--      <q-img src="~assets/home-bg-1.png"/>-->
+<!--    </div>-->
   </q-page>
 </template>
 
