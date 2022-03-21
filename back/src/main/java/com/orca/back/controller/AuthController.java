@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(allowedHeaders = "*", origins = "http://localhost:9876", allowCredentials = "true")
 public class AuthController {
 
     @Resource
@@ -26,24 +25,23 @@ public class AuthController {
 
     @PostMapping("/register")
     public Result<?> onSubmit(@RequestBody User user, HttpServletRequest request) {
-        ErrorCode err;
+        ErrorCode err = null;
         /*检查管理员权限*/
         Integer u_id = (Integer) request.getSession().getAttribute("UserId");
-        if (u_id == null){
-            return Result.error(ErrorCode.E_109);
+        if (u_id == null) err = ErrorCode.E_109;
+        else{
+            User admin = userMapper.selectById(u_id);
+            if (admin.getIsAdmin() == 0) err = ErrorCode.E_111;
         }
-        User admin = userMapper.selectById(u_id);
-        if (admin.getIsAdmin() == 0)
-            return Result.error(ErrorCode.E_111);
+        if (err != null) return Result.error(err);
         /*非法输入*/
         err = check.checkRegistry(user);
-        if (err != null)
-            return Result.error(err);
-        /*重复用户(仅筛选学号/工号)*/
-        User res = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, user.getNumber()));
-        if (res != null){
-            return Result.error(ErrorCode.E_101);
+        if (err == null) {
+            /*重复用户(仅筛选学号/工号)*/
+            User res = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, user.getNumber()));
+            if (res != null) err = ErrorCode.E_101;
         }
+        if (err != null) return Result.error(err);
         /*OK*/
         user.setPassword("123456");
         userMapper.insert(user);
@@ -71,19 +69,18 @@ public class AuthController {
         err = check.checkLogin(request);
         if (err != null)
             return Result.error(err);
-        /*原密码是否匹配*/
+        /*原密码是否匹配, 新密码格式是否错误*/
         Integer u_id = (Integer) request.getSession().getAttribute("UserId");
         User user = userMapper.selectById(u_id);
         if (!info.getOriginPw().equals(user.getPassword()))
-            return Result.error(ErrorCode.E_102);
-        /*密码格式错误*/
-        String newPw = info.getNewPw();
-        err = check.checkPassword(newPw);
+            err = ErrorCode.E_102;
+        else {
+            err = check.checkPassword(info.getNewPw());
+        }
         if (err != null)
             return Result.error(err);
         /*OK*/
-
-        user.setPassword(newPw);
+        user.setPassword(info.getNewPw());
         user.setIsFirst(0);
         userMapper.updateById(user);
         return Result.success();

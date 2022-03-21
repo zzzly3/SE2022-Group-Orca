@@ -8,64 +8,57 @@ import javax.servlet.http.HttpServletRequest;
 public class Checker {
 
     public ErrorCode checkRegistry(User user){
-
         /*身份证号*/
-        if (user.getIdentifier() == null)
-            return ErrorCode.E_103;
-        else{
-            String id = user.getIdentifier();
-            if (id.length() != 18)
-                return ErrorCode.E_103;
-        }
-        /*手机号(选填)*/
-        if (user.getPhone() != null && user.getPhone().length() > 0)
-        {
-            String phone = user.getPhone();
-            if (phone.length() != 11 || phone.charAt(0) != '1')
-                return ErrorCode.E_104;
-        }
-        /*邮箱（选填）*/
-        if (user.getEmail() != null && user.getEmail().length() > 0)
-        {
-            String email = user.getEmail();
-            int aPos = email.indexOf('@');
-            int dotPos = email.indexOf('.');
-            if (aPos < 1 || dotPos - aPos < 2)
-                return ErrorCode.E_105;
-        }
-        /*姓名*/
-        if (user.getName() == null)
+        ErrorCode err;
+        err = checkIdentifier(user.getIdentifier());
+        if (err != null) return err;
+        err = checkName(user.getName());
+        if (err != null) return err;
+        err = checkRoleAndNumber(user.getRole(), user.getNumber());
+        if (err != null) return err;
+        err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;
+        if (err != null) return err;
+        err = (user.getEmail() != null && user.getEmail().length() > 0) ? checkEmail(user.getEmail()) : null;
+        return err;
+    }
+
+    public ErrorCode checkIdentifier(String id){
+        return (id == null || id.length() != 18) ? ErrorCode.E_103 : null;
+    }
+
+    public ErrorCode checkPhone(String phone){
+        return (phone.length() != 11 || phone.charAt(0) != '1') ? ErrorCode.E_104 : null;
+    }
+
+    public ErrorCode checkEmail(String email){
+        int aPos = email.indexOf('@');
+        int dotPos = email.indexOf('.');
+        return (aPos < 1 || dotPos - aPos < 2) ? ErrorCode.E_105 : null;
+    }
+
+    public ErrorCode checkName(String name){
+        if (name == null)
             return ErrorCode.E_106;
         else {
-            String name = user.getName();
             for(int i = 0; i < name.length(); i++)
                 if (!isAlpha(name.charAt(i)) && !isHan(name.charAt(i)))
                     return ErrorCode.E_106;
         }
-        /*学号*/
-        if (user.getNumber() == null)
-            return ErrorCode.E_107;
-        else{
-            String num = Integer.toString(user.getNumber());
-            /*学生*/
-            if (user.getRole() == 2 && num.length() != 6)
-                return ErrorCode.E_107;
-            /*老师*/
-            if (user.getRole() == 1 && num.length() != 8)
-                return ErrorCode.E_107;
-        }
-        /*角色*/
-        if (user.getRole() == null)
-            return ErrorCode.E_110;
-        else{
-            Integer role = user.getRole();
-            if (role < 1 || role > 2)
-                return ErrorCode.E_110;
-        }
-
         return null;
     }
 
+    public ErrorCode checkRoleAndNumber(Integer role, Integer number){
+        if (role == null || role < 1 || role > 2) return ErrorCode.E_110;
+        if (number == null)
+            return ErrorCode.E_107;
+        else{
+            String num = Integer.toString(number);
+            /*学生*/
+            if (role == 2 && num.length() != 6 || role == 1 && num.length() != 8)
+                return ErrorCode.E_107;
+        }
+        return null;
+    }
 
     public ErrorCode checkPassword(String pw){
         if (pw.length() > 32 || pw.length() < 6)
@@ -90,7 +83,6 @@ public class Checker {
         }
         return null;
     }
-
 
     public boolean isAlpha(char c){
         return (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
