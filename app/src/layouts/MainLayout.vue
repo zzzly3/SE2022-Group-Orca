@@ -3,9 +3,9 @@
   <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>
 <!--  <div class="bg-blur-white fullscreen" style="z-index: -1"/>-->
 
-  <q-layout view="lHh lpR fFf">
+  <q-layout view="lHh LpR fFf">
 
-    <q-header :class="is_home ? 'bg-my-white text-basic' : 'bg-white text-basic'">
+    <q-header :class="is_home ? 'bg-my-white text-basic' : 'bg-white text-basic'" style="z-index:999">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" class="lt-md text-primary" />
         <q-breadcrumbs style="font-size: 16px" class="lt-md q-ml-md">
@@ -115,7 +115,7 @@ export default {
             return [i, j]
         }
       }
-      return [{'name': '主页', icon: 'home'}]
+      return [{'name': '主页', icon: 'home', allow: ['admin', 'teacher', 'student']}]
     })
     const is_home = computed(() => {
       return page_path.value[0].name === '主页'

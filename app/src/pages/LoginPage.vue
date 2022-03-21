@@ -24,9 +24,13 @@
         </q-card-section>
         <q-separator />
         <q-card-section>
-          <q-form class="q-pt-md q-px-md q-gutter-y-lg">
-            <q-input label="学/工号" v-model="id" maxlength="8" dense outlined/>
-            <q-input label="密码" v-model="pwd" maxlength="32" type="password" dense outlined/>
+          <q-form class="q-pt-md q-px-md q-gutter-y-sm">
+            <q-input label="学/工号" v-model="id" maxlength="8" dense outlined ref="idRef"
+                     :rules="[val => !!val || '请输入学/工号']"
+            />
+            <q-input label="密码" v-model="pwd" maxlength="32" type="password" dense outlined ref="pwRef"
+                     :rules="[val => !!val || '请输入密码']"
+            />
           </q-form>
         </q-card-section>
         <q-card-actions align="center" class="q-pb-xl">
@@ -42,6 +46,7 @@
 import {ref} from 'vue'
 import {useRouter} from 'vue-router';
 import {useUserStore} from 'stores/user';
+import {QValidate} from 'components/models';
 
 export default {
   name: 'LoginPage',
@@ -51,12 +56,22 @@ export default {
     const wait = ref(false)
     const user = useUserStore()
     const router = useRouter()
+    const idRef = ref<QValidate | null>(null)
+    const pwRef = ref<QValidate | null>(null)
+
     if (user.login)
       router.replace('/')
     return {
       id, pwd,
+      idRef, pwRef,
       wait,
       async login() {
+        if (!idRef.value || !pwRef.value)
+          return
+        idRef.value.validate()
+        pwRef.value.validate()
+        if (idRef.value.hasError || pwRef.value.hasError)
+          return
         wait.value = true
         if (await user.do_login(id.value, pwd.value)) {
           if (user.login_redirect !== '' && user.login_redirect !== '/login') {

@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hhh lpR fFf">
-    <q-header class="text-basic bg-white q-mx-xl">
+    <q-header class="text-basic bg-white q-mx-xl" style="z-index:100">
       <q-toolbar class="q-mx-xl">
         <q-input outlined v-model="search" label="Search" dense style="margin-top: 1px" rounded>
           <template v-slot:append>
