@@ -11,14 +11,14 @@ public class Checker {
         /*身份证号*/
         ErrorCode err;
         err = checkIdentifier(user.getIdentifier());
-        if (err != null) return err;
-        err = checkName(user.getName());
-        if (err != null) return err;
-        err = checkRoleAndNumber(user.getRole(), user.getNumber());
-        if (err != null) return err;
-        err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;
-        if (err != null) return err;
-        err = (user.getEmail() != null && user.getEmail().length() > 0) ? checkEmail(user.getEmail()) : null;
+        if (err == null)
+            err = checkName(user.getName());
+        if (err == null)
+            err = checkRoleAndNumber(user.getRole(), user.getNumber());
+        if (err == null)
+            err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;
+        if (err == null)
+            err = (user.getEmail() != null && user.getEmail().length() > 0) ? checkEmail(user.getEmail()) : null;
         return err;
     }
 
@@ -48,16 +48,17 @@ public class Checker {
     }
 
     public ErrorCode checkRoleAndNumber(Integer role, Integer number){
+        ErrorCode err = null;
         if (role == null || role < 1 || role > 2) return ErrorCode.E_110;
         if (number == null)
-            return ErrorCode.E_107;
+            err = ErrorCode.E_107;
         else{
             String num = Integer.toString(number);
             /*学生*/
             if (role == 2 && num.length() != 6 || role == 1 && num.length() != 8)
-                return ErrorCode.E_107;
+                err = ErrorCode.E_107;
         }
-        return null;
+        return err;
     }
 
     public ErrorCode checkPassword(String pw){
