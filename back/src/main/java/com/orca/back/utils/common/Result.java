@@ -25,7 +25,7 @@ public class Result<T> {
     public Result(T data){this.data = data;}
 
     public static Result success(){
-        Result result = new Result<>();
+        Result result = new Result();
         result.setCode(CommonCode.SUCCESS_CODE);
         result.setMsg(CommonCode.SUCCESS_MSG);
         return result;

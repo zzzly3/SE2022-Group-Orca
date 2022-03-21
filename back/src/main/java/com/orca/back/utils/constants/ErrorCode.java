@@ -1,7 +1,6 @@
 package com.orca.back.utils.constants;
 
 public enum ErrorCode {
-    E_100("100", "初次登录的用户需要重置密码"),
     E_101("101", "用户已存在"),
     E_102("102", "用户名或密码错误"),
     E_103("103", "请填写正确的身份证号"),

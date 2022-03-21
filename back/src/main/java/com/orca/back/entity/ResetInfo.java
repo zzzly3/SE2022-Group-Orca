@@ -1,6 +1,5 @@
 package com.orca.back.entity;
 
-import com.orca.back.utils.common.Result;
 import lombok.Data;
 
 @Data

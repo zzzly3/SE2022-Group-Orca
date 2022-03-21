@@ -66,7 +66,7 @@ public class AuthController {
 
     @PostMapping("/resetpw")
     public Result<?> resetpw(@RequestBody ResetInfo info, HttpServletRequest request){
-        ErrorCode err = null;
+        ErrorCode err;
         /*用户是否登入*/
         err = check.checkLogin(request);
         if (err != null)
@@ -90,10 +90,10 @@ public class AuthController {
     }
 
     @RequestMapping("/getinfo")
-    public Result<SessionInfo> getInfo(HttpServletRequest request, HttpServletResponse response){
+    public Result<SessionInfo> getInfo(HttpServletRequest request){
 
         SessionInfo res = new SessionInfo();
-        ErrorCode err = null;
+        ErrorCode err;
         /*用户是否登录*/
         err = check.checkLogin(request);
         if (err != null){
@@ -113,7 +113,7 @@ public class AuthController {
     @RequestMapping("/logout")
     public Result<?> logout (HttpServletRequest request){
         /*检查用户登入*/
-        ErrorCode err = null;
+        ErrorCode err;
         err = check.checkLogin(request);
         if (err != null)
             return Result.error(err);
