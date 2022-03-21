@@ -57,7 +57,11 @@ export const useUserStore = defineStore('user', {
       return false
     },
     async do_logout() {
-      return await post('logout', {}) !== false
+      if (await post('logout', {}) !== false) {
+        Notify.create({type:'info', message:'用户已退出'})
+        return true
+      }
+      return false
     },
     async add_user({id, name, pid, phone, email, type}: {id: string, name: string, pid: string, phone: string, email: string, type: string}) {
       let role = 0

@@ -1,5 +1,6 @@
 <template>
 
+<!--  <q-img src="https://s1.ax1x.com/2022/03/21/qnc7gH.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>-->
   <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>
 <!--  <div class="bg-blur-white fullscreen" style="z-index: -1"/>-->
 
