@@ -1,7 +1,5 @@
 package com.orca.back.entity;
 
-import com.orca.back.utils.common.Result;
-import com.orca.back.utils.constants.ErrorCode;
 import lombok.Data;
 
 @Data
