@@ -8,6 +8,7 @@
           </template>
         </q-input>
         <q-btn color="positive" class="q-ml-lg" icon="add" outline @click="adder_bind=undefined;show_adder=true">添加用户</q-btn>
+        <q-btn color="primary" class="q-ml-lg" icon="upload" outline @click="show_upload=true">导入用户</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -70,20 +71,58 @@
       </q-page>
     </q-page-container>
 
-<!--    <q-footer class="bg-white">-->
-<!--      <div class="row justify-center">-->
-<!--        <q-pagination-->
-<!--          input-->
-<!--          v-model="current"-->
-<!--          :max="pcnt"-->
-<!--        />-->
-<!--      </div>-->
-<!--    </q-footer>-->
-
   </q-layout>
 
   <UserAdder v-model="show_adder" :old="adder_bind" @user_update="load"/>
   <PasswordUpdater v-model="show_chpwd" :admin="chpwd_uid"/>
+
+  <q-dialog v-model="show_upload" :persistent="uploading">
+    <q-card style="width: 500px">
+      <q-card-section>
+        <div class="text-subtitle1 row items-center">
+          <q-icon name="upload" size="sm" color="primary"/>
+          <span>导入用户</span>
+        </div>
+      </q-card-section>
+
+      <q-card-section>
+        <div class="q-px-md q-text-body2 text-basic">
+          &nbsp;&nbsp;&nbsp;&nbsp;系统支持以csv格式批量导入用户。csv文件中的每一行代表一个用户，格式为
+          <span class="bg-grey-3">学/工号,类型(stduent/teacher),姓名,学院id,专业id,手机号,邮箱</span>
+          ，最后四项可以留空，留空不能省略逗号分隔符。
+        </div>
+      </q-card-section>
+
+      <q-card-section>
+        <q-form class="q-px-md" style="width: 350px">
+          <div class="row">
+            <p class="col-auto q-pr-md" style="line-height: 40px">
+              选择csv文件
+            </p>
+            <q-file
+              class="col"
+              v-model="file"
+              label="用户列表"
+              clearable
+              outlined
+              dense
+              color="primary"
+            />
+          </div>
+        </q-form>
+      </q-card-section>
+
+      <q-card-actions align="right" class="q-pb-md q-px-md">
+        <q-btn flat label="取消" color="negative" @click="file=null" v-close-popup :disable="uploading" />
+        <q-btn flat label="确定" color="primary" @click="upload_csv" :disable="!file" :loading="uploading" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <q-uploader url="/api/upload" class="hidden" ref="uploader"
+              @finish="uploading=false"
+              @failed="$q.notify({color:'negative',message:'导入失败'})"
+              @uploaded="$q.notify({color:'positive',message:'导入成功'});load();show_upload=false;file=null;" />
 </template>
 
 <script lang="ts">
@@ -91,6 +130,7 @@ import {defineComponent, ref, watch} from 'vue';
 import {UserInfo, useUserStore} from 'stores/user';
 import UserAdder from 'components/UserAdder.vue';
 import PasswordUpdater from 'components/PasswordUpdater.vue';
+import {QUploader} from 'quasar';
 
 export default defineComponent({
   name: 'UserList',
@@ -106,6 +146,10 @@ export default defineComponent({
     const current = ref(1)
     const pcnt = ref(1)
     const loading = ref(false)
+    const show_upload = ref(false)
+    const file = ref<File|null>(null)
+    const uploader = ref<QUploader|null>(null)
+    const uploading = ref(false)
 
     const load = async () => {
       loading.value = true
@@ -123,10 +167,19 @@ export default defineComponent({
 
     return {
       load, current, pcnt, loading,
-      show_adder, adder_bind,
+      show_adder, adder_bind, show_upload,
       show_chpwd, chpwd_uid,
       rows,
-      search
+      search,
+      file,
+      uploader, uploading,
+      upload_csv() {
+        if (uploader.value === null) return
+        uploading.value = true
+        uploader.value.reset()
+        uploader.value.addFiles([file.value])
+        uploader.value.upload()
+      }
     };
   }
 });

@@ -1,5 +1,5 @@
 <template>
-  <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :persistent="force" transition-show="scale" transition-hide="scale" @close="clear">
+  <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" :persistent="force||pwd.loading" transition-show="scale" transition-hide="scale" @close="clear">
     <q-card style="width: 350px">
       <q-card-section>
         <div class="text-subtitle1 row items-center">
