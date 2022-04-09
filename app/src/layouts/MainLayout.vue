@@ -25,7 +25,7 @@
           {{user.name}}
         </q-toolbar-title>
         <q-btn flat round icon="o_settings" class="text-basic q-mr-md">
-          <PopMenu :force-chpwd="user.force_chpwd"></PopMenu>
+          <PopMenu />
         </q-btn>
 <!--        <q-btn color="negative" flat round icon="logout" class="q-mr-md"/>-->
       </q-toolbar>
@@ -61,8 +61,7 @@
             v-for="j in i.submenu" :key="j.name"
             clickable
             :inset-level="0.2"
-            class="overflow-hidden"
-            style="border-radius: 0 30px 30px 0"
+            class="overflow-hidden right-rounded"
             active-class="text-primary bg-light-blue-1"
             :to="j.page"
           >
@@ -80,26 +79,31 @@
     </q-page-container>
   </q-layout>
 
+  <PasswordUpdater :force="user.force_chpwd" v-model="show_force_chpwd" />
+
 </template>
 
-<script>
+<script lang="ts">
 import { ref, computed } from 'vue'
 import {useRoute} from 'vue-router'
-import {useUserStore} from '../stores/user'
-import PopMenu from '../components/PopMenu'
+import {useUserStore} from 'stores/user'
+import PasswordUpdater from 'components/PasswordUpdater.vue';
+import PopMenu from 'components/PopMenu.vue';
 
 const menu_data = [
   {name: '用户管理', icon: 'manage_accounts', allow: ['admin'], submenu: [
+      {name: '院系管理', icon: 'apartment', page: 'department'},
       {name: '用户列表', icon: 'list_alt', page: 'user_list'},
     ]}
 ]
 
 export default {
-  components: {PopMenu},
+  components: {PasswordUpdater, PopMenu},
   setup () {
-    const leftDrawerOpen = ref(false)
     const user = useUserStore()
     const $route = useRoute()
+    const leftDrawerOpen = ref(false)
+    const show_force_chpwd = ref(user.force_chpwd)
 
     const menu = computed(() => {
       return menu_data.filter(i => (user.login && i.allow.indexOf(user.type) > -1))
@@ -107,7 +111,7 @@ export default {
 
     const page = computed(() => {
       const t = $route.path.split('/')
-      return t[t.length - 1]
+      return t.length > 1 ? t[1] : t[0]
     })
     const page_path = computed(() => {
       for (const i of menu_data) {
@@ -125,6 +129,7 @@ export default {
     console.log(page.value)
 
     return {
+      show_force_chpwd,
       leftDrawerOpen,
       user,
       menu,

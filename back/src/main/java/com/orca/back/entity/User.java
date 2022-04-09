@@ -18,6 +18,35 @@ public class User {
     private Integer isFirst;
     private Integer isAdmin;
 
+    public Integer getCollege() {
+        return college;
+    }
+
+    public void setCollege(Integer college) {
+        this.college = college;
+    }
+
+    public Integer getMajor() {
+        return major;
+    }
+
+    public void setMajor(Integer major) {
+        this.major = major;
+    }
+
+    private Integer college;
+    private Integer major;
+
+    public Integer getIsLeave() {
+        return isLeave;
+    }
+
+    public void setIsLeave(Integer isLeave) {
+        this.isLeave = isLeave;
+    }
+
+    private Integer isLeave;
+
     public String  getIdentifier(){
         return identifier;
     }

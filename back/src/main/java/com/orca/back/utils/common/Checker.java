@@ -13,7 +13,7 @@ public class Checker {
         err = checkIdentifier(user.getIdentifier());
         if (err == null)
             err = checkName(user.getName());
-        if (err == null)
+        if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
             err = checkRoleAndNumber(user.getRole(), user.getNumber());
         if (err == null)
             err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;

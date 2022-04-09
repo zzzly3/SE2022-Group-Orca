@@ -107,6 +107,10 @@ module.exports = configure(function (ctx) {
           skipHijack: true,
           color: 'primary',
           size: '0.3rem'
+        },
+        Dialog: {
+          ok: '确定',
+          cancel: '取消'
         }
       },
 
@@ -121,7 +125,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify', 'LoadingBar']
+      plugins: ['Notify', 'LoadingBar', 'Dialog']
     },
 
     // animations: 'all', // --- includes all animations

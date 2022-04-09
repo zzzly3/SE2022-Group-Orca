@@ -7,6 +7,25 @@ public class SessionInfo {
     private User user;
     private boolean login;
 
+    public College getCollege() {
+        return college;
+    }
+
+    public void setCollege(College college) {
+        this.college = college;
+    }
+
+    public Major getMajor() {
+        return major;
+    }
+
+    public void setMajor(Major major) {
+        this.major = major;
+    }
+
+    private College college;
+    private Major major;
+
     public void setUser(User user) {
         this.user = user;
     }
