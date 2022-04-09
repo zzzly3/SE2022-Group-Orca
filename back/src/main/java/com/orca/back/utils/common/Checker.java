@@ -1,11 +1,28 @@
 package com.orca.back.utils.common;
 
 import com.orca.back.entity.User;
+import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 public class Checker {
+    @Resource
+    private UserMapper userMapper;
+
+    // check admin, return error code if not admin
+    public ErrorCode checkAdmin(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        return (user == null || user.getIsAdmin() != 1) ? ErrorCode.E_111 : null;
+    }
+
+    // check teacher, return error code if not teacher
+    public ErrorCode checkTeacher(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        return (user == null || user.getRole() != 1) ? ErrorCode.E_111 : null;
+    }
 
     public ErrorCode checkRegistry(User user){
         /*身份证号*/

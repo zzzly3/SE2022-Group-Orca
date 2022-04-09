@@ -7,10 +7,31 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', redirect: 'index' },
       { path: 'index', component: () => import('pages/IndexPage.vue') },
-      { path: 'user_list', component: () => import('pages/UserList.vue') }
+      { path: 'user_list', component: () => import('pages/UserList.vue') },
     ],
   },
-  { path: '/login', component: () => import('pages/LoginPage.vue')},
+  { path: '/login', component: () => import('pages/LoginPage.vue') },
+  // Below are only used for testing.
+  {
+    path: '/course/course_list',
+    component: () => import('pages/CourseList.vue'),
+  },
+  {
+    path: '/course/course_list_edit',
+    component: () => import('pages/CourseListEdit.vue'),
+  },
+  {
+    path: '/course/course_list_teacher',
+    component: () => import('pages/CourseListTeacher.vue'),
+  },
+  {
+    path: '/course/course_list_application',
+    component: () => import('pages/CourseListApplication.vue'),
+  },
+  {
+    path: '/course/course_list_application_teacher',
+    component: () => import('pages/CourseListApplicationTeacher.vue'),
+  },
 
   // Always leave this as last one,
   // but you can also remove it
