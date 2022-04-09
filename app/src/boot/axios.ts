@@ -29,7 +29,7 @@ export default boot(({ app }) => {
 });
 
 // false means fail
-async function post(url: string, data: object, notify = true) {
+async function post(url: string, data: object = {}, notify = true) {
   try {
     const r = await api.post(url, data)
     if (Number(r.data.code) === 200) {

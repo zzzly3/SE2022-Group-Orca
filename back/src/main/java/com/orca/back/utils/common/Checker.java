@@ -4,33 +4,21 @@ import com.orca.back.entity.User;
 import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+@RestController
 public class Checker {
-    @Resource
-    private UserMapper userMapper;
-
-    // check admin, return error code if not admin
-    public ErrorCode checkAdmin(HttpServletRequest request) {
-        User user = (User) request.getSession().getAttribute("user");
-        return (user == null || user.getIsAdmin() != 1) ? ErrorCode.E_111 : null;
-    }
-
-    // check teacher, return error code if not teacher
-    public ErrorCode checkTeacher(HttpServletRequest request) {
-        User user = (User) request.getSession().getAttribute("user");
-        return (user == null || user.getRole() != 1) ? ErrorCode.E_111 : null;
-    }
-
     public ErrorCode checkRegistry(User user){
         /*身份证号*/
         ErrorCode err;
         err = checkIdentifier(user.getIdentifier());
         if (err == null)
             err = checkName(user.getName());
-        if (err == null)
+        if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
             err = checkRoleAndNumber(user.getRole(), user.getNumber());
         if (err == null)
             err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;

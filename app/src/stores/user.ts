@@ -2,35 +2,52 @@ import { defineStore } from 'pinia';
 import {post} from 'boot/axios';
 import {Notify} from 'quasar';
 
-const demo_list = [
-  {id: 1, name: 'test', type: 'admin'},
-  {id: 2, name: 'test', type: 'admin'},
-  {id: 3, name: 'test', type: 'admin'},
-  {id: 4, name: 'test', type: 'admin'},
-  {id: 5, name: 'test', type: 'admin'}
-]
-
 export interface UserInfo{
-  id: number,
+  id: string,
   name: string,
   type: string,
+  email: string,
+  pid: string,
+  phone: string,
+  leave: number,
+  college: number,
+  major: number
 }
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     name: '[未登录]',
+    id: '',
     login: false,
     force_chpwd: false,
     login_redirect: '',
-    type: ''
+    type: '',
+    email: '',
+    pid: '',
+    phone: '',
+    leave: 0,
+    college: {
+      id: 0,
+      name: ''
+    },
+    major: {
+      id: 0,
+      name: ''
+    },
   }),
   actions: {
     async load_user_info() {
-      const r = await post('getinfo', {}, false)
+      const r = await post('user/getinfo', {}, false)
       if (r !== false && r.login) {
         this.login = true
+        this.id = String(r.user.number)
         this.name = r.user.name
+        this.pid = r.user.identifier
+        this.email = r.user.email
+        this.phone = r.user.phone
         this.force_chpwd = Boolean(r.user.isFirst)
+        this.college = r.college
+        this.major = r.major
         if (r.user.isAdmin)
           this.type = 'admin'
         else if (Number(r.user.role) === 1)
@@ -42,10 +59,32 @@ export const useUserStore = defineStore('user', {
       }
     },
     async load_user_list(start: number, count: number) {
-      return {all: demo_list.length, data: demo_list.slice(start, count)}
+      const r = await post('user/list', {start, count})
+      if (r !== false) {
+        const rr = {
+          total: r.count,
+          list: [] as UserInfo[]
+        }
+        for (let i = 0; i < r.list.length; i++) {
+          rr.list.push({
+            id: String(r.list[i].number),
+            name: r.list[i].name,
+            type: r.list[i].isAdmin ? 'admin' : (Number(r.list[i].role) === 1 ? 'teacher' : 'student'),
+            email: r.list[i].email,
+            pid: r.list[i].identifier,
+            phone: r.list[i].phone,
+            leave: r.list[i].isLeave,
+            college: r.list[i].college,
+            major: r.list[i].major
+          })
+        }
+        return rr;
+      } else {
+        return false;
+      }
     },
     async do_login(id: string, pwd: string) {
-      if (await post('login', {number: id, password: pwd}) !== false) {
+      if (await post('user/login', {number: id, password: pwd}) !== false) {
         await this.load_user_info()
         if (this.login === false) {
           Notify.create({type:'negative', message: '登录失败'})
@@ -57,30 +96,87 @@ export const useUserStore = defineStore('user', {
       return false
     },
     async do_logout() {
-      if (await post('logout', {}) !== false) {
+      if (await post('user/logout', {}) !== false) {
         Notify.create({type:'info', message:'用户已退出'})
         return true
       }
       return false
     },
-    async add_user({id, name, pid, phone, email, type}: {id: string, name: string, pid: string, phone: string, email: string, type: string}) {
-      let role = 0
+    async add_user({id, name, pid, phone, email, type, update, leave, college, major}: {id: string, name: string, pid: string, phone: string, email: string, type: string, update: boolean, leave: number, college: number, major: number}) {
+      let role = 1
       if (type === 'teacher')
         role = 1
       else if (type === 'student')
         role = 2
-      if (await post('register', {identifier: pid, phone, email, name, role, number: id}) !== false) {
+      if (update) {
+        if (await post('user/update', {identifier: pid, phone, email, name, role, number: id, isLeave: leave, college, major}) !== false) {
+          Notify.create({type:'positive', message:'修改成功'})
+          if (id === this.id)
+            await this.load_user_info()
+          return true
+        }
+      } else {
+        if (await post('user/register', {identifier: pid, phone, email, name, role, number: id, isLeave: leave, college, major}) !== false) {
+          Notify.create({type:'positive', message:'添加成功'})
+          return true
+        }
+      }
+      return false
+    },
+    async chpwd(uid: string, oldpwd: string, newpwd: string) {
+      if (await post('user/resetpw', {originPw: oldpwd, newPw: newpwd, uid: uid ? Number(uid) : null}) !== false) {
+        Notify.create({type:'positive', message:'修改成功'})
+        return true
+      }
+      return false
+    },
+    async load_college() {
+      return await post('user/colleges')
+    },
+    async load_major(cid: number) {
+      return await post('user/majors', {id: cid})
+    },
+    async update_college(cid: number, name: string) {
+      if (await post('user/update_college', {id: cid, name: name}) !== false) {
+        Notify.create({type:'positive', message:'修改成功'})
+        return true
+      }
+      return false
+    },
+    async update_major(mid: number, name: string) {
+      if (await post('user/update_major', {id: mid, name: name}) !== false) {
+        Notify.create({type:'positive', message:'修改成功'})
+        return true
+      }
+      return false
+    },
+    async add_college(name: string) {
+      if (await post('user/add_college', {name: name}) !== false) {
         Notify.create({type:'positive', message:'添加成功'})
         return true
       }
       return false
     },
-    async chpwd(oldpwd: string, newpwd: string) {
-      if (await post('resetpw', {originPw: oldpwd, newPw: newpwd}) !== false) {
-        Notify.create({type:'positive', message:'修改成功'})
+    async add_major(cid: number, name: string) {
+      if (await post('user/add_major', {college: cid, name: name}) !== false) {
+        Notify.create({type:'positive', message:'添加成功'})
         return true
       }
       return false
-    }
+    },
+    async delete_college(cid: number) {
+      if (await post('user/delete_college', {id: cid}) !== false) {
+        Notify.create({type:'positive', message:'删除成功'})
+        return true
+      }
+      return false
+    },
+    async delete_major(mid: number) {
+      if (await post('user/delete_major', {id: mid}) !== false) {
+        Notify.create({type:'positive', message:'删除成功'})
+        return true
+      }
+      return false
+    },
   },
 });

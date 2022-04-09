@@ -4,6 +4,15 @@ import lombok.Data;
 
 @Data
 public class ResetInfo {
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    private String uid;
     private String originPw;
     private String newPw;
 

@@ -9,6 +9,7 @@ import com.orca.back.entity.User;
 import com.orca.back.mapper.ConstantsMapper;
 import com.orca.back.mapper.CourseApplicationMapper;
 import com.orca.back.mapper.CourseMapper;
+import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 import com.orca.back.utils.constants.ErrorCode;
@@ -31,6 +32,8 @@ import java.util.List;
 public class CourseController {
 
     @Resource
+    UserMapper userMapper;
+    @Resource
     CourseMapper courseMapper;
     @Resource
     CourseApplicationMapper courseApplicationMapper;
@@ -42,10 +45,16 @@ public class CourseController {
     /*Admin*/
     @PostMapping("/get_course_all")
     public Result<?> getCourseAll(HttpServletRequest request){
-        ErrorCode err = checker.checkAdmin(request);
-        if(err != null) return Result.error(err);
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         Page<Course> page = courseMapper.selectPage(new Page<>(1, 10), null);
-
         List<Course> courseList = courseMapper.selectList(null);
         return Result.success(courseList);
     }
@@ -53,8 +62,15 @@ public class CourseController {
     //add course
     @PostMapping("/add_course")
     public Result<?> addCourse(@RequestBody Course course, HttpServletRequest request){
-        ErrorCode err = checker.checkAdmin(request);
-        if(err != null) return Result.error(err);
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         courseMapper.insert(course);
         return Result.success();
     }
@@ -62,8 +78,15 @@ public class CourseController {
     //edit course
     @PostMapping("/edit_course")
     public Result<?> editCourse(@RequestBody Course course, HttpServletRequest request){
-        ErrorCode err = checker.checkAdmin(request);
-        if(err != null) return Result.error(err);
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         courseMapper.updateById(course);
         return Result.success();
     }
@@ -71,8 +94,15 @@ public class CourseController {
     //delete course by id
     @PostMapping("/delete_course")
     public Result<?> deleteCourse(@RequestBody Course course, HttpServletRequest request){
-        ErrorCode err = checker.checkAdmin(request);
-        if(err != null) return Result.error(err);
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         courseMapper.deleteById(course.getCourseId());
         return Result.success();
     }
@@ -80,10 +110,15 @@ public class CourseController {
     //get course application all
     @PostMapping("/get_course_application_all")
     public Result<?> getCourseApplicationAll(HttpServletRequest request){
-        ErrorCode err = checker.checkAdmin(request);
-        if(err != null) return Result.error(err);
-        //if teacher, return course application
-        //select course application where application_status = 0
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         List<CourseApplication> courseApplicationList = courseApplicationMapper.selectList(Wrappers.<CourseApplication>lambdaQuery().eq(CourseApplication::getApplicationStatus, 0));
         for (CourseApplication courseApplication : courseApplicationList) {
             courseApplication.translateApplicationType();
@@ -92,9 +127,36 @@ public class CourseController {
         return Result.success(courseApplicationList);
     }
 
+    //update course application status
+    @PostMapping("/update_course_application_status")
+    public Result<?> updateCourseApplicationStatus(@RequestBody CourseApplication courseApplication, HttpServletRequest request){
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
+        System.out.println(courseApplication);
+        courseApplication.transBackApplicationType();
+        courseApplicationMapper.updateById(courseApplication);
+        return Result.success();
+    }
+
     //batch import
     @PostMapping("/batch_import")
     public Result<?> batchImport(@RequestPart(value = "file") final MultipartFile file, HttpServletRequest request) throws IOException {
+        /*Check Admin*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user = userMapper.selectById(userId);
+        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         final byte[] bytes = file.getBytes();
         final Path path = Paths.get("~/Desktop/" + file.getOriginalFilename());
         Files.write(path, bytes);
@@ -105,9 +167,15 @@ public class CourseController {
     //get course teacher
     @PostMapping("/get_course_teacher")
     public Result<?> getCourseTeacher(@RequestBody User user, HttpServletRequest request){
-        ErrorCode err = checker.checkTeacher(request);
-        if(err != null) return Result.error(err);
-
+        /*Check Teacher*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user1 = userMapper.selectById(userId);
+        if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         List<Course> courseList = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseTeacher, user.getName()));
         return Result.success(courseList);
     }
@@ -115,9 +183,15 @@ public class CourseController {
     //send course application
     @PostMapping("/send_course_application")
     public Result<?> sendCourseApplication(@RequestBody CourseApplication courseApplication, HttpServletRequest request){
-        ErrorCode err = checker.checkTeacher(request);
-        if(err != null) return Result.error(err);
-
+        /*Check Teacher*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user1 = userMapper.selectById(userId);
+        if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         Constants courseApplicationId = constantsMapper.selectOne(Wrappers.<Constants>lambdaQuery().eq(Constants::getConstantName, "course_application_id"));
         courseApplication.setApplicationId(courseApplicationId.getConstantValue());
         //set application time
@@ -133,27 +207,20 @@ public class CourseController {
     //get course application teacher
     @PostMapping("/get_course_application_teacher")
     public Result<?> getCourseApplicationTeacher(@RequestBody User user, HttpServletRequest request){
-        ErrorCode err = checker.checkTeacher(request);
-        if(err != null) return Result.error(err);
-        //if teacher, return course application
-        //select course application where application_teacher = user.name
+        /*Check Teacher*/
+        ErrorCode err = checker.checkLogin(request);
+        if (err != null){
+            return Result.error(err);
+        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        User user1 = userMapper.selectById(userId);
+        if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
+        /*Check Pass*/
         List<CourseApplication> courseApplicationList = courseApplicationMapper.selectList(Wrappers.<CourseApplication>lambdaQuery().eq(CourseApplication::getApplicantName, user.getName()));
         for (CourseApplication courseApplication : courseApplicationList) {
             courseApplication.translateApplicationType();
             courseApplication.translateApplicationStatus();
         }
         return Result.success(courseApplicationList);
-    }
-
-    //update course application status
-    @PostMapping("/update_course_application_status")
-    public Result<?> updateCourseApplicationStatus(@RequestBody CourseApplication courseApplication, HttpServletRequest request){
-        ErrorCode err = checker.checkTeacher(request);
-        if(err != null) return Result.error(err);
-        //if teacher, update course application status
-        System.out.println(courseApplication);
-        courseApplication.transBackApplicationType();
-        courseApplicationMapper.updateById(courseApplication);
-        return Result.success();
     }
 }
