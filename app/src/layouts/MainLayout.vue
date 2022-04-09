@@ -95,8 +95,11 @@ const menu_data = [
       {name: '院系管理', icon: 'apartment', page: 'department', allow: ['admin']},
       {name: '用户列表', icon: 'list_alt', page: 'user_list', allow: ['admin']},
     ]},
-  {name: '课程管理', icon: 'school', allow: ['admin', 'teacher'], submenu: [
-      {name: '课程列表', icon: 'list_alt', page: 'course_list', allow: ['admin']},
+  {name: '课程管理', icon: 'library_books', allow: ['admin', 'teacher'], submenu: [
+      {name: '课程列表', icon: 'format_list_bulleted', page: 'course_list', allow: ['admin']},
+      {name: '课程申请', icon: 'library_add_check', page: 'course_application', allow: ['admin']},
+      {name: '我的课程', icon: 'format_list_bulleted', page: 'my_course_list', allow: ['teacher']},
+      {name: '我的申请', icon: 'library_add_check', page: 'my_course_application', allow: ['teacher']},
     ]}
 ]
 
@@ -116,7 +119,7 @@ export default {
 
     const page = computed(() => {
       const t = $route.path.split('/')
-      return t[0]
+      return t[1]
     })
     const page_path = computed(() => {
       for (const i of menu_data) {

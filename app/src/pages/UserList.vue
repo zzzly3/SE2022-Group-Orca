@@ -19,7 +19,6 @@
             <thead class="text-basic">
               <tr>
                 <th>学/工号</th>
-                <th>姓名</th>
                 <th>
                   <span>
                     类型
@@ -29,13 +28,14 @@
                     <q-tooltip>删除线表示用户已离校，不能使用系统。</q-tooltip>
                   </span>
                 </th>
+                <th>姓名</th>
+                <th>手机</th>
                 <th>操作</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="i in rows" :key="i.id">
                 <td>{{i.id}}</td>
-                <td>{{i.name}}</td>
                 <td>
                   <span v-if="i.leave" style="text-decoration: teal line-through">
                     {{i.type}}
@@ -44,6 +44,8 @@
                     {{i.type}}
                   </span>
                 </td>
+                <td>{{i.name}}</td>
+                <td>{{i.phone}}</td>
                 <td>
                   <q-btn color="primary" icon="visibility" round flat size="sm"
                          @click="adder_bind=i;show_adder=true;">
@@ -120,7 +122,7 @@
     </q-card>
   </q-dialog>
 
-  <q-uploader url="/api/upload" class="hidden" ref="uploader"
+  <q-uploader url="/upload" class="hidden" ref="uploader"
               @finish="uploading=false"
               @failed="$q.notify({color:'negative',message:'导入失败'})"
               @uploaded="$q.notify({color:'positive',message:'导入成功'});load();show_upload=false;file=null;" />
