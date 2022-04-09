@@ -92,8 +92,11 @@ import PopMenu from 'components/PopMenu.vue';
 
 const menu_data = [
   {name: '用户管理', icon: 'manage_accounts', allow: ['admin'], submenu: [
-      {name: '院系管理', icon: 'apartment', page: 'department'},
-      {name: '用户列表', icon: 'list_alt', page: 'user_list'},
+      {name: '院系管理', icon: 'apartment', page: 'department', allow: ['admin']},
+      {name: '用户列表', icon: 'list_alt', page: 'user_list', allow: ['admin']},
+    ]},
+  {name: '课程管理', icon: 'school', allow: ['admin', 'teacher'], submenu: [
+      {name: '课程列表', icon: 'list_alt', page: 'course_list', allow: ['admin']},
     ]}
 ]
 
@@ -106,12 +109,14 @@ export default {
     const show_force_chpwd = ref(user.force_chpwd)
 
     const menu = computed(() => {
-      return menu_data.filter(i => (user.login && i.allow.indexOf(user.type) > -1))
+      return menu_data.filter(i => (user.login && i.allow.indexOf(user.type) > -1)).map(({name, icon, allow, submenu}) => ({
+        name, icon, allow, submenu: submenu.filter(j => (user.login && j.allow.indexOf(user.type) > -1))
+      }))
     })
 
     const page = computed(() => {
       const t = $route.path.split('/')
-      return t.length > 1 ? t[1] : t[0]
+      return t[0]
     })
     const page_path = computed(() => {
       for (const i of menu_data) {

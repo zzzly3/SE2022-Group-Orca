@@ -89,7 +89,7 @@
         <div class="q-px-md q-text-body2 text-basic">
           &nbsp;&nbsp;&nbsp;&nbsp;系统支持以csv格式批量导入用户。csv文件中的每一行代表一个用户，格式为
           <span class="bg-grey-3">学/工号,类型(stduent/teacher),姓名,学院id,专业id,手机号,邮箱</span>
-          ，最后四项可以留空，留空不能省略逗号分隔符。
+          ，最后四项可以留空，留空不能省略逗号分隔符。学院id和专业id可以在院系管理页面中查看。
         </div>
       </q-card-section>
 
@@ -106,6 +106,7 @@
               clearable
               outlined
               dense
+              accept=".csv"
               color="primary"
             />
           </div>

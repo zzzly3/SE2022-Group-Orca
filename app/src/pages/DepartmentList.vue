@@ -1,10 +1,5 @@
 <template>
   <q-layout view="hhh lpR fff">
-<!--    <q-header class="text-basic bg-white q-mx-xl" style="z-index:100">-->
-<!--      <q-toolbar class="q-mx-xl">-->
-<!--        aha-->
-<!--      </q-toolbar>-->
-<!--    </q-header>-->
 
     <q-page-container>
       <q-page class="column items-center">
