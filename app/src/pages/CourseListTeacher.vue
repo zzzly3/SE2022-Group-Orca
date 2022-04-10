@@ -293,7 +293,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { CourseInfo, useCourseStore } from 'stores/course';
-import { useUserStore } from 'stores/user';
+// import { useUserStore } from 'stores/user';
 
 const columns = [
   {

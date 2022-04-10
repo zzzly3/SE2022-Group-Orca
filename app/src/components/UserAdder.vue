@@ -131,17 +131,15 @@ export default defineComponent({
     const email = ref('')
     const type = ref(types[0])
     const leave = ref(leave_type_student[0])
-    const colleges = ref([] as {value: number, label: string}[])
     const college = ref({value: 0, label: ''} as {value: number, label: string})
-    const majors = ref([] as {value: number, label: string}[])
     const major = ref({value: 0, label: ''} as {value: number, label: string})
+    const colleges = computed(() => [{value: 0, label: '未分配'}].concat(user.colleges.map(c => ({value: c.id, label: c.name}))))
+    const majors = computed(() => [{value: 0, label: '未分配'}].concat(user.majors.filter(m => m.college === college.value.value).map(m => ({value: m.id, label: m.name}))))
 
     const autofill = async () => {
-      load_list.value = true
-      const cl = await user.load_college()
-      colleges.value = cl.map((c: { id: number; name: string; }) => ({value: c.id, label: c.name}))
-      colleges.value.unshift({value: 0, label: '未分配'})
-      load_list.value = false
+      // load_list.value = true
+      // await Promise.all([user.load_college(), user.load_major()])
+      // load_list.value = false
       college.value = colleges.value[0]
       if (props.old) {
         update.value = true
@@ -203,16 +201,7 @@ export default defineComponent({
       else if (val.value === 'teacher')
         leave.value = leave_type_teacher[0]
     })
-    watch(college, async val => {
-      if (val.value === 0) {
-        majors.value = [{value: 0, label: '未分配'}]
-      } else {
-        load_list.value = true
-        const ml = await user.load_major(val.value)
-        majors.value = ml.map((m: { id: number; name: string; }) => ({value: m.id, label: m.name}))
-        majors.value.unshift({value: 0, label: '未分配'})
-        load_list.value = false
-      }
+    watch(college, () => {
       major.value = majors.value[0]
       if (props.old)
         for (const m of majors.value)

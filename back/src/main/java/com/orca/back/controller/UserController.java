@@ -250,8 +250,8 @@ public class UserController {
 
     // list majors with the given college id through post request
     @PostMapping("/majors")
-    public Result<List<Major>> majors(@RequestBody College college){
-        List<Major> list = majorMapper.selectList(Wrappers.<Major>lambdaQuery().eq(Major::getCollege, college.getId()));
+    public Result<List<Major>> majors() {
+        List<Major> list = majorMapper.selectList(null);
         return Result.success(list);
     }
 

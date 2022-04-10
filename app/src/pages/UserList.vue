@@ -29,7 +29,8 @@
                   </span>
                 </th>
                 <th>姓名</th>
-                <th>手机</th>
+                <th>学院</th>
+                <th>专业</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -38,14 +39,15 @@
                 <td>{{i.id}}</td>
                 <td>
                   <span v-if="i.leave" style="text-decoration: teal line-through">
-                    {{i.type}}
+                    {{type_name(i.type)}}
                   </span>
                   <span v-else>
-                    {{i.type}}
+                    {{type_name(i.type)}}
                   </span>
                 </td>
                 <td>{{i.name}}</td>
-                <td>{{i.phone}}</td>
+                <td>{{college_name(i.college)}}</td>
+                <td>{{major_name(i.major)}}</td>
                 <td>
                   <q-btn color="primary" icon="visibility" round flat size="sm"
                          @click="adder_bind=i;show_adder=true;">
@@ -156,8 +158,14 @@ export default defineComponent({
     const uploader = ref<QUploader|null>(null)
     const uploading = ref(false)
 
+    // let first = true
     const load = async () => {
       loading.value = true
+      // if (first) {
+      //   await user.load_college()
+      //   await user.load_major()
+      //   first = false
+      // }
       const r = await user.load_user_list((current.value - 1) * 10, 10)
       if (r === false) {
         loading.value = false
@@ -207,7 +215,10 @@ export default defineComponent({
         } else {
           $q.notify({color:'negative',message:'网络异常'})
         }
-      }
+      },
+      college_name: user.get_college_name,
+      major_name: user.get_major_name,
+      type_name: user.get_type_name
     };
   }
 });
