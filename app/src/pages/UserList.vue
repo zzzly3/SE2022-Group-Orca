@@ -90,8 +90,8 @@
       <q-card-section>
         <div class="q-px-md q-text-body2 text-basic">
           &nbsp;&nbsp;&nbsp;&nbsp;系统支持以csv格式批量导入用户。csv文件中的每一行代表一个用户，格式为
-          <span class="bg-grey-3">学/工号,类型(stduent/teacher),姓名,学院id,专业id,手机号,邮箱</span>
-          ，最后四项可以留空，留空不能省略逗号分隔符。学院id和专业id可以在院系管理页面中查看。
+          <span class="bg-grey-3 text-weight-bold">学/工号,类型(stduent/teacher),姓名,身份证号,学院id,专业id,手机号,邮箱</span>
+          ，最后四项可以留空，留空不能省略逗号分隔符。学院id和专业id可以在院系管理页面中查看。<span class="text-weight-bold">单次最多导入10000条数据。</span>
         </div>
       </q-card-section>
 
@@ -122,10 +122,11 @@
     </q-card>
   </q-dialog>
 
-  <q-uploader url="/upload" class="hidden" ref="uploader"
+  <q-uploader url="/api/user/import" class="hidden" ref="uploader"
+              field-name="file"
               @finish="uploading=false"
-              @failed="$q.notify({color:'negative',message:'导入失败'})"
-              @uploaded="$q.notify({color:'positive',message:'导入成功'});load();show_upload=false;file=null;" />
+              @failed="$q.notify({color:'negative',message:'网络异常'})"
+              @uploaded="onuploaded" />
 </template>
 
 <script lang="ts">
@@ -133,12 +134,13 @@ import {defineComponent, ref, watch} from 'vue';
 import {UserInfo, useUserStore} from 'stores/user';
 import UserAdder from 'components/UserAdder.vue';
 import PasswordUpdater from 'components/PasswordUpdater.vue';
-import {QUploader} from 'quasar';
+import {QUploader, useQuasar} from 'quasar';
 
 export default defineComponent({
   name: 'UserList',
   components: {PasswordUpdater, UserAdder},
   setup() {
+    const $q = useQuasar()
     const user = useUserStore()
     const rows = ref([] as UserInfo[])
     const search = ref('')
@@ -182,6 +184,29 @@ export default defineComponent({
         uploader.value.reset()
         uploader.value.addFiles([file.value])
         uploader.value.upload()
+      },
+      onuploaded({xhr}: {xhr: XMLHttpRequest}) {
+        console.log(xhr)
+        if (xhr.status === 200) {
+          try {
+            const r = JSON.parse(xhr.responseText)
+            if (Number(r.code) === 200) {
+              show_upload.value=false;file.value=null;
+              $q.dialog({
+                title: r.data.indexOf('成功') > -1 ? '导入成功' : '导入中断',
+                message: r.data,
+                color: r.data.indexOf('成功') > -1 ? 'positive' : 'negative'
+              })
+              load()
+            } else {
+              $q.notify({color:'negative',message:r.msg})
+            }
+          } catch (e) {
+            $q.notify({color:'negative',message:'网络异常'})
+          }
+        } else {
+          $q.notify({color:'negative',message:'网络异常'})
+        }
       }
     };
   }

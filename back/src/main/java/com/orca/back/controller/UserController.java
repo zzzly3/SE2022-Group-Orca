@@ -9,10 +9,12 @@ import com.orca.back.utils.common.Result;
 import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +35,12 @@ public class UserController {
     public Result<?> onSubmit(@RequestBody User user, HttpServletRequest request) {
         Result<?> err1 = checkAdmin(request);
         if (err1 != null) return err1;
+        var err2 = register(user);
+        if (err2 != null) return err2;
+        return Result.success();
+    }
+
+    private Result<?> register(User user) {
         /*非法输入*/
         ErrorCode err = check.checkRegistry(user);
         if (err == null) {
@@ -45,19 +53,18 @@ public class UserController {
         if (err2 != null) return err2;
         /*OK*/
         user.setPassword("123456");
-        user.setIsLeave(0);
         user.setIsAdmin(0);
         user.setIsFirst(1);
         userMapper.insert(user);
-        return Result.success();
+        return null;
     }
 
     // check college and major
     private Result<?> checkCollege(User user) {
         ErrorCode err = null;
         // if college or major is 0, then set to null
-        if (user.getCollege() == 0) user.setCollege(null);
-        if (user.getMajor() == 0) user.setMajor(null);
+        if (user.getCollege() != null && user.getCollege() == 0) user.setCollege(null);
+        if (user.getMajor() != null && user.getMajor() == 0) user.setMajor(null);
         // check whether the college and major exist if they are not null
         if (user.getCollege() != null) {
             College college = collegeMapper.selectById(user.getCollege());
@@ -326,5 +333,71 @@ public class UserController {
         /*OK*/
         majorMapper.deleteById(major.getId());
         return Result.success();
+    }
+
+    @PostMapping("/import")
+    public Result<?> handleFileUpload(@RequestPart(value = "file") final MultipartFile uploadfile, HttpServletRequest request){
+        // check if the user is admin
+        Result<?> err1 = checkAdmin(request);
+        if (err1 != null) return err1;
+        // get the file name
+        String filename = uploadfile.getOriginalFilename();
+        // check if the file name is null
+        if (filename == null || filename.equals(""))
+            return Result.error(ErrorCode.E_135);
+        // check if the file extension is .csv
+        if (!uploadfile.getOriginalFilename().endsWith(".csv"))
+            return Result.error(ErrorCode.E_135);
+        // get the file content
+        String content = null;
+        try {
+            content = new String(uploadfile.getBytes());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return Result.error(ErrorCode.E_135);
+        }
+        // parse the .csv file
+        String[] lines = content.split("\n");
+        if (lines.length > 10000)
+            return Result.success("行数过多，请尝试分批导入");
+        for (int i = 0; i < lines.length; i++) {
+            String[] items = lines[i].split(",", -1);
+            String err = null;
+            try {
+                if (items.length != 8) {
+                    err = "格式错误";
+                    throw new Exception();
+                }
+                User user = new User();
+                user.setNumber(Integer.valueOf(items[0]));
+                if (items[1].equals("student"))
+                    user.setRole(2);
+                else if (items[1].equals("teacher"))
+                    user.setRole(1);
+                else {
+                    err = "无效的角色";
+                    throw new Exception();
+                }
+                user.setName(items[2]);
+                user.setIdentifier(items[3]);
+                user.setCollege(Objects.equals(items[4], "") ? null : Integer.valueOf(items[4]));
+                user.setMajor(Objects.equals(items[5], "") ? null : Integer.valueOf(items[5]));
+                user.setPhone(items[6]);
+                user.setEmail(items[7]);
+                user.setIsLeave(0);
+                var r = register(user);
+                if (r != null)
+                    err = r.getMsg();
+            } catch (Exception ignored) {
+//                ignored.printStackTrace();
+                if (err == null)
+                    err = "数据无效";
+            }
+            if (err != null) {
+                return Result.success("[已导入" + i + "/" + lines.length + "] 导入中断：第" + (i + 1) + "行" + err);
+            }
+        }
+        return Result.success("[已导入" + lines.length + "/" + lines.length + "] 导入成功");
     }
 }

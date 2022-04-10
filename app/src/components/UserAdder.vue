@@ -132,9 +132,9 @@ export default defineComponent({
     const type = ref(types[0])
     const leave = ref(leave_type_student[0])
     const colleges = ref([] as {value: number, label: string}[])
-    const college = ref({} as {value: number, label: string})
+    const college = ref({value: 0, label: ''} as {value: number, label: string})
     const majors = ref([] as {value: number, label: string}[])
-    const major = ref({} as {value: number, label: string})
+    const major = ref({value: 0, label: ''} as {value: number, label: string})
 
     const autofill = async () => {
       load_list.value = true

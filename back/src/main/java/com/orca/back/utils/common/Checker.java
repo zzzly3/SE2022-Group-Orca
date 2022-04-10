@@ -20,6 +20,8 @@ public class Checker {
             err = checkName(user.getName());
         if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
             err = checkRoleAndNumber(user.getRole(), user.getNumber());
+        if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
+            err = user.getIsLeave() == null || user.getIsLeave() > 2 || user.getIsLeave() < 0 ? ErrorCode.E_110 : null;
         if (err == null)
             err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;
         if (err == null)

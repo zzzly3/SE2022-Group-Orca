@@ -284,7 +284,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { CourseInfo, useCourseStore } from 'stores/course';
-import { useUserStore } from 'stores/user';
+// import { useUserStore } from 'stores/user';
 //import CourseAdder from 'components/course/CourseAdder.vue';
 //import CourseEditor from 'components/course/CourseEditor.vue';
 import CourseSearcher from 'components/course/CourseSearcher.vue';
@@ -364,7 +364,7 @@ export default defineComponent({
   components: { /*CourseAdder, CourseEditor, */ CourseSearcher },
   setup() {
     const course = useCourseStore();
-    const user = useUserStore();
+    // const user = useUserStore();
     const rows = ref([] as CourseInfo[]);
     const pagination = ref({
       sortBy: 'courseId',
