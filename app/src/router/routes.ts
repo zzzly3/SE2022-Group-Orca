@@ -8,10 +8,15 @@ const routes: RouteRecordRaw[] = [
       { path: '', redirect: 'index' },
       { path: 'index', component: () => import('pages/IndexPage.vue') },
       { path: 'user_list', component: () => import('pages/UserList.vue') },
-      { path: 'manage', component: () => import('pages/ManagePage.vue') }
+      { path: 'department', component: () => import('pages/DepartmentList.vue') },
+      { path: 'course_list', component: () => import('pages/CourseList.vue') },
+      { path: 'course_application', component: () => import('pages/CourseListApplication.vue') },
+      { path: 'my_course_list', component: () => import('pages/CourseListTeacher.vue') },
+      { path: 'my_course_application', component: () => import('pages/CourseListApplicationTeacher.vue') },
+      { path: 'manage', component: () => import('pages/ManagePage.vue') },
     ],
   },
-  { path: '/login', component: () => import('pages/LoginPage.vue')},
+  { path: '/login', component: () => import('pages/LoginPage.vue') },
 
   // Always leave this as last one,
   // but you can also remove it

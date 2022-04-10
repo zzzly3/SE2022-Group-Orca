@@ -1,7 +1,7 @@
 <template>
 
-
-<!--  <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>-->
+<!--  <q-img src="https://s1.ax1x.com/2022/03/21/qnc7gH.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>-->
+  <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>
 <!--  <div class="bg-blur-white fullscreen" style="z-index: -1"/>-->
 
   <q-layout view="lHh LpR fFf">
@@ -25,7 +25,7 @@
           {{user.name}}
         </q-toolbar-title>
         <q-btn flat round icon="o_settings" class="text-basic q-mr-md">
-          <PopMenu :force-chpwd="user.force_chpwd"></PopMenu>
+          <PopMenu />
         </q-btn>
 <!--        <q-btn color="negative" flat round icon="logout" class="q-mr-md"/>-->
       </q-toolbar>
@@ -61,8 +61,7 @@
             v-for="j in i.submenu" :key="j.name"
             clickable
             :inset-level="0.2"
-            class="overflow-hidden"
-            style="border-radius: 0 30px 30px 0"
+            class="overflow-hidden right-rounded"
             active-class="text-primary bg-light-blue-1"
             :to="j.page"
           >
@@ -80,34 +79,48 @@
     </q-page-container>
   </q-layout>
 
+  <PasswordUpdater :force="user.force_chpwd" v-model="show_force_chpwd" />
+
 </template>
 
-<script>
+<script lang="ts">
 import { ref, computed } from 'vue'
 import {useRoute} from 'vue-router'
-import {useUserStore} from '../stores/user'
-import PopMenu from '../components/PopMenu'
+import {useUserStore} from 'stores/user'
+import PasswordUpdater from 'components/PasswordUpdater.vue';
+import PopMenu from 'components/PopMenu.vue';
 
 const menu_data = [
   {name: '用户管理', icon: 'manage_accounts', allow: ['admin'], submenu: [
-      {name: '用户列表', icon: 'list_alt', page: 'user_list'},
+      {name: '院系管理', icon: 'apartment', page: 'department', allow: ['admin']},
+      {name: '用户列表', icon: 'list_alt', page: 'user_list', allow: ['admin']},
+    ]},
+  {name: '课程管理', icon: 'library_books', allow: ['admin', 'teacher'], submenu: [
+      {name: '课程列表', icon: 'format_list_bulleted', page: 'course_list', allow: ['admin']},
+      {name: '课程申请', icon: 'library_add_check', page: 'course_application', allow: ['admin']},
+      {name: '我的课程', icon: 'format_list_bulleted', page: 'my_course_list', allow: ['teacher']},
+      {name: '我的申请', icon: 'library_add_check', page: 'my_course_application', allow: ['teacher']},
+      {name: '排课管理', icon: 'schedule', page: 'manage', allow: ['admin']},
     ]}
 ]
 
 export default {
-  components: {PopMenu},
+  components: {PasswordUpdater, PopMenu},
   setup () {
-    const leftDrawerOpen = ref(false)
     const user = useUserStore()
     const $route = useRoute()
+    const leftDrawerOpen = ref(false)
+    const show_force_chpwd = ref(user.force_chpwd)
 
     const menu = computed(() => {
-      return menu_data.filter(i => (user.login && i.allow.indexOf(user.type) > -1))
+      return menu_data.filter(i => (user.login && i.allow.indexOf(user.type) > -1)).map(({name, icon, allow, submenu}) => ({
+        name, icon, allow, submenu: submenu.filter(j => (user.login && j.allow.indexOf(user.type) > -1))
+      }))
     })
 
     const page = computed(() => {
       const t = $route.path.split('/')
-      return t[t.length - 1]
+      return t[1]
     })
     const page_path = computed(() => {
       for (const i of menu_data) {
@@ -125,6 +138,7 @@ export default {
     console.log(page.value)
 
     return {
+      show_force_chpwd,
       leftDrawerOpen,
       user,
       menu,

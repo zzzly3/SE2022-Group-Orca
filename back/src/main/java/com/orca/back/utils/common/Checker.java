@@ -3,15 +3,19 @@ package com.orca.back.utils.common;
 import com.orca.back.entity.ClassTime;
 import com.orca.back.entity.Classroom;
 import com.orca.back.entity.User;
+import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Time;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@RestController
 public class Checker {
-
     private static final String TIME24HOURS_PATTERN =
             "([01]?[0-9]|2[0-3]):[0-5][0-9]";
     private Pattern pattern;
@@ -49,8 +53,10 @@ public class Checker {
         err = checkIdentifier(user.getIdentifier());
         if (err == null)
             err = checkName(user.getName());
-        if (err == null)
+        if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
             err = checkRoleAndNumber(user.getRole(), user.getNumber());
+        if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
+            err = user.getIsLeave() == null || user.getIsLeave() > 2 || user.getIsLeave() < 0 ? ErrorCode.E_110 : null;
         if (err == null)
             err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;
         if (err == null)

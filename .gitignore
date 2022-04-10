@@ -43,3 +43,5 @@ target
 secrets.yml
 .gradletasknamecache
 .sts4-cache
+
+application.properties
