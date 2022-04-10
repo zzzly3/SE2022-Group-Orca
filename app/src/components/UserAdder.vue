@@ -25,7 +25,7 @@
                      :disable="update"
                      :rules="[val => (type.value==='teacher'?rules.id_t:rules.id_s).test(val) || '无效的学/工号']"
             />
-            <div class="q-gutter-md row items-start">
+            <div class="q-gutter-md row items-start q-pt-xs">
               <q-select v-model="college" :options="colleges" label="学院" dense ref="collegeRef" class="col"
                         :disable="(update && user.type !== 'admin') || type.value === 'admin'"
                         lazy-rules :rules="[val => !!val || '无效的学院']" />
@@ -33,10 +33,6 @@
                         :options="majors"
                         :disable="(update && user.type !== 'admin') || type.value === 'admin'"
                         lazy-rules :rules="[val => !!val || '无效的专业']" />
-              <q-inner-loading
-                :showing="load_list"
-                color="teal"
-              />
             </div>
             <q-input label="姓名" v-model="name" dense ref="nameRef"
                      maxlength="12" lazy-rules
@@ -67,6 +63,10 @@
             <p class="text-grey-7" v-if="!update">
               <q-icon name="info"/> 初始密码统一设置为123456
             </p>
+            <q-inner-loading
+              :showing="load_list"
+              color="teal"
+            />
           </q-form>
         </q-card-section>
 
