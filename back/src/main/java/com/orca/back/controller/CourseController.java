@@ -41,6 +41,9 @@ public class CourseController {
 
     Checker checker = new Checker();
 
+    /*Load course constants*/
+    
+
     /*Admin*/
     @PostMapping("/get_course_all")
     public Result<?> getCourseAll(HttpServletRequest request){
