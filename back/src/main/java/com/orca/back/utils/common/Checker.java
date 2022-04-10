@@ -12,6 +12,37 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class Checker {
+    private static final String TIME24HOURS_PATTERN =
+            "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+    private Pattern pattern;
+    private Matcher matcher;
+
+    public ErrorCode checkTime(String time){
+        System.out.print("time is " + time);
+        pattern = Pattern.compile(TIME24HOURS_PATTERN);
+        return pattern.matcher(time).matches() ? null:ErrorCode.E_202;
+    }
+    public ErrorCode checkClassTime(ClassTime classTime){
+        ErrorCode err = null;
+        if(classTime.getId() == null)err = ErrorCode.E_201;
+        String begin = classTime.getBegin();
+        String end = classTime.getEnd();
+        if(err == null)err = checkTime(begin);
+        if(err == null)err = checkTime(end);
+        if(err == null)err = begin.compareTo(end) < 0 ? null: ErrorCode.E_203;
+        return err;
+    }
+
+    public ErrorCode checkClassroom(Classroom classroom){
+        ErrorCode err = null;
+        String name = classroom.getName();
+        String building = classroom.getBuilding();
+        if(name == null || building == null)err = ErrorCode.E_201;
+        if(err == null)err = name.length() > building.length() ? null : ErrorCode.E_204;
+        if(err == null)err = name.startsWith(classroom.getBuilding()) ? null: ErrorCode.E_204;
+        return err;
+    }
+
     public ErrorCode checkRegistry(User user){
         /*身份证号*/
         ErrorCode err;
