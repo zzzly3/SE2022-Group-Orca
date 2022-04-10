@@ -6,7 +6,6 @@
       :rows="rows"
       :columns="columns"
       row-key="courseId"
-      v-model:pagination="pagination"
     >
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -53,7 +52,7 @@ const columns = [
     name: 'courseId',
     required: true,
     label: '课程编号',
-    align: 'left',
+    align: 'center',
     field: 'courseId',
   },
   {
@@ -100,14 +99,6 @@ export default defineComponent({
   setup() {
     const course = useCourseStore();
     const rows = ref([] as CourseApplicationInfo[]);
-
-    const pagination = ref({
-      sortBy: 'courseId',
-      descending: false,
-      page: 5,
-      rowsPerPage: 5,
-      rowsNumber: 1,
-    });
     course
       .load_course_application_lists_page_teacher()
       .then((r) => (rows.value = r));
@@ -121,7 +112,6 @@ export default defineComponent({
     return {
       columns,
       rows,
-      pagination,
 
       //CourseEditor start
       editShow,
