@@ -1,8 +1,8 @@
 <template>
 
-  <!--
-  <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>
-  <div class="bg-blur-white fullscreen" style="z-index: -1"/>-->
+
+<!--  <q-img src="~assets/home-bg-2.png" class="fullscreen" style="z-index: -2" v-if="is_home"/>-->
+<!--  <div class="bg-blur-white fullscreen" style="z-index: -1"/>-->
 
   <q-layout view="lHh LpR fFf">
 

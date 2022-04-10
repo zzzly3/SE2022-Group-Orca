@@ -10,12 +10,12 @@ import java.sql.Time;
 @TableName("classtime")
 public class ClassTime {
     @TableId("id")
-    private Number id;
+    private Integer id;
     private String begin;
     private String end;
 
-    public Number getId(){return id;}
-    public void setId(Number id){this.id=id;}
+    public Integer getId(){return id;}
+    public void setId(Integer id){this.id=id;}
 
     public String getBegin(){return begin;}
     public void setBegin(String begin){this.begin=begin;}
