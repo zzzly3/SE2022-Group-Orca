@@ -5,7 +5,7 @@
       style="width: 80%"
       :rows="rows"
       :columns="columns"
-      row-key="courseId"
+      row-key="applicationId"
     >
       <template v-slot:header="props">
         <q-tr :props="props">

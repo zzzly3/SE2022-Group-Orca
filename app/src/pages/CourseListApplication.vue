@@ -5,7 +5,7 @@
       style="width: 80%"
       :rows="rows"
       :columns="columns"
-      row-key="courseId"
+      row-key="applicationId"
     >
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -31,41 +31,42 @@
           <!--CourseEditor-->
           <q-td>
             <div class="row">
-              <q-btn label="查看" color="primary"
+              <q-btn color="primary" flat icon="visibility"
                 @click="editShow[props.rowIndex] = true"
               />
               <q-dialog v-model="editShow[props.rowIndex]">
                 <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
-                  <q-card-section>
+                  <q-card-section/>
+                  <q-card-section class="q-py-none">
                     <q-form style="width: 350px" class="q-gutter-y-md">
-                      <q-input class="col" disable label="课程编号" v-model="props.row.courseId"/>
-                      <q-input class="col" disable label="课程名称" v-model="props.row.courseName"/>
+                      <q-input class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
+                      <q-input class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
                       <div class="row items-start q-gutter-md">
-                        <q-select class="col" disable v-model="props.row.courseTimeDay" label="上课时间"/>
-                        <q-input class="col" disable v-model="props.row.courseTimeStart" type="time"/>
-                        <q-field borderless readonly>
+                        <q-select class="col" dense disable v-model="props.row.courseTimeDay" label="上课时间"/>
+                        <q-input class="col" dense disable v-model="props.row.courseTimeStart" type="time"/>
+                        <q-field borderless readonly dense>
                           <template v-slot:control>
                             <div class="self-center full-width no-outline">
                               至
                             </div>
                           </template>
                         </q-field>
-                        <q-input class="col" disable v-model="props.row.courseTimeEnd" type="time"/>
+                        <q-input class="col" dense disable v-model="props.row.courseTimeEnd" type="time"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-input class="col" disable v-model="props.row.coursePlace" label="上课教室"/>
-                        <q-input class="col" disable v-model="props.row.courseTeacher" label="任课老师"/>
+                        <q-input class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
+                        <q-input class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-select class="col" disable v-model="props.row.courseMajor" label="所属专业"/>
-                        <q-select class="col" disable v-model="props.row.courseDepartment" label="开课院系"/>
+                        <q-select class="col" dense disable v-model="props.row.courseMajor" label="所属专业"/>
+                        <q-select class="col" dense disable v-model="props.row.courseDepartment" label="开课院系"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-input class="col" disable v-model="props.row.courseCredit" label="学分"/>
-                        <q-input class="col" disable v-model="props.row.courseCreditHour" label="学时"/>
-                        <q-input class="col" disable v-model="props.row.courseCapacity" label="课程容量"/>
+                        <q-input class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
+                        <q-input class="col" dense disable v-model="props.row.courseCreditHour" label="学时"/>
+                        <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量"/>
                       </div>
-                      <q-input class="col" disable v-model="props.row.courseDescription" autogrow label="课程描述"/>
+                      <q-input class="col" dense disable v-model="props.row.courseDescription" autogrow label="课程描述"/>
                     </q-form>
                   </q-card-section>
                   <q-card-section align="right">
