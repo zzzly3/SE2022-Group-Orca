@@ -100,6 +100,7 @@ const menu_data = [
       {name: '课程申请', icon: 'library_add_check', page: 'course_application', allow: ['admin']},
       {name: '我的课程', icon: 'format_list_bulleted', page: 'my_course_list', allow: ['teacher']},
       {name: '我的申请', icon: 'library_add_check', page: 'my_course_application', allow: ['teacher']},
+      {name: '排课管理', icon: 'schedule', page: 'manage', allow: ['admin']},
     ]}
 ]
 

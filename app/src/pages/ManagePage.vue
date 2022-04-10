@@ -2,7 +2,7 @@
   <q-layout view="hhh lpR fFf">
     <q-page-container>
       <q-separator />
-      <q-list class="row">
+      <q-list class="q-px-xl q-py-md row">
         <q-item clickable v-ripple class="icon-box" v-for="(icon, index) in icons"
                :key="icon.id" @click="onClick(index)">
 
