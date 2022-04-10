@@ -1,5 +1,7 @@
 package com.orca.back.utils.common;
 
+import com.orca.back.entity.ClassTime;
+import com.orca.back.entity.Classroom;
 import com.orca.back.entity.User;
 import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
@@ -9,9 +11,42 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 public class Checker {
+    private static final String TIME24HOURS_PATTERN =
+            "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+    private Pattern pattern;
+    private Matcher matcher;
+
+    public ErrorCode checkTime(String time){
+        System.out.print("time is " + time);
+        pattern = Pattern.compile(TIME24HOURS_PATTERN);
+        return pattern.matcher(time).matches() ? null:ErrorCode.E_202;
+    }
+    public ErrorCode checkClassTime(ClassTime classTime){
+        ErrorCode err = null;
+        if(classTime.getId() == null)err = ErrorCode.E_201;
+        String begin = classTime.getBegin();
+        String end = classTime.getEnd();
+        if(err == null)err = checkTime(begin);
+        if(err == null)err = checkTime(end);
+        if(err == null)err = begin.compareTo(end) < 0 ? null: ErrorCode.E_203;
+        return err;
+    }
+
+    public ErrorCode checkClassroom(Classroom classroom){
+        ErrorCode err = null;
+        String name = classroom.getName();
+        String building = classroom.getBuilding();
+        if(name == null || building == null)err = ErrorCode.E_201;
+        if(err == null)err = name.length() > building.length() ? null : ErrorCode.E_204;
+        if(err == null)err = name.startsWith(classroom.getBuilding()) ? null: ErrorCode.E_204;
+        return err;
+    }
+
     public ErrorCode checkRegistry(User user){
         /*身份证号*/
         ErrorCode err;
@@ -20,6 +55,8 @@ public class Checker {
             err = checkName(user.getName());
         if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
             err = checkRoleAndNumber(user.getRole(), user.getNumber());
+        if (err == null && (user.getIsAdmin() == null || user.getIsAdmin().equals(0)))
+            err = user.getIsLeave() == null || user.getIsLeave() > 2 || user.getIsLeave() < 0 ? ErrorCode.E_110 : null;
         if (err == null)
             err = (user.getPhone() != null && user.getPhone().length() > 0) ? checkPhone(user.getPhone()) : null;
         if (err == null)

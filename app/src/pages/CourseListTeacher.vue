@@ -371,7 +371,7 @@ export default defineComponent({
   components: {},
   setup() {
     const course = useCourseStore();
-    const user = useUserStore();
+    // const user = useUserStore();
     const rows = ref([] as CourseInfo[]);
     const pagination = ref({
       sortBy: 'courseId',
