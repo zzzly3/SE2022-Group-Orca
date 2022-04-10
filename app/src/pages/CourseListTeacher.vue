@@ -40,13 +40,17 @@
             </q-btn-group>
             <!--CourseEditor-->
             <q-dialog v-model="editShow[props.rowIndex]">
-              <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
-                <q-card-section class="row">
+              <q-card style="width: 460px">
+                <q-card-section>
+                  <div style="height: 50px" class="text-subtitle1 row items-center">
+                    <q-icon name="edit" size="sm"></q-icon>
+                    <span>修改课程</span>
+                  </div>
                 </q-card-section>
                 <q-card-section class="q-py-none">
-                  <q-form style="width: 350px" class="q-gutter-y-md">
-                    <q-input class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                    <q-input class="col" dense label="课程名称" disable v-model="props.row.courseName"/>
+                  <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                    <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
+                    <q-input style="height: 42px" class="col" dense label="课程名称" disable v-model="props.row.courseName"/>
                     <div class="row items-start q-gutter-md">
                       <q-select class="col" dense v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
                       <q-input class="col" dense v-model="props.row.courseTimeStart" type="time"/>
@@ -60,7 +64,7 @@
                       <q-input class="col" dense v-model="props.row.courseTimeEnd" type="time"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-input class="col" dense v-model="props.row.coursePlace" label="上课教室"/>
+                      <q-select class="col" dense v-model="props.row.coursePlace" label="上课教室"/>
                       <q-input class="col" dense v-model="props.row.courseTeacher" label="任课老师" disable/>
                     </div>
                     <div class="row items-start q-gutter-md">
@@ -68,9 +72,13 @@
                       <q-select class="col" dense disable v-model="props.row.courseDepartment" :options="departments" label="开课院系"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-input class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
+                      <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
                       <q-input class="col" dense disable v-model="props.row.courseCreditHour" label="学时"/>
-                      <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量"/>
+                      <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量">
+                        <template v-slot:append>
+                          <q-icon name="arrow_drop_down" class="cursor-pointer" />
+                        </template>
+                      </q-input>
                     </div>
                     <q-input class="col" dense disable v-model="props.row.courseDescription" autogrow label="课程描述"/>
                   </q-form>
@@ -101,12 +109,17 @@
         <div>
           <q-btn flat icon="add" @click="addShow = true" />
           <q-dialog v-model="addShow">
-            <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
-              <q-card-section/>
+            <q-card style="width: 460px">
+              <q-card-section>
+                <div style="height: 50px" class="text-subtitle1 row items-center">
+                  <q-icon name="add" size="sm"></q-icon>
+                  <span>新增课程</span>
+                </div>
+              </q-card-section>
               <q-card-section class="q-py-none">
-                <q-form style="width: 350px" class="q-gutter-y-md">
-                  <q-input class="col" dense label="课程编号" v-model="addCourseId" />
-                  <q-input class="col" dense label="课程名称" v-model="addCourseName"/>
+                <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                  <q-input style="height: 53px" class="col" dense label="课程编号" v-model="addCourseId" />
+                  <q-input style="height: 42px" class="col" dense label="课程名称" v-model="addCourseName"/>
                   <div class="row items-start q-gutter-md">
                     <q-select class="col" dense v-model="addCourseTimeDay" :options="weekdays" label="上课时间"/>
                     <q-input class="col" dense v-model="addCourseTimeStart" type="time"/>
@@ -118,7 +131,7 @@
                     <q-input class="col" dense v-model="addCourseTimeEnd" type="time"/>
                   </div>
                   <div class="row items-start q-gutter-md">
-                    <q-input class="col" dense v-model="addCoursePlace" label="上课教室"/>
+                    <q-select class="col" dense v-model="addCoursePlace" label="上课教室"/>
                     <q-input class="col" dense v-model="addCourseTeacher" label="任课老师"/>
                   </div>
                   <div class="row items-start q-gutter-md">
@@ -126,9 +139,13 @@
                     <q-select class="col" dense v-model="addCourseDepartment" :options="departments" label="开课院系"/>
                   </div>
                   <div class="row items-start q-gutter-md">
-                    <q-input class="col" dense v-model="addCourseCredit" label="学分"/>
+                    <q-select style="height: 56px" class="col" dense v-model="addCourseCredit" label="学分"/>
                     <q-input class="col" dense v-model="addCourseCreditHour" label="学时"/>
-                    <q-input class="col" dense v-model="addCourseCapacity" label="课程容量"/>
+                    <q-input class="col" dense v-model="addCourseCapacity" label="课程容量">
+                      <template v-slot:append>
+                        <q-icon name="arrow_drop_down" class="cursor-pointer" />
+                      </template>
+                    </q-input>
                   </div>
                   <q-input class="col" dense v-model="addCourseDescription" autogrow label="课程描述"/>
                 </q-form>

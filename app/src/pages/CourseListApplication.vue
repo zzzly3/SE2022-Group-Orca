@@ -30,17 +30,21 @@
           </q-td>
           <!--CourseEditor-->
           <q-td>
-            <div class="row">
               <q-btn color="primary" flat icon="visibility"
                 @click="editShow[props.rowIndex] = true"
               />
               <q-dialog v-model="editShow[props.rowIndex]">
-                <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
-                  <q-card-section/>
+                <q-card style="width: 460px">
+                  <q-card-section>
+                    <div style="height: 50px" class="text-subtitle1 row items-center">
+                      <q-icon name="visibility" color="primary" size="sm"></q-icon>
+                      <span>查看申请</span>
+                    </div>
+                  </q-card-section>
                   <q-card-section class="q-py-none">
-                    <q-form style="width: 350px" class="q-gutter-y-md">
-                      <q-input class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                      <q-input class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
+                    <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                      <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
+                      <q-input style="height: 42px" class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
                       <div class="row items-start q-gutter-md">
                         <q-select class="col" dense disable v-model="props.row.courseTimeDay" label="上课时间"/>
                         <q-input class="col" dense disable v-model="props.row.courseTimeStart" type="time"/>
@@ -54,7 +58,7 @@
                         <q-input class="col" dense disable v-model="props.row.courseTimeEnd" type="time"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-input class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
+                        <q-select class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
                         <q-input class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
                       </div>
                       <div class="row items-start q-gutter-md">
@@ -62,11 +66,16 @@
                         <q-select class="col" dense disable v-model="props.row.courseDepartment" label="开课院系"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-input class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
-                        <q-input class="col" dense disable v-model="props.row.courseCreditHour" label="学时"/>
-                        <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量"/>
+                        <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
+                        <q-select class="col" dense disable v-model="props.row.courseCreditHour" label="学时"/>
+                        <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量">
+                          <template v-slot:append>
+                            <q-icon name="arrow_drop_down" class="cursor-pointer" />
+                          </template>
+                        </q-input>
                       </div>
-                      <q-input class="col" dense disable v-model="props.row.courseDescription" autogrow label="课程描述"/>
+                      <q-input class="col" dense disable v-model="props.row.courseDescription" autogrow label="课程描述">
+                      </q-input>
                     </q-form>
                   </q-card-section>
                   <q-card-section align="right">
@@ -79,7 +88,6 @@
                   </q-card-section>
                 </q-card>
               </q-dialog>
-            </div>
           </q-td>
           <!--CourseEditor-->
         </q-tr>
