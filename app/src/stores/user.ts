@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 import {post} from 'boot/axios';
 import {Notify} from 'quasar';
 
@@ -60,6 +60,7 @@ export const useUserStore = defineStore('user', {
       return await post('logout', {}) !== false
     },
     async add_user({id, name, pid, phone, email, type}: {id: string, name: string, pid: string, phone: string, email: string, type: string}) {
+      console.log('in add_user')
       let role = 0
       if (type === 'teacher')
         role = 1

@@ -5,7 +5,7 @@
       <q-card style="width: 400px">
         <q-card-section>
           <div class="text-subtitle1 row items-center">
-            <q-icon name="add" size="sm" color="primary"></q-icon>
+            <q-icon size="sm" color="primary"></q-icon>
             <span>添加用户</span>
           </div>
         </q-card-section>
@@ -99,6 +99,8 @@ export default {
       rules,
       clear,
       async submit() {
+        console.log('UserAdder: in submit')
+        console.log(typeRef, idRef, typeRef.value, idRef.value)
         if (!idRef.value || !nameRef.value || !pidRef.value || !phoneRef.value || !emailRef.value || !typeRef.value)
           return
         idRef.value.validate()

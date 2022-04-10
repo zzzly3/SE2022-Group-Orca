@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import {defineComponent, ref } from 'vue';
 import {UserInfo, useUserStore} from 'stores/user';
 import UserAdder from 'components/UserAdder.vue';
 
