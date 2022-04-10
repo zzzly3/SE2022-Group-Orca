@@ -303,7 +303,13 @@
         <div>
           <q-btn flat icon="ios_share" @click="importShow = true" />
           <q-dialog v-model="importShow">
-            <q-uploader accept=".csv" label="选择文件" auto-expand />
+            <q-uploader
+              url="/api/course/batch_import"
+              label="选择文件"
+              auto-upload
+              auto-expand
+              :field-name="'file'"
+            />
           </q-dialog>
         </div>
         <!--BatchImport-->
