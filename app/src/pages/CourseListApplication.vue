@@ -1,6 +1,8 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-md column items-center">
     <q-table
+      flat
+      style="width: 80%"
       title="申请列表"
       :rows="rows"
       :columns="columns"

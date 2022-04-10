@@ -10,7 +10,7 @@
         </q-card-section>
 
         <q-card-section class="q-py-none">
-          <q-form style="width: 300px" class="q-px-md q-gutter-y-xs">
+          <q-form style="width: 350px" class="q-px-md q-gutter-y-xs">
             <div class="q-gutter-md row items-start">
               <q-select v-model="type" :options="types" label="用户类型" dense ref="typeRef" class="col"
                         :disable="update"
