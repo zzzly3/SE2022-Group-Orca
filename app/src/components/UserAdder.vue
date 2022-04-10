@@ -53,13 +53,13 @@
               <q-icon name="close" @click.stop="pid = ''" class="cursor-pointer" />
             </template></q-input>
             <q-input label="手机号（可选）" v-model="phone" dense ref="phoneRef"
-                     maxlength="11"
+                     maxlength="11" lazy-rules
                      :rules="[val => rules.phone.test(val) || '无效的手机号']"
             ><template v-if="phone" v-slot:append>
               <q-icon name="close" @click.stop="phone = ''" class="cursor-pointer" />
             </template></q-input>
             <q-input label="邮箱（可选）" v-model="email" dense ref="emailRef"
-                     maxlength="40"
+                     maxlength="40" lazy-rules
                      :rules="[val => rules.email.test(val) || '无效的邮箱']"
             ><template v-if="email" v-slot:append>
               <q-icon name="close" @click.stop="email = ''" class="cursor-pointer" />
