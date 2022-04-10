@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.persistence.Entity;
+
 @Data
 @TableName("course_application")
 public class CourseApplication {
@@ -19,6 +21,7 @@ public class CourseApplication {
     private String courseTimeEnd;
     private String coursePlace;
     private String courseTeacher;
+    private String courseMajor;
     private String courseDepartment;
     private Integer courseCredit;
     private Integer courseCreditHour;

@@ -3,7 +3,6 @@
     <q-table
       flat
       style="width: 80%"
-      title="我的课程"
       :rows="rows"
       :columns="columns"
       row-key="courseId"
@@ -85,8 +84,14 @@
                       <q-input v-model="props.row.courseTimeEnd" type="time" />
                       <q-input
                         v-model="props.row.coursePlace"
-                        style="width: 450px"
+                        style="width: 180px"
                         label="上课教室"
+                      />
+                      <q-select
+                        disable
+                        v-model="props.row.courseMajor"
+                        style="width: 260px"
+                        label="所属专业"
                       />
                       <q-input
                         v-model="props.row.courseTeacher"
@@ -94,7 +99,6 @@
                         label="任课教师"
                         disable
                       />
-
                       <q-select
                         disable
                         v-model="props.row.courseDepartment"
@@ -172,7 +176,6 @@
       </template>
 
       <template v-slot:top-right>
-        <CourseSearcher></CourseSearcher>
         <!--CourseAdder-->
         <div>
           <q-btn flat icon="add" @click="addShow = true" />
@@ -216,8 +219,14 @@
                   />
                   <q-input
                     v-model="addCoursePlace"
-                    style="width: 500px"
+                    style="width: 160px"
                     label="上课教室"
+                  />
+                  <q-select
+                    style="width: 280px"
+                    v-model="addCourseMajor"
+                    :options="majors"
+                    label="所属专业"
                   />
                   <q-input
                     v-model="addCourseTeacher"
@@ -285,9 +294,6 @@
 import { defineComponent, ref } from 'vue';
 import { CourseInfo, useCourseStore } from 'stores/course';
 import { useUserStore } from 'stores/user';
-//import CourseAdder from 'components/course/CourseAdder.vue';
-//import CourseEditor from 'components/course/CourseEditor.vue';
-import CourseSearcher from 'components/course/CourseSearcher.vue';
 
 const columns = [
   {
@@ -358,10 +364,11 @@ const weekdays = [
 ];
 
 const departments = ['计算机学院', '经济学院', '数学学院'];
+const majors = ['计算机科学与技术', '软件工程', '经济学'];
 
 export default defineComponent({
   name: 'CourseList',
-  components: { /*CourseAdder, CourseEditor, */ CourseSearcher },
+  components: {},
   setup() {
     const course = useCourseStore();
     const user = useUserStore();
@@ -386,6 +393,7 @@ export default defineComponent({
     const addCourseTimeEnd = ref();
     const addCoursePlace = ref('');
     const addCourseTeacher = ref('');
+    const addCourseMajor = ref('');
     const addCourseDepartment = ref('');
     const addCourseCredit = ref('');
     const addCourseCreditHour = ref('');
@@ -402,6 +410,7 @@ export default defineComponent({
       addCourseTimeEnd.value = '';
       addCoursePlace.value = '';
       addCourseTeacher.value = '';
+      addCourseMajor.value = '';
       addCourseDepartment.value = '';
       addCourseCredit.value = '';
       addCourseCreditHour.value = '';
@@ -418,11 +427,12 @@ export default defineComponent({
       columns,
       rows,
       pagination,
+      weekdays,
+      departments,
+      majors,
 
       //CourseAdder start
       addShow,
-      weekdays,
-      departments,
 
       addCourseId,
       addCourseName,
@@ -432,6 +442,7 @@ export default defineComponent({
       addCourseTimeEnd,
       addCoursePlace,
       addCourseTeacher,
+      addCourseMajor,
       addCourseDepartment,
       addCourseCredit,
       addCourseCreditHour,
@@ -456,6 +467,7 @@ export default defineComponent({
             courseTimeEnd: addCourseTimeEnd.value,
             coursePlace: addCoursePlace.value,
             courseTeacher: addCourseTeacher.value,
+            courseMajor: addCourseMajor.value,
             courseDepartment: addCourseDepartment.value,
             courseCredit: addCourseCredit.value,
             courseCreditHour: addCourseCreditHour.value,
@@ -490,6 +502,7 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
+            courseMajor: row.courseMajor,
             courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
@@ -514,6 +527,7 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
+          courseMajor: row.courseMajor,
           courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,

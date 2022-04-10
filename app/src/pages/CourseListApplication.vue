@@ -3,7 +3,6 @@
     <q-table
       flat
       style="width: 80%"
-      title="申请列表"
       :rows="rows"
       :columns="columns"
       row-key="courseId"
@@ -85,9 +84,15 @@
                       />
                       <q-input
                         v-model="props.row.coursePlace"
-                        style="width: 450px"
+                        style="width: 180px"
                         label="上课教室"
                         disable
+                      />
+                      <q-select
+                        disable
+                        v-model="props.row.courseMajor"
+                        style="width: 260px"
+                        label="所属专业"
                       />
                       <q-input
                         v-model="props.row.courseTeacher"
@@ -160,9 +165,7 @@
         </q-tr>
       </template>
 
-      <template v-slot:top-right>
-        <CourseSearcher></CourseSearcher>
-      </template>
+      <template v-slot:top-right> </template>
     </q-table>
   </div>
 </template>
@@ -170,9 +173,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { CourseApplicationInfo, useCourseStore } from 'stores/course';
-//import CourseAdder from 'components/course/CourseAdder.vue';
-//import CourseEditor from 'components/course/CourseEditor.vue';
-import CourseSearcher from 'components/course/CourseSearcher.vue';
 
 const columns = [
   {
@@ -216,7 +216,7 @@ const columns = [
 
 export default defineComponent({
   name: 'CourseListApplication',
-  components: { /*CourseAdder, CourseEditor, */ CourseSearcher },
+  components: {},
   setup() {
     const course = useCourseStore();
     const rows = ref([] as CourseApplicationInfo[]);
@@ -256,6 +256,7 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
+            courseMajor: row.courseMajor,
             courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
@@ -272,6 +273,7 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
+            courseMajor: row.courseMajor,
             courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
@@ -291,6 +293,7 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
+          courseMajor: row.courseMajor,
           courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
@@ -318,6 +321,7 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
+          courseMajor: row.courseMajor,
           courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
