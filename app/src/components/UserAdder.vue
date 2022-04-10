@@ -100,7 +100,6 @@ export default {
       clear,
       async submit() {
         console.log('UserAdder: in submit')
-        console.log(typeRef, idRef, typeRef.value, idRef.value)
         if (!idRef.value || !nameRef.value || !pidRef.value || !phoneRef.value || !emailRef.value || !typeRef.value)
           return
         idRef.value.validate()

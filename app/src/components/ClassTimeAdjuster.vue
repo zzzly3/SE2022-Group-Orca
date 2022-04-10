@@ -36,8 +36,7 @@
 
 <script>
 //import QValidate  from 'components/models';
-import {defineComponent, ref, onMounted} from 'vue';
-//import * as QValidate from 'components/QValidate.ts';
+import {defineComponent, ref} from 'vue';
 import {useClassTimeStore} from 'stores/class-time';
 
 export default defineComponent({
@@ -61,10 +60,6 @@ export default defineComponent({
     const clear = ()=>{
       show.value = false
     }
-    onMounted(()=>{
-      console.log(classTimeRef)
-      console.log(classTimeRef.value)
-    })
     return{
       show, loading,
       classTime, classTimeRef,

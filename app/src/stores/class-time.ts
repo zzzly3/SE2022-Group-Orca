@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia';
 import {post} from 'boot/axios';
-import {Notify} from 'quasar';
+import {date, Notify} from 'quasar';
 //
 // const demo_list = [
 //   {id: 1, begin: '08:00', end: '08:45'},
 //   {id: 6, begin: '13:30', end: '14:15'}
 // ]
 
-// export interface ClassTimeInfo{
-//   id: number,
-//   begin: string,
-//   end: string,
-// }
+export interface ClassTimeInfo{
+  id: number,
+  begin: string,
+  end: string,
+}
 
 export const useClassTimeStore = defineStore('classTime', {
   state: () => ({
@@ -25,5 +25,13 @@ export const useClassTimeStore = defineStore('classTime', {
       }
       return false
     },
+    async load_classTime() {
+      console.log('in load_classTime')
+      const r = await post('load_classTime', {}, true)
+      if(r === false){
+        Notify.create({type:'negative', message:'信息读取失败'})
+      }
+      return r
+    }
   },
 });

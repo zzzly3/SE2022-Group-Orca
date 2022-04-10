@@ -18,6 +18,7 @@
       <ClassroomAdjuster ref="ref0" class="q-ml-lg"></ClassroomAdjuster>
       <ClassTimeAdjuster ref="ref1" class="q-ml-lg"></ClassTimeAdjuster>
       <CourseSelectionStateAdjuster ref="ref2" class="q-ml-lg"></CourseSelectionStateAdjuster>
+      <ClassTimeViewer  ref="ref3" class="q-ml-lg"></ClassTimeViewer>
     </q-page-container>
   </q-layout>
 
@@ -29,14 +30,16 @@ import ClassroomAdjuster from 'components/ClassroomAdjuster.vue';
 import ClassTimeAdjuster from 'components/ClassTimeAdjuster.vue';
 import {QValidate} from 'components/models';
 import CourseSelectionStateAdjuster from 'components/CourseSelectionStateAdjuster.vue';
+import ClassTimeViewer from 'components/ClassTimeViewer.vue';
 
 export default defineComponent({
   name: 'ManagePage',
-  components: {CourseSelectionStateAdjuster, ClassroomAdjuster, ClassTimeAdjuster},
+  components: {ClassTimeViewer, CourseSelectionStateAdjuster, ClassroomAdjuster, ClassTimeAdjuster},
   setup(){
     const ref0 = ref<QValidate|null>(null)
     const ref1 = ref<QValidate|null>(null)
     const ref2 = ref<QValidate|null>(null)
+    const ref3 = ref<QValidate|null>(null)
 
     const icons = [
       {id:0, url:require('../assets/icon/classroom-adjust.png'),
@@ -44,7 +47,9 @@ export default defineComponent({
       {id:1, url:require('../assets/icon/classTime-adjust.png'),
         text:'上课时间调整'},
       {id:2, url:require('../assets/icon/open-course-selection.png'),
-        text:'开/关选课功能'}
+        text:'开/关选课功能'},
+      {id:3, url:require('../assets/icon/classroom-view.svg'),
+        text:'上课时间查询'}
     ]
     const onClick = (id: number) =>{
       funcTable[id]();
@@ -61,19 +66,26 @@ export default defineComponent({
       (ref1.value as any).show = true
     }
     const showCourseSelectionStateAdjuster=()=>{
-      console.log('in CourseSelectionStateAdjuster')
+      console.log('in showCourseSelectionStateAdjuster')
       if(!ref2.value)return
       (ref2.value as any).show = true
+    }
+    const loadClassTimeTable=()=>{
+      console.log('in loadClassTimeTable')
+      if(!ref3.value)return
+      //ref3.value.validate()
+      (ref3.value as any).load()
     }
     const funcTable = [
       showClassroomAdjuster,
       showClassTimeAdjuster,
-      showCourseSelectionStateAdjuster
+      showCourseSelectionStateAdjuster,
+      loadClassTimeTable
     ]
     return {
       icons,
       onClick,
-      ref0, ref1, ref2
+      ref0, ref1, ref2, ref3
     };
   },
 });
