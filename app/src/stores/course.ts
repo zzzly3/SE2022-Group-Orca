@@ -12,6 +12,7 @@ export interface CourseInfo {
   courseTimeEnd: string;
   coursePlace: string;
   courseTeacher: string;
+  courseMajor: string;
   courseDepartment: string;
   courseCredit: string;
   courseCreditHour: string;
@@ -28,6 +29,7 @@ export interface CourseApplicationInfo {
   courseTimeEnd: string;
   coursePlace: string;
   courseTeacher: string;
+  courseMajor: string;
   courseDepartment: string;
   courseCredit: string;
   courseCreditHour: string;
@@ -52,6 +54,10 @@ export const useCourseStore = defineStore('course', {
   }),
   actions: {
     async load_course_lists_page_admin() {
+      console.log(user.type);
+
+      this.type = user.type;
+      console.log(this.type);
       if (this.type === 'admin') {
         const r = await post('/course/get_course_all', {}, false);
         if (r != false) {
@@ -73,6 +79,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
+      courseMajor,
       courseDepartment,
       courseCredit,
       courseCreditHour,
@@ -87,6 +94,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
+      courseMajor: string;
       courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
@@ -103,6 +111,7 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
+          courseMajor,
           courseDepartment,
           courseCredit,
           courseCreditHour,
@@ -128,6 +137,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
+      courseMajor,
       courseDepartment,
       courseCredit,
       courseCreditHour,
@@ -142,6 +152,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
+      courseMajor: string;
       courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
@@ -158,6 +169,7 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
+          courseMajor,
           courseDepartment,
           courseCredit,
           courseCreditHour,
@@ -183,6 +195,7 @@ export const useCourseStore = defineStore('course', {
       }
     },
     async load_course_application_lists_page_admin() {
+      this.type = user.type;
       if (this.type === 'admin') {
         const r = await post('/course/get_course_application_all', {}, false);
         return r;
@@ -203,6 +216,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
+      courseMajor,
       courseDepartment,
       courseCredit,
       courseCreditHour,
@@ -223,6 +237,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
+      courseMajor: string;
       courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
@@ -245,6 +260,7 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
+          courseMajor,
           courseDepartment,
           courseCredit,
           courseCreditHour,
@@ -271,6 +287,10 @@ export const useCourseStore = defineStore('course', {
       await post('/course/batch_import', { file }, false);
     },
     async load_course_lists_page_teacher() {
+      console.log(user.type);
+
+      this.type = user.type;
+      console.log(this.type);
       if (this.type === 'teacher') {
         const r = await post(
           '/course/get_course_teacher',
@@ -287,6 +307,7 @@ export const useCourseStore = defineStore('course', {
       return [];
     },
     async load_course_application_lists_page_teacher() {
+      this.type = user.type;
       if (this.type === 'teacher') {
         const r = await post(
           '/course/get_course_application_teacher',
@@ -311,6 +332,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
+      courseMajor,
       courseDepartment,
       courseCredit,
       courseCreditHour,
@@ -326,6 +348,7 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
+      courseMajor: string;
       courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
@@ -343,6 +366,7 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
+          courseMajor,
           courseDepartment,
           courseCredit,
           courseCreditHour,

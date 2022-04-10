@@ -13,7 +13,6 @@ import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 import com.orca.back.utils.constants.ErrorCode;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -147,7 +146,8 @@ public class CourseController {
 
     //batch import
     @PostMapping("/batch_import")
-    public Result<?> batchImport(@RequestPart(value = "file") final MultipartFile file, HttpServletRequest request) throws IOException {
+    public Result<?> batchImport(@RequestParam(value = "file") final MultipartFile uploadfile, HttpServletRequest request) throws IOException {
+        System.out.println(uploadfile.getOriginalFilename());
         /*Check Admin*/
         ErrorCode err = checker.checkLogin(request);
         if (err != null){
@@ -157,8 +157,8 @@ public class CourseController {
         User user = userMapper.selectById(userId);
         if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
         /*Check Pass*/
-        final byte[] bytes = file.getBytes();
-        final Path path = Paths.get("~/Desktop/" + file.getOriginalFilename());
+        final byte[] bytes = uploadfile.getBytes();
+        final Path path = Paths.get("~/Desktop/" + uploadfile.getOriginalFilename());
         Files.write(path, bytes);
         return Result.success();
     }

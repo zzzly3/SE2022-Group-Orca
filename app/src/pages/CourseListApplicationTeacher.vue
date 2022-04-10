@@ -3,7 +3,6 @@
     <q-table
       flat
       style="width: 80%"
-      title="我的申请"
       :rows="rows"
       :columns="columns"
       row-key="courseId"
@@ -40,9 +39,7 @@
         </q-tr>
       </template>
 
-      <template v-slot:top-right>
-        <CourseSearcher></CourseSearcher>
-      </template>
+      <template v-slot:top-right> </template>
     </q-table>
   </div>
 </template>
@@ -50,9 +47,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { CourseApplicationInfo, useCourseStore } from 'stores/course';
-//import CourseAdder from 'components/course/CourseAdder.vue';
-//import CourseEditor from 'components/course/CourseEditor.vue';
-import CourseSearcher from 'components/course/CourseSearcher.vue';
 
 const columns = [
   {
@@ -102,7 +96,7 @@ const columns = [
 
 export default defineComponent({
   name: 'CourseListApplication',
-  components: { /*CourseAdder, CourseEditor, */ CourseSearcher },
+  components: {},
   setup() {
     const course = useCourseStore();
     const rows = ref([] as CourseApplicationInfo[]);
