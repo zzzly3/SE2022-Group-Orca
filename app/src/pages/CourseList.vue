@@ -22,9 +22,7 @@
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td auto-width>
-            <q-btn
-              size="sm"
-              flat
+            <q-btn size="sm" flat
               @click="props.expand = !props.expand"
               :icon="props.expand ? 'expand_less' : 'expand_more'"
             />
@@ -35,117 +33,47 @@
           <!--CourseEditor-->
           <q-td>
             <div>
-              <q-btn
-                style="width: 10px"
-                flat
-                color="teal-10"
-                size="sm"
-                :icon="'edit'"
-                @click="editShow[props.rowIndex] = true"
-              />
+              <q-btn style="width: 10px" flat color="teal-10" size="sm" :icon="'edit'" @click="editShow[props.rowIndex] = true"/>
               <q-dialog v-model="editShow[props.rowIndex]">
-                <q-card style="width: 600px" class="q-pa-lg">
+                <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
                   <q-card-section class="row">
                     <q-icon name="edit" size="md" />
                   </q-card-section>
                   <q-card-section>
-                    <q-form class="q-gutter-md row items-start">
-                      <q-field readonly style="width: 450px">
-                        <template v-slot:control>
-                          <div
-                            class="text-subtitle1 self-center full-width no-outline"
-                          >
-                            课程编号：{{ props.row.courseId }}
-                          </div>
-                        </template>
-                      </q-field>
-                      <q-input
-                        style="width: 450px"
-                        label="课程名称"
-                        v-model="props.row.courseName"
-                      />
-                      <q-select
-                        style="width: 180px"
-                        v-model="props.row.courseTimeDay"
-                        :options="weekdays"
-                        label="上课时间"
-                      />
-                      <q-input
-                        v-model="props.row.courseTimeStart"
-                        style="width: 105px"
-                        type="time"
-                      />
-                      <q-field borderless readonly>
-                        <template v-slot:control>
-                          <div class="self-center full-width no-outline">
-                            至
-                          </div>
-                        </template>
-                      </q-field>
-                      <q-input
-                        v-model="props.row.courseTimeEnd"
-                        style="width: 105px"
-                        type="time"
-                      />
-                      <q-input
-                        v-model="props.row.coursePlace"
-                        style="width: 180px"
-                        label="上课教室"
-                      />
-                      <q-select
-                        style="width: 250px"
-                        v-model="props.row.courseMajor"
-                        :options="majors"
-                        label="所属专业"
-                      />
-                      <q-input
-                        v-model="props.row.courseTeacher"
-                        style="width: 180px"
-                        label="任课老师"
-                      />
-                      <q-select
-                        style="width: 250px"
-                        v-model="props.row.courseDepartment"
-                        :options="departments"
-                        label="开课院系"
-                      />
-                      <q-input
-                        v-model="props.row.courseCredit"
-                        style="width: 140px"
-                        label="学分"
-                      />
-                      <q-input
-                        v-model="props.row.courseCreditHour"
-                        style="width: 140px"
-                        label="学时"
-                      />
-                      <q-input
-                        v-model="props.row.courseCapacity"
-                        style="width: 140px"
-                        label="课程容量"
-                      />
-                      <q-input
-                        v-model="props.row.courseDescription"
-                        style="width: 450px"
-                        autogrow
-                        label="课程描述"
-                      />
+                    <q-form style="width: 350px" class="q-gutter-y-md">
+                      <q-input class="col" disable label="课程编号" v-model="props.row.courseId"/>
+                      <q-input class="col" label="课程名称" v-model="props.row.courseName"/>
+                      <div class="row items-start q-gutter-md">
+                        <q-select class="col" v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
+                        <q-input class="col" v-model="props.row.courseTimeStart" type="time"/>
+                        <q-field borderless readonly>
+                          <template v-slot:control>
+                            <div class="self-center full-width no-outline">
+                              至
+                            </div>
+                          </template>
+                        </q-field>
+                        <q-input class="col" v-model="props.row.courseTimeEnd" type="time"/>
+                      </div>
+                      <div class="row items-start q-gutter-md">
+                        <q-input class="col" v-model="props.row.coursePlace" label="上课教室"/>
+                        <q-input class="col" v-model="props.row.courseTeacher" label="任课老师"/>
+                      </div>
+                      <div class="row items-start q-gutter-md">
+                        <q-select class="col" v-model="props.row.courseMajor" :options="majors" label="所属专业"/>
+                        <q-select class="col" v-model="props.row.courseDepartment" :options="departments" label="开课院系"/>
+                      </div>
+                      <div class="row items-start q-gutter-md">
+                        <q-input class="col" v-model="props.row.courseCredit" label="学分"/>
+                        <q-input class="col" v-model="props.row.courseCreditHour" label="学时"/>
+                        <q-input class="col" v-model="props.row.courseCapacity" label="课程容量"/>
+                      </div>
+                      <q-input class="col" v-model="props.row.courseDescription" autogrow label="课程描述"/>
                     </q-form>
                   </q-card-section>
                   <q-card-section align="right">
-                    <q-btn
-                      color="red"
-                      flat
-                      @click="editShow[props.rowIndex] = false"
-                      label="取消"
-                    />
-                    <q-btn
-                      color="teal-10"
-                      flat
-                      @click="editSubmit(props.row)"
-                      label="确定"
-                      v-close-popup
-                    />
+                    <q-btn color="red" flat @click="editShow[props.rowIndex] = false" label="取消"/>
+                    <q-btn color="teal-10" flat @click="editSubmit(props.row)" label="确定" v-close-popup/>
                   </q-card-section>
                 </q-card>
               </q-dialog>
@@ -155,37 +83,21 @@
           <!-- courseDelete -->
           <q-td>
             <div>
-              <q-btn
-                flat
-                color="red"
-                size="sm"
-                :icon="'close'"
-                @click="deleteShow[props.rowIndex] = true"
-              />
+              <q-btn flat color="red" size="sm" :icon="'close'"
+               @click="deleteShow[props.rowIndex] = true"/>
               <q-dialog v-model="deleteShow[props.rowIndex]">
                 <q-card style="width: 300px" class="q-pa-md">
                   <q-card-section>
-                    <div
-                      class="text-subtitle1 self-center full-width no-outline"
-                    >
+                    <div class="text-subtitle1 self-center full-width no-outline">
                       确定删除该课程？
                     </div>
                   </q-card-section>
                   <q-separator />
                   <q-card-section align="right">
-                    <q-btn
-                      color="red"
-                      flat
-                      @click="deleteShow[props.rowIndex] = false"
-                      label="取消"
-                    />
-                    <q-btn
-                      color="teal-10"
-                      flat
-                      @click="deleteCourse(props.row.courseId)"
-                      label="确定"
-                      v-close-popup
-                    />
+                    <q-btn color="red" flat label="取消"
+                      @click="deleteShow[props.rowIndex] = false"/>
+                    <q-btn color="teal-10" flat label="确定" v-close-popup
+                      @click="deleteCourse(props.row.courseId)"/>
                   </q-card-section>
                 </q-card>
               </q-dialog>
@@ -206,105 +118,45 @@
         <div>
           <q-btn flat icon="add" @click="addShow = true" />
           <q-dialog v-model="addShow">
-            <q-card style="width: 600px" class="q-pa-lg">
+            <q-card style="width: 550px" class="q-px-md q-gutter-y-md">
               <q-card-section>
                 <q-icon name="add" size="md" />
               </q-card-section>
               <q-card-section>
-                <q-form class="q-gutter-md row items-start">
-                  <q-input
-                    style="width: 500px"
-                    label="课程编号"
-                    v-model="addCourseId"
-                  />
-                  <q-input
-                    style="width: 500px"
-                    label="课程名称"
-                    v-model="addCourseName"
-                  />
-                  <q-select
-                    style="width: 200px"
-                    v-model="addCourseTimeDay"
-                    :options="weekdays"
-                    label="上课时间"
-                  />
-                  <q-input
-                    style="width: 105px"
-                    v-model="addCourseTimeStart"
-                    type="time"
-                  />
-                  <q-field borderless readonly>
-                    <template v-slot:control>
-                      <div class="self-center full-width no-outline">至</div>
-                    </template>
-                  </q-field>
-                  <q-input
-                    style="width: 105px"
-                    v-model="addCourseTimeEnd"
-                    type="time"
-                  />
-                  <q-input
-                    v-model="addCoursePlace"
-                    style="width: 180px"
-                    label="上课教室"
-                  />
-                  <q-select
-                    style="width: 280px"
-                    v-model="addCourseMajor"
-                    :options="majors"
-                    label="所属专业"
-                  />
-                  <q-input
-                    v-model="addCourseTeacher"
-                    style="width: 180px"
-                    label="任课老师"
-                  />
-                  <q-select
-                    style="width: 280px"
-                    v-model="addCourseDepartment"
-                    :options="departments"
-                    label="开课院系"
-                  />
-                  <q-input
-                    v-model="addCourseCredit"
-                    style="width: 140px"
-                    label="学分"
-                  />
-                  <q-input
-                    v-model="addCourseCreditHour"
-                    style="width: 140px"
-                    label="学时"
-                  />
-                  <q-input
-                    v-model="addCourseCapacity"
-                    style="width: 150px"
-                    label="课程容量"
-                  />
-                  <q-input
-                    v-model="addCourseDescription"
-                    style="width: 500px"
-                    autogrow
-                    label="课程描述"
-                  />
+                <q-form style="width: 450px" class="q-gutter-y-md">
+                  <q-input class="col" label="课程编号" v-model="addCourseId" />
+                  <q-input class="col" label="课程名称" v-model="addCourseName"/>
+                  <div class="row items-start q-gutter-md">
+                    <q-select class="col" v-model="addCourseTimeDay" :options="weekdays" label="上课时间"/>
+                    <q-input class="col" v-model="addCourseTimeStart" type="time"/>
+                    <q-field borderless readonly>
+                      <template v-slot:control>
+                        <div class="self-center full-width no-outline">至</div>
+                      </template>
+                    </q-field>
+                    <q-input class="col" v-model="addCourseTimeEnd" type="time"/>
+                  </div>
+                  <div class="row items-start q-gutter-md">
+                    <q-input class="col" v-model="addCoursePlace" label="上课教室"/>
+                    <q-input class="col" v-model="addCourseTeacher" label="任课老师"/>
+                  </div>
+                  <div class="row items-start q-gutter-md">
+                    <q-select class="col" v-model="addCourseMajor" :options="majors" label="所属专业"/>
+                    <q-select class="col" v-model="addCourseDepartment" :options="departments" label="开课院系"/>
+                  </div>
+                  <div class="row items-start q-gutter-md">
+                    <q-input class="col" v-model="addCourseCredit" label="学分"/>
+                    <q-input class="col" v-model="addCourseCreditHour" label="学时"/>
+                    <q-input class="col" v-model="addCourseCapacity" label="课程容量"/>
+                  </div>
+                  <q-input class="col" v-model="addCourseDescription" autogrow label="课程描述"/>
                 </q-form>
               </q-card-section>
 
               <q-card-section>
                 <q-card-actions align="right">
-                  <q-btn
-                    flat
-                    label="取消"
-                    @click="clear"
-                    color="red"
-                    v-close-popup
-                  />
-                  <q-btn
-                    flat
-                    label="添加"
-                    @click="addSubmit"
-                    color="primary"
-                    v-close-popup
-                  />
+                  <q-btn flat label="取消" @click="clear" color="red" v-close-popup/>
+                  <q-btn flat label="添加" @click="addSubmit" color="primary" v-close-popup/>
                 </q-card-actions>
               </q-card-section>
             </q-card>
@@ -331,10 +183,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { CourseInfo, useCourseStore } from 'stores/course';
-//import CourseAdder from 'components/course/CourseAdder.vue';
-//import CourseEditor from 'components/course/CourseEditor.vue';
 
 const columns = [
   {
@@ -404,7 +254,6 @@ const weekdays = [
   '星期日',
 ];
 
-const departments = ['计算机学院', '经济学院', '数学学院'];
 const majors = ['计算机', '经济', '数学'];
 
 export default defineComponent({
@@ -423,7 +272,10 @@ export default defineComponent({
     });
 
     course.load_course_lists_page_admin().then((r) => (rows.value = r));
-
+    course.load_course_constants()
+    const departments = computed(() => {
+      return course.departments
+    })
     //BatchImport start
     const importShow = ref(false);
     const file = ref(null);

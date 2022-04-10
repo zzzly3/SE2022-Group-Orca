@@ -51,8 +51,12 @@ export const useCourseStore = defineStore('course', {
     login: false,
     type: user.type,
     course_list: [],
+    departments: []
   }),
   actions: {
+    async load_course_constants() {
+      return
+    },
     async load_course_lists_page_admin() {
       console.log(user.type);
 
