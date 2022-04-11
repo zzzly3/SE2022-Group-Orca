@@ -36,7 +36,7 @@
                 @click="editShow[props.rowIndex] = true"
               />
               <q-btn flat style="width: 5px" color="red" size="sm" :icon="'close'"
-                @click="deleteCourse(props.row)"/>
+                @click="deleteShow[props.rowIndex] = true"/>
             </q-btn-group>
             <!--CourseEditor-->
             <q-dialog v-model="editShow[props.rowIndex]">
@@ -90,6 +90,22 @@
             </q-dialog>
             <!--CourseEditor-->
             <!-- courseDelete -->
+            <q-dialog v-model="deleteShow[props.rowIndex]">
+              <q-card style="width: 300px" class="q-pa-md">
+                <q-card-section>
+                  <div class="text-subtitle1 self-center full-width no-outline">
+                    确定删除该课程？
+                  </div>
+                </q-card-section>
+                <q-separator />
+                <q-card-section align="right">
+                  <q-btn color="red" flat label="取消"
+                    @click="deleteShow[props.rowIndex] = false"/>
+                  <q-btn color="teal-10" flat label="确定" v-close-popup
+                    @click="deleteCourse(props.row)"/>
+                </q-card-section>
+              </q-card>
+            </q-dialog>
             <!-- courseDelete -->
           </q-td>
         </q-tr>
@@ -294,12 +310,6 @@ export default defineComponent({
     const teachers = computed(() => {
       return course.teacherList
     })
-    const departments = computed(() => {
-      return course.departmentList
-    })
-    const majors = computed(() => {
-      return course.majorList
-    })
 
     //CourseAdder start
     const showMenu = ref(false);
@@ -315,8 +325,6 @@ export default defineComponent({
     const addCourseTeacher = computed(() => {
       return user.name.concat(' (工号: ', user.id, ')');
     })
-    const addCourseMajor = ref('');
-    const addCourseDepartment = ref('');
     const addCourseCredit = ref('');
     const addCourseCreditHour = ref('');
     const addCourseCapacity = ref('');
@@ -343,8 +351,6 @@ export default defineComponent({
       addCourseTimeStart.value = '';
       addCourseTimeEnd.value = '';
       addCoursePlace.value = '';
-      addCourseMajor.value = '';
-      addCourseDepartment.value = '';
       addCourseCredit.value = '';
       addCourseCreditHour.value = '';
       addCourseCapacity.value = '';
@@ -375,6 +381,9 @@ export default defineComponent({
     //CourseEditor start
     const editShow = ref([false] as boolean[]);
     //CourseEditor end
+    //CourseDelete start
+    const deleteShow = ref([false] as boolean[]);
+    //CourseDelete end
 
     return {
       rules,
@@ -388,8 +397,6 @@ export default defineComponent({
       courseTimeEnds,
       classrooms,
       teachers,
-      departments,
-      majors,
 
       //CourseAdder start
       showMenu,
@@ -403,8 +410,6 @@ export default defineComponent({
       addCourseTimeEnd,
       addCoursePlace,
       addCourseTeacher,
-      addCourseMajor,
-      addCourseDepartment,
       addCourseCredit,
       addCourseCreditHour,
       addCourseCapacity,
@@ -467,8 +472,6 @@ export default defineComponent({
             courseTimeEnd: addCourseTimeEnd.value,
             coursePlace: addCoursePlace.value,
             courseTeacher: addCourseTeacher.value,
-            courseMajor: addCourseMajor.value,
-            courseDepartment: addCourseDepartment.value,
             courseCredit: addCourseCredit.value,
             courseCreditHour: addCourseCreditHour.value,
             courseCapacity: addCourseCapacity.value,
@@ -500,8 +503,6 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
-            courseMajor: row.courseMajor,
-            courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
@@ -513,6 +514,8 @@ export default defineComponent({
         }
       },
       //CourseEditor end
+      //CourseDelete start
+      deleteShow,
       async deleteCourse(row: CourseInfo) {
         await course.send_course_application({
           courseId: row.courseId,
@@ -523,8 +526,6 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
-          courseMajor: row.courseMajor,
-          courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
           courseCapacity: row.courseCapacity,
@@ -532,6 +533,7 @@ export default defineComponent({
           applicationType: '2',
         });
       },
+      //CourseDelete end
     };
   },
 });

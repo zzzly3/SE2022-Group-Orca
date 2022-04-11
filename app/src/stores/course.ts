@@ -29,8 +29,6 @@ export interface CourseApplicationInfo {
   courseTimeEnd: string;
   coursePlace: string;
   courseTeacher: string;
-  courseMajor: string;
-  courseDepartment: string;
   courseCredit: string;
   courseCreditHour: string;
   courseCapacity: string;
@@ -54,8 +52,6 @@ export const useCourseStore = defineStore('course', {
     courseTimeEndList: [],
     classroomList: [],
     teacherList: [],
-    departmentList: [],
-    majorList: [],
   }),
   actions: {
     async load_course_constants() {
@@ -64,8 +60,6 @@ export const useCourseStore = defineStore('course', {
       this.courseTimeEndList = r.courseTimeEndList
       this.classroomList = r.classRoomList
       this.teacherList = r.teacherList
-      this.departmentList = r.departmentList
-      this.majorList = r.majorList
       console.log(r.teacherList)
       return r
     },
@@ -94,8 +88,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
-      courseMajor,
-      courseDepartment,
       courseCredit,
       courseCreditHour,
       courseCapacity,
@@ -109,8 +101,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
-      courseMajor: string;
-      courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
       courseCapacity: string;
@@ -127,8 +117,6 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
-          courseMajor,
-          courseDepartment,
           courseCredit,
           courseCreditHour,
           courseCapacity,
@@ -153,8 +141,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
-      courseMajor,
-      courseDepartment,
       courseCredit,
       courseCreditHour,
       courseCapacity,
@@ -168,8 +154,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
-      courseMajor: string;
-      courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
       courseCapacity: string;
@@ -185,8 +169,6 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
-          courseMajor,
-          courseDepartment,
           courseCredit,
           courseCreditHour,
           courseCapacity,
@@ -202,8 +184,8 @@ export const useCourseStore = defineStore('course', {
       }
       return false;
     },
-    async delete_course(courseId: string) {
-      if ((await post('/course/delete_course', { courseId })) != false) {
+    async delete_course(courseId: string, courseTeacher: string) {
+      if ((await post('/course/delete_course', { courseId, courseTeacher })) != false) {
         Notify.create({
           message: '删除成功',
           color: 'positive',
@@ -232,8 +214,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
-      courseMajor,
-      courseDepartment,
       courseCredit,
       courseCreditHour,
       courseCapacity,
@@ -253,8 +233,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
-      courseMajor: string;
-      courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
       courseCapacity: string;
@@ -276,8 +254,6 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
-          courseMajor,
-          courseDepartment,
           courseCredit,
           courseCreditHour,
           courseCapacity,
@@ -348,8 +324,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd,
       coursePlace,
       courseTeacher,
-      courseMajor,
-      courseDepartment,
       courseCredit,
       courseCreditHour,
       courseCapacity,
@@ -364,8 +338,6 @@ export const useCourseStore = defineStore('course', {
       courseTimeEnd: string;
       coursePlace: string;
       courseTeacher: string;
-      courseMajor: string;
-      courseDepartment: string;
       courseCredit: string;
       courseCreditHour: string;
       courseCapacity: string;
@@ -383,8 +355,6 @@ export const useCourseStore = defineStore('course', {
           courseTimeEnd,
           coursePlace,
           courseTeacher,
-          courseMajor,
-          courseDepartment,
           courseCredit,
           courseCreditHour,
           courseCapacity,

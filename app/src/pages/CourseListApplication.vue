@@ -176,8 +176,6 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
-            courseMajor: row.courseMajor,
-            courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
@@ -193,15 +191,13 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
-            courseMajor: row.courseMajor,
-            courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
             courseDescription: row.courseDescription,
           });
         } else if (row.applicationType === '删除') {
-          await course.delete_course(row.courseId);
+          await course.delete_course(row.courseId, row.courseTeacher);
         }
 
         await course.update_course_application_status({
@@ -213,8 +209,6 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
-          courseMajor: row.courseMajor,
-          courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
           courseCapacity: row.courseCapacity,
@@ -241,8 +235,6 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
-          courseMajor: row.courseMajor,
-          courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
           courseCapacity: row.courseCapacity,

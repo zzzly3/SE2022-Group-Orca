@@ -1,15 +1,9 @@
 package com.orca.back.utils.common;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.orca.back.entity.*;
-import com.orca.back.mapper.MajorMapper;
-import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,8 +14,6 @@ public class Checker {
             "([01]?[0-9]|2[0-3]):[0-5][0-9]";
     private Pattern pattern;
     private Matcher matcher;
-    @Resource
-    private MajorMapper majorMapper;
 
     public ErrorCode checkTime(String time){
         System.out.print("time is " + time);
@@ -51,18 +43,18 @@ public class Checker {
 
     public ErrorCode checkCourseApplication(CourseApplication courseApplication){
         ErrorCode err = checkCourseId(courseApplication.getCourseId());
-        if (err == null) err = checkName(courseApplication.getCourseName());
+        if (err == null) err = checkName(courseApplication.getCourseName()) == null ? null : ErrorCode.E_302;
         if(err == null) err = checkCourseFormPre5(courseApplication.getCourseTimeDay(), courseApplication.getCourseTimeStart(), courseApplication.getCourseTimeEnd(), courseApplication.getCoursePlace(), courseApplication.getCourseTeacher());
-        if (err == null) err = checkCourseFormLast5(courseApplication.getCourseMajor(), courseApplication.getCourseDepartment(), courseApplication.getCourseCredit(), courseApplication.getCourseCreditHour(), courseApplication.getCourseCapacity());
+        if (err == null) err = checkCourseFormLast3(courseApplication.getCourseCredit(), courseApplication.getCourseCreditHour(), courseApplication.getCourseCapacity());
         if (err == null) err = checkCourseDescription(courseApplication.getCourseDescription());
         return err;
     }
 
     public ErrorCode checkCourse(Course course){
         ErrorCode err = checkCourseId(course.getCourseId());
-        if(err == null)err = checkName(course.getCourseName());
+        if(err == null)err = checkName(course.getCourseName()) == null ? null : ErrorCode.E_302;
         if(err == null)err = checkCourseFormPre5(course.getCourseTimeDay(), course.getCourseTimeStart(), course.getCourseTimeEnd(), course.getCoursePlace(), course.getCourseTeacher());
-        if(err == null)err = checkCourseFormLast5(course.getCourseMajor(), course.getCourseDepartment(), course.getCourseCredit(), course.getCourseCreditHour(), course.getCourseCapacity());
+        if(err == null)err = checkCourseFormLast3(course.getCourseCredit(), course.getCourseCreditHour(), course.getCourseCapacity());
         if(err == null)err = checkCourseDescription(course.getCourseDescription());
         return err;
     }
@@ -71,8 +63,7 @@ public class Checker {
         return (courseId == null || courseId.length() == 0 || !courseId.matches("[A-Z]+[0-9]+")) ? ErrorCode.E_301 : null;
     }
     public ErrorCode checkCourseFormPre5(String courseTimeDay, String courseTimeStart, String courseTimeEnd, String classroom, String teacher){
-        ErrorCode err = null;
-        err = courseTimeDay == null || courseTimeDay.length() == 0 ? ErrorCode.E_303 : null;
+        ErrorCode err = courseTimeDay == null || courseTimeDay.length() == 0 ? ErrorCode.E_303 : null;
         if(err == null)
             err = courseTimeStart == null || courseTimeStart.length() == 0 ? ErrorCode.E_304 : null;
         if(err == null)
@@ -82,17 +73,12 @@ public class Checker {
         if(err == null)
             err = teacher == null || teacher.length() == 0 ? ErrorCode.E_307 : null;
         if(err == null)
-            err = courseTimeStart.compareTo(courseTimeEnd) < 0 ? ErrorCode.E_203 : null;
+            err = courseTimeStart.compareTo(courseTimeEnd) >= 0 ? ErrorCode.E_203 : null;
         return err;
     }
 
-    public ErrorCode checkCourseFormLast5(String major, String department, Integer credit, Integer creditHour, Integer capacity){
-        ErrorCode err = null;
-        if(major == null || major.length() == 0)err = ErrorCode.E_308;
-        if(err == null)
-            err = department == null || department.length() == 0 ? ErrorCode.E_309 : null;
-        if(err == null)
-            err = credit == null || credit == 0 ? ErrorCode.E_310 : null;
+    public ErrorCode checkCourseFormLast3(Integer credit, Integer creditHour, Integer capacity){
+        ErrorCode err = credit == null || credit == 0 ? ErrorCode.E_310 : null;
         if(err == null)
             err = creditHour == null || creditHour == 0 ? ErrorCode.E_311 : null;
         if(err == null)

@@ -119,7 +119,7 @@
                   <q-btn color="red" flat label="取消"
                     @click="deleteShow[props.rowIndex] = false"/>
                   <q-btn color="teal-10" flat label="确定" v-close-popup
-                    @click="deleteCourse(props.row.courseId)"/>
+                    @click="deleteCourse(props.row.courseId, props.row.courseTeacher)"/>
                 </q-card-section>
               </q-card>
             </q-dialog>
@@ -390,12 +390,7 @@ export default defineComponent({
     const teachers = computed(() => {
       return course.teacherList
     })
-    const departments = computed(() => {
-      return course.departmentList
-    })
-    const majors = computed(() => {
-      return course.majorList
-    })
+
     //BatchImport start
     const importShow = ref(false);
     const file = ref<File|null>(null);
@@ -414,8 +409,6 @@ export default defineComponent({
     const addCourseTimeEnd = ref();
     const addCoursePlace = ref('');
     const addCourseTeacher = ref('');
-    const addCourseMajor = ref('');
-    const addCourseDepartment = ref('');
     const addCourseCredit = ref('');
     const addCourseCreditHour = ref('');
     const addCourseCapacity = ref('');
@@ -443,8 +436,6 @@ export default defineComponent({
       addCourseTimeEnd.value = '';
       addCoursePlace.value = '';
       addCourseTeacher.value = '';
-      addCourseMajor.value = '';
-      addCourseDepartment.value = '';
       addCourseCredit.value = '';
       addCourseCreditHour.value = '';
       addCourseCapacity.value = '';
@@ -513,8 +504,6 @@ export default defineComponent({
       courseTimeEnds,
       classrooms,
       teachers,
-      departments,
-      majors,
 
       //CourseAdder start
       showMenu,
@@ -528,8 +517,6 @@ export default defineComponent({
       addCourseTimeEnd,
       addCoursePlace,
       addCourseTeacher,
-      addCourseMajor,
-      addCourseDepartment,
       addCourseCredit,
       addCourseCreditHour,
       addCourseCapacity,
@@ -589,8 +576,6 @@ export default defineComponent({
             courseTimeEnd: addCourseTimeEnd.value,
             coursePlace: addCoursePlace.value,
             courseTeacher: addCourseTeacher.value.value,
-            courseMajor: addCourseMajor.value,
-            courseDepartment: addCourseDepartment.value,
             courseCredit: addCourseCredit.value,
             courseCreditHour: addCourseCreditHour.value,
             courseCapacity: addCourseCapacity.value,
@@ -642,8 +627,6 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
-            courseMajor: row.courseMajor,
-            courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
@@ -659,8 +642,8 @@ export default defineComponent({
       //CourseDeleter start
       deleteShow,
 
-      async deleteCourse(courseId: string) {
-        await course.delete_course(courseId);
+      async deleteCourse(courseId: string, courseTeacher: string) {
+        await course.delete_course(courseId, courseTeacher);
         await course.load_course_lists_page_admin();
         await course.load_course_lists_page_admin().then((r) => (rows.value = r));
       },

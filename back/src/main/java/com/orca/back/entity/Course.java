@@ -18,8 +18,6 @@ public class Course {
     private String courseTimeEnd;
     private String coursePlace;
     private String courseTeacher;
-    private String courseMajor;
-    private String courseDepartment;
     private Integer courseCredit;
     private Integer courseCreditHour;
     private Integer courseCapacity;
