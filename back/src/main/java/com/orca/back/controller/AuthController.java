@@ -14,9 +14,11 @@ import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -51,7 +53,6 @@ public class AuthController {
         err = check.checkLogin(request);
         if(err != null)return Result.error(err);
         List<Classroom> res = classroomMapper.findOpen();
-        System.out.print(res);
         return Result.success(res);
     }
 
@@ -61,7 +62,6 @@ public class AuthController {
         err = check.checkLogin(request);
         if(err != null)return Result.error(err);
         List<Classroom> res = classroomMapper.findAll();
-        System.out.print(res);
         return Result.success(res);
     }
 
@@ -71,7 +71,26 @@ public class AuthController {
         err = check.checkLogin(request);
         if(err != null)return Result.error(err);
         List<ClassTime> res = classTimeMapper.findAll();
-        System.out.print(res);
+        return Result.success(res);
+    }
+
+    @PostMapping("/load_course_selection_state")
+    public Result<?> load_course_selection_state(HttpServletRequest request){
+        System.out.print("in backend: load_course_selection_state\n");
+        Result<?> err1 = checkAdmin(request);
+        if(err1 != null)return err1;
+        CourseSelectionState res = courseSelectionStateMapper.getState();
+        return Result.success(res);
+    }
+
+
+    @PostMapping("/select_classTime")
+    public Result<?> select_classTime(@RequestBody Map<String, Integer> pair, HttpServletRequest request){
+        System.out.print("in backend: select_classTime\n");
+        Result<?> err1 = checkAdmin(request);
+        if(err1 != null)return err1;
+        ClassTime res = classTimeMapper.selectById(pair.get("id"));
+        if(res == null)return Result.error(ErrorCode.E_206);
         return Result.success(res);
     }
 
@@ -86,7 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/modify_classroom")
-    public Result<?> modify_classTime(@RequestBody Classroom classroom, HttpServletRequest request){
+    public Result<?> modify_classroom(@RequestBody Classroom classroom, HttpServletRequest request){
         System.out.print("in backend: modify_classroom\n");
         System.out.print(classroom);
         Result<?> err1 = checkAdmin(request);
@@ -105,7 +124,6 @@ public class AuthController {
     @PostMapping("/modify_classTime")
     public Result<?> modify_classTime(@RequestBody ClassTime classTime, HttpServletRequest request){
         System.out.print("in backend: modify_classTime\n");
-        System.out.print(classTime);
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
         /*非法输入*/
@@ -114,7 +132,6 @@ public class AuthController {
             /*重复的课程节次*/
         ClassTime res = classTimeMapper.selectOne(
                 Wrappers.<ClassTime>lambdaQuery().eq(ClassTime::getId, classTime.getId()));
-        System.out.print(res);
         if(res != null){
             classTimeMapper.updateById(classTime);
         }else classTimeMapper.insert(classTime);

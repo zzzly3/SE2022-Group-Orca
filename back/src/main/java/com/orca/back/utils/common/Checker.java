@@ -19,11 +19,18 @@ public class Checker {
     private static final String TIME24HOURS_PATTERN =
             "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 
+    private static final String DIGIT_ALPHABET = "^[a-zA-z][a-z0-9A-Z]*$";
+
     public ErrorCode checkTime(String time){
-        System.out.print("time is " + time);
         Pattern pattern = Pattern.compile(TIME24HOURS_PATTERN);
         return pattern.matcher(time).matches() ? null:ErrorCode.E_202;
     }
+
+    public ErrorCode checkDigitAlphabet(String da){
+        Pattern pattern = Pattern.compile(DIGIT_ALPHABET);
+        return pattern.matcher(da).matches() ? null:ErrorCode.E_205;
+    }
+
     public ErrorCode checkClassTime(ClassTime classTime){
         ErrorCode err = null;
         if(classTime.getId() == null)err = ErrorCode.E_201;
@@ -40,6 +47,8 @@ public class Checker {
         String name = classroom.getName();
         String building = classroom.getBuilding();
         if(name == null || building == null)err = ErrorCode.E_201;
+        if(err == null)err = checkDigitAlphabet(name);
+        if(err == null)err = checkDigitAlphabet(building);
         if(err == null)err = name.length() > building.length() ? null : ErrorCode.E_204;
         if(err == null)err = name.startsWith(classroom.getBuilding()) ? null: ErrorCode.E_204;
         return err;

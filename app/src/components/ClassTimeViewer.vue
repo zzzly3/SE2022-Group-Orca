@@ -54,19 +54,19 @@ export default defineComponent({
     const clear = ()=>{
       show.value = false
     }
-
+    const load = async ()=>{
+      console.log('ClassTimeViewer: in load')
+      tableLoading.value = true
+      show.value = true
+      const r = await CT.load_classTime()
+      if(r !== false){
+        rows.value = r
+      }else clear()
+      tableLoading.value = false
+    }
     return{
       show, tableLoading, clear, rows, test,
-      load: async function(){
-        console.log('ClassTimeViewer: in load')
-        tableLoading.value = true
-        show.value = true
-        const r = await CT.load_classTime()
-        if(r !== false){
-          rows.value = r
-        }else clear()
-        tableLoading.value = false
-      }
+      load
     }
   }
 })
