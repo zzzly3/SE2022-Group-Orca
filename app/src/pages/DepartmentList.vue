@@ -88,12 +88,12 @@
                   <tr v-if="major_list.length === 0">
                     <td class="row full-width text-center">
                       <span class="col self-center text-center q-pl-md text-basic text-body2">
-                        {{select_college === 0 ? '请选择学院' : '选择的学院下无专业'}}
+                        {{select_college === 0 ? '选择学院来查看其中的专业' : '选择的学院下无专业'}}
                       </span>
                     </td>
                   </tr>
                   <tr v-if="select_college !== 0">
-                    <td class="row full-width text-center cursor-pointer" v-ripple>
+                    <td class="row full-width text-center cursor-pointer" v-ripple @click.stop>
                       <span class="q-pl-md text-body2 text-positive self-center col">
                         <q-icon name="add"/>添加专业
                         <q-popup-edit v-model="add_name" auto-save v-slot="scope"
