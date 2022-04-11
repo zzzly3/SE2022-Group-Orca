@@ -50,24 +50,60 @@ public class Checker {
     }
 
     public ErrorCode checkCourseApplication(CourseApplication courseApplication){
-        ErrorCode err = null;
-        if (checkCourseMajor(courseApplication.getCourseMajor()) != null)
-            return ErrorCode.E_302;
-        if (courseApplication.getCourseDescription() == null || courseApplication.getCourseDescription().length() == 0)
-            err = ErrorCode.E_301;
+        ErrorCode err = checkCourseId(courseApplication.getCourseId());
+        if (err == null) err = checkName(courseApplication.getCourseName());
+        if(err == null) err = checkCourseFormPre5(courseApplication.getCourseTimeDay(), courseApplication.getCourseTimeStart(), courseApplication.getCourseTimeEnd(), courseApplication.getCoursePlace(), courseApplication.getCourseTeacher());
+        if (err == null) err = checkCourseFormLast5(courseApplication.getCourseMajor(), courseApplication.getCourseDepartment(), courseApplication.getCourseCredit(), courseApplication.getCourseCreditHour(), courseApplication.getCourseCapacity());
+        if (err == null) err = checkCourseDescription(courseApplication.getCourseDescription());
         return err;
     }
-    //check courseid /[A-Z]+[0-9]+/
+
+    public ErrorCode checkCourse(Course course){
+        ErrorCode err = checkCourseId(course.getCourseId());
+        if(err == null)err = checkName(course.getCourseName());
+        if(err == null)err = checkCourseFormPre5(course.getCourseTimeDay(), course.getCourseTimeStart(), course.getCourseTimeEnd(), course.getCoursePlace(), course.getCourseTeacher());
+        if(err == null)err = checkCourseFormLast5(course.getCourseMajor(), course.getCourseDepartment(), course.getCourseCredit(), course.getCourseCreditHour(), course.getCourseCapacity());
+        if(err == null)err = checkCourseDescription(course.getCourseDescription());
+        return err;
+    }
+
     public ErrorCode checkCourseId(String courseId){
         return (courseId == null || courseId.length() == 0 || !courseId.matches("[A-Z]+[0-9]+")) ? ErrorCode.E_301 : null;
     }
-    //check if course major is in major
-    public ErrorCode checkCourseMajor(String major){
-        if (major == null || major.length() == 0)
-            return ErrorCode.E_302;
-        Major major1 = majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getName, major));
-        return major1 == null ? ErrorCode.E_302 : null;
+    public ErrorCode checkCourseFormPre5(String courseTimeDay, String courseTimeStart, String courseTimeEnd, String classroom, String teacher){
+        ErrorCode err = null;
+        err = courseTimeDay == null || courseTimeDay.length() == 0 ? ErrorCode.E_303 : null;
+        if(err == null)
+            err = courseTimeStart == null || courseTimeStart.length() == 0 ? ErrorCode.E_304 : null;
+        if(err == null)
+            err = courseTimeEnd == null || courseTimeEnd.length() == 0 ? ErrorCode.E_305 : null;
+        if(err == null)
+            err = classroom == null || classroom.length() == 0 ? ErrorCode.E_306 : null;
+        if(err == null)
+            err = teacher == null || teacher.length() == 0 ? ErrorCode.E_307 : null;
+        if(err == null)
+            err = courseTimeStart.compareTo(courseTimeEnd) < 0 ? ErrorCode.E_203 : null;
+        return err;
     }
+
+    public ErrorCode checkCourseFormLast5(String major, String department, Integer credit, Integer creditHour, Integer capacity){
+        ErrorCode err = null;
+        if(major == null || major.length() == 0)err = ErrorCode.E_308;
+        if(err == null)
+            err = department == null || department.length() == 0 ? ErrorCode.E_309 : null;
+        if(err == null)
+            err = credit == null || credit == 0 ? ErrorCode.E_310 : null;
+        if(err == null)
+            err = creditHour == null || creditHour == 0 ? ErrorCode.E_311 : null;
+        if(err == null)
+            err = capacity == null || capacity == 0 ? ErrorCode.E_312 : null;
+        return err;
+    }
+
+    public ErrorCode checkCourseDescription(String courseDescription){
+        return (courseDescription == null || courseDescription.length() == 0) ? ErrorCode.E_313 : null;
+    }
+
 
     public ErrorCode checkRegistry(User user){
         /*身份证号*/

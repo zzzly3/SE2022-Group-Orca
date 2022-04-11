@@ -48,11 +48,11 @@
                   </div>
                 </q-card-section>
                 <q-card-section class="q-py-none">
-                  <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                  <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
                     <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                    <q-input style="height: 42px" class="col" dense label="课程名称" disable v-model="props.row.courseName"/>
+                    <q-input style="height: 60px" class="col" dense label="课程名称" disable v-model="props.row.courseName"/>
                     <div class="row items-start q-gutter-md">
-                      <q-select class="col" dense v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
+                      <q-select style="height: 60px" class="col" dense v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
                       <q-select class="col" dense v-model="props.row.courseTimeStart" :options="courseTimeStarts" label="开始时间"/>
                       <q-field borderless disable dense>
                         <template v-slot:control>
@@ -64,12 +64,8 @@
                       <q-select class="col" dense v-model="props.row.courseTimeEnd" :options="courseTimeEnds" label="结束时间"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-select class="col" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
-                      <q-select class="col" dense v-model="props.row.courseTeacher" label="任课老师" disable/>
-                    </div>
-                    <div class="row items-start q-gutter-md">
-                      <q-select class="col" dense disable v-model="props.row.courseMajor" :options="majors" label="所属专业"/>
-                      <q-select class="col" dense disable v-model="props.row.courseDepartment" :options="departments" label="开课院系"/>
+                      <q-select style="height: 63px" class="col" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
+                      <q-select class="col" dense v-model="addCourseTeacher" label="任课老师" disable/>
                     </div>
                     <div class="row items-start q-gutter-md">
                       <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
@@ -118,8 +114,8 @@
                 </div>
               </q-card-section>
               <q-card-section class="q-py-none">
-                <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
-                  <q-input style="height: 53px" class="col" dense label="课程编号" v-model="addCourseId" autofocus
+                <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
+                  <q-input style="height: 53px" class="col" dense label="课程编号" v-model="addCourseId"
                   lazy-rules :rules="[val => rules.courseId.test(val) || '无效的课程编号']" ref="addCourseIdRef"/>
                   <q-input style="height: 53px" class="col" dense label="课程名称" v-model="addCourseName"
                   lazy-rules :rules="[val => rules.courseName.test(val) || '无效的课程名称']" ref="addCourseNameRef"/>
@@ -139,14 +135,8 @@
                   <div class="row items-start q-gutter-md">
                     <q-select class="col" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"
                     lazy-rules :rules="[val => !!val || '课程教室不能为空']" ref="addCoursePlaceRef"/>
-                    <q-select class="col" dense v-model="addCourseTeacher" :options="teachers" label="任课老师"
+                    <q-select disable class="col" dense v-model="addCourseTeacher" :options="teachers" label="任课老师"
                     lazy-rules :rules="[val => !!val || '任课教师不能为空']" ref="addCourseTeacherRef"/>
-                  </div>
-                  <div class="row items-start q-gutter-md">
-                    <q-select class="col" dense v-model="addCourseMajor" :options="majors" label="所属专业"
-                    lazy-rules :rules="[val => !!val || '课程所属专业不能为空']" ref="addCourseMajorRef"/>
-                    <q-select class="col" dense v-model="addCourseDepartment" :options="departments" label="开课院系"
-                    lazy-rules :rules="[val => !!val || '开课院系不能为空']" ref="addCourseDepartmentRef"/>
                   </div>
                   <div class="row items-start q-gutter-md">
                     <q-select style="height: 56px" class="col" dense v-model="addCourseCredit" :options="credits" label="学分"
@@ -203,8 +193,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { CourseInfo, useCourseStore } from 'stores/course';
+import { useUserStore } from 'src/stores/user';
 import { QValidate } from 'src/components/models';
-import { useQuasar } from 'quasar';
 
 const columns = [
   {
@@ -287,9 +277,8 @@ export default defineComponent({
   name: 'CourseList',
   components: {},
   setup() {
-    const $q = useQuasar();
+    const user = useUserStore();
     const course = useCourseStore();
-    // const user = useUserStore();
     const rows = ref([] as CourseInfo[]);
     course.load_course_lists_page_teacher().then((r) => (rows.value = r));
     course.load_course_constants()
@@ -323,7 +312,9 @@ export default defineComponent({
     const addCourseTimeStart = ref();
     const addCourseTimeEnd = ref();
     const addCoursePlace = ref('');
-    const addCourseTeacher = ref('');
+    const addCourseTeacher = computed(() => {
+      return user.name.concat(' (工号: ', user.id, ')');
+    })
     const addCourseMajor = ref('');
     const addCourseDepartment = ref('');
     const addCourseCredit = ref('');
@@ -333,19 +324,15 @@ export default defineComponent({
 
     const addCourseIdRef = ref<QValidate|null>(null);
     const addCourseNameRef = ref<QValidate|null>(null);
-    const addCourseTimeRef = ref<QValidate|null>(null);
     const addCourseTimeDayRef = ref<QValidate|null>(null);
     const addCourseTimeStartRef = ref<QValidate|null>(null);
     const addCourseTimeEndRef = ref<QValidate|null>(null);
     const addCoursePlaceRef = ref<QValidate|null>(null);
     const addCourseTeacherRef = ref<QValidate|null>(null);
-    const addCourseMajorRef = ref<QValidate|null>(null);
-    const addCourseDepartmentRef = ref<QValidate|null>(null);
     const addCourseCreditRef = ref<QValidate|null>(null);
     const addCourseCreditHourRef = ref<QValidate|null>(null);
     const addCourseCapacityRef = ref<QValidate|null>(null);
     const addCourseDescriptionRef = ref<QValidate|null>(null);
-
 
     const clear = () => {
       addShow.value = false;
@@ -356,7 +343,6 @@ export default defineComponent({
       addCourseTimeStart.value = '';
       addCourseTimeEnd.value = '';
       addCoursePlace.value = '';
-      addCourseTeacher.value = '';
       addCourseMajor.value = '';
       addCourseDepartment.value = '';
       addCourseCredit.value = '';
@@ -426,14 +412,11 @@ export default defineComponent({
 
       addCourseIdRef,
       addCourseNameRef,
-      addCourseTimeRef,
       addCourseTimeDayRef,
       addCourseTimeStartRef,
       addCourseTimeEndRef,
       addCoursePlaceRef,
       addCourseTeacherRef,
-      addCourseMajorRef,
-      addCourseDepartmentRef,
       addCourseCreditRef,
       addCourseCreditHourRef,
       addCourseCapacityRef,
@@ -448,14 +431,7 @@ export default defineComponent({
       menu5,
 
       async addSubmit() {
-        /*
-        if(!addCourseIdRef.value || !addCourseNameRef.value || !addCourseTimeRef.value || !addCourseTimeDayRef.value || !addCourseTimeStartRef.value || !addCourseTimeEndRef.value || !addCoursePlaceRef.value || !addCourseTeacherRef.value || !addCourseMajorRef.value || !addCourseDepartmentRef.value || !addCourseCreditRef.value || !addCourseCreditHourRef.value || !addCourseCapacityRef.value || !addCourseDescriptionRef.value) {
-          console.log(addCourseIdRef.value)
-          console.log(addCourseNameRef.value)
-          $q.notify({
-            color: 'negative',
-            message: '请正确填写所有信息',
-          });
+        if(!addCourseIdRef.value || !addCourseNameRef.value || !addCourseTimeDayRef.value || !addCourseTimeStartRef.value || !addCourseTimeEndRef.value || !addCoursePlaceRef.value || !addCourseTeacherRef.value || !addCourseCreditRef.value || !addCourseCreditHourRef.value || !addCourseCapacityRef.value || !addCourseDescriptionRef.value) {
           return;
         }
 
@@ -466,16 +442,13 @@ export default defineComponent({
         addCourseTimeEndRef.value.validate();
         addCoursePlaceRef.value.validate();
         addCourseTeacherRef.value.validate();
-        addCourseMajorRef.value.validate();
-        addCourseDepartmentRef.value.validate();
         addCourseCreditRef.value.validate();
         addCourseCreditHourRef.value.validate();
         addCourseCapacityRef.value.validate();
         addCourseDescriptionRef.value.validate();
-        if (addCourseIdRef.value.hasError || addCourseNameRef.value.hasError || addCourseTimeDayRef.value.hasError || addCourseTimeStartRef.value.hasError || addCourseTimeEndRef.value.hasError || addCoursePlaceRef.value.hasError || addCourseTeacherRef.value.hasError || addCourseMajorRef.value.hasError || addCourseDepartmentRef.value.hasError || addCourseCreditRef.value.hasError || addCourseCreditHourRef.value.hasError || addCourseCapacityRef.value.hasError || addCourseDescriptionRef.value.hasError) {
+        if (addCourseIdRef.value.hasError || addCourseNameRef.value.hasError || addCourseTimeDayRef.value.hasError || addCourseTimeStartRef.value.hasError || addCourseTimeEndRef.value.hasError || addCoursePlaceRef.value.hasError || addCourseTeacherRef.value.hasError || addCourseCreditRef.value.hasError || addCourseCreditHourRef.value.hasError || addCourseCapacityRef.value.hasError || addCourseDescriptionRef.value.hasError) {
           return;
         }
-        */
 
         const addTime = addCourseTimeDay.value.concat(
           ' : ',

@@ -42,11 +42,11 @@
                     </div>
                   </q-card-section>
                   <q-card-section class="q-py-none">
-                    <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                    <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
                       <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                      <q-input style="height: 42px" class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
+                      <q-input style="height: 60px" class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
                       <div class="row items-start q-gutter-md">
-                        <q-select class="col" dense disable v-model="props.row.courseTimeDay" label="上课时间"/>
+                        <q-select style="height: 60px" class="col" dense disable v-model="props.row.courseTimeDay" label="上课时间"/>
                         <q-select class="col" dense disable v-model="props.row.courseTimeStart" label="开始时间"/>
                         <q-field borderless disable dense>
                           <template v-slot:control>
@@ -58,12 +58,8 @@
                         <q-select class="col" dense disable v-model="props.row.courseTimeEnd" label="结束时间"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-select class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
+                        <q-select style="height: 63px" class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
                         <q-select class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
-                      </div>
-                      <div class="row items-start q-gutter-md">
-                        <q-select class="col" dense disable v-model="props.row.courseMajor" label="所属专业"/>
-                        <q-select class="col" dense disable v-model="props.row.courseDepartment" label="开课院系"/>
                       </div>
                       <div class="row items-start q-gutter-md">
                         <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
@@ -132,7 +128,7 @@ const columns = [
     name: 'applicantNumber',
     align: 'center',
     label: '申请者工号',
-    field: 'applicationNumber',
+    field: 'applicantNumber',
   },
   {
     name: 'applicationTime',

@@ -66,6 +66,7 @@ export const useCourseStore = defineStore('course', {
       this.teacherList = r.teacherList
       this.departmentList = r.departmentList
       this.majorList = r.majorList
+      console.log(r.teacherList)
       return r
     },
     async load_course_lists_page_admin() {
@@ -115,6 +116,7 @@ export const useCourseStore = defineStore('course', {
       courseCapacity: string;
       courseDescription: string;
     }) {
+      console.log(courseTeacher)
       if (
         (await post('/course/add_course', {
           courseId,
@@ -308,7 +310,7 @@ export const useCourseStore = defineStore('course', {
       if (this.type === 'teacher') {
         const r = await post(
           '/course/get_course_teacher',
-          { name: this.name },
+          { name: user.name, number: user.id },
           false
         );
         if (r != false) {
@@ -324,9 +326,10 @@ export const useCourseStore = defineStore('course', {
       if (this.type === 'teacher') {
         const r = await post(
           '/course/get_course_application_teacher',
-          { name: this.name },
+          { number: user.id, name: user.name },
           false
         );
+        console.log(r)
         return r;
       } else {
         Notify.create({
@@ -369,6 +372,7 @@ export const useCourseStore = defineStore('course', {
       courseDescription: string;
       applicationType: string;
     }) {
+      user.load_user_info();
       if (
         (await post('/course/send_course_application', {
           courseId,
@@ -386,7 +390,8 @@ export const useCourseStore = defineStore('course', {
           courseCapacity,
           courseDescription,
           applicationType,
-          applicantName: this.name,
+          applicantName: user.name,
+          applicantNumber: user.id,
         })) != false
       ) {
         Notify.create({
@@ -398,5 +403,24 @@ export const useCourseStore = defineStore('course', {
       }
       return false;
     },
+    async load_course_lists_page_student(){
+      this.type = user.type;
+      console.log(this.type);
+      if (this.type === 'student') {
+        const r = await post(
+          '/course/get_course_student',
+          { major: user.major.id },
+          false
+        );
+        if (r != false) {
+          return r;
+        }else {
+          Notify.create({ type: 'info', message: '当前选课未开放' });
+        }
+      } else {
+        Notify.create({ type: 'negative', message: '您没有权限访问该页面' });
+      }
+      return [];
+    }
   },
 });
