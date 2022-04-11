@@ -1,8 +1,8 @@
 package com.orca.back.utils.common;
 
-import com.orca.back.entity.ClassTime;
-import com.orca.back.entity.Classroom;
-import com.orca.back.entity.User;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.orca.back.entity.*;
+import com.orca.back.mapper.MajorMapper;
 import com.orca.back.mapper.UserMapper;
 import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,8 @@ public class Checker {
             "([01]?[0-9]|2[0-3]):[0-5][0-9]";
     private Pattern pattern;
     private Matcher matcher;
+    @Resource
+    private MajorMapper majorMapper;
 
     public ErrorCode checkTime(String time){
         System.out.print("time is " + time);
@@ -45,6 +47,26 @@ public class Checker {
         if(err == null)err = name.length() > building.length() ? null : ErrorCode.E_204;
         if(err == null)err = name.startsWith(classroom.getBuilding()) ? null: ErrorCode.E_204;
         return err;
+    }
+
+    public ErrorCode checkCourseApplication(CourseApplication courseApplication){
+        ErrorCode err = null;
+        if (checkCourseMajor(courseApplication.getCourseMajor()) != null)
+            return ErrorCode.E_302;
+        if (courseApplication.getCourseDescription() == null || courseApplication.getCourseDescription().length() == 0)
+            err = ErrorCode.E_301;
+        return err;
+    }
+    //check courseid /[A-Z]+[0-9]+/
+    public ErrorCode checkCourseId(String courseId){
+        return (courseId == null || courseId.length() == 0 || !courseId.matches("[A-Z]+[0-9]+")) ? ErrorCode.E_301 : null;
+    }
+    //check if course major is in major
+    public ErrorCode checkCourseMajor(String major){
+        if (major == null || major.length() == 0)
+            return ErrorCode.E_302;
+        Major major1 = majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getName, major));
+        return major1 == null ? ErrorCode.E_302 : null;
     }
 
     public ErrorCode checkRegistry(User user){

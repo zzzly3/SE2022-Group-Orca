@@ -103,7 +103,6 @@ export default defineComponent({
       .load_course_application_lists_page_teacher()
       .then((r) => (rows.value = r));
 
-    //CourseAdder end
 
     //CourseEditor start
     const editShow = ref([false] as boolean[]);

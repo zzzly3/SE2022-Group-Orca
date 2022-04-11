@@ -47,19 +47,19 @@
                       <q-input style="height: 42px" class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
                       <div class="row items-start q-gutter-md">
                         <q-select class="col" dense disable v-model="props.row.courseTimeDay" label="上课时间"/>
-                        <q-input class="col" dense disable v-model="props.row.courseTimeStart" type="time"/>
-                        <q-field borderless readonly dense>
+                        <q-select class="col" dense disable v-model="props.row.courseTimeStart" label="开始时间"/>
+                        <q-field borderless disable dense>
                           <template v-slot:control>
                             <div class="self-center full-width no-outline">
                               至
                             </div>
                           </template>
                         </q-field>
-                        <q-input class="col" dense disable v-model="props.row.courseTimeEnd" type="time"/>
+                        <q-select class="col" dense disable v-model="props.row.courseTimeEnd" label="结束时间"/>
                       </div>
                       <div class="row items-start q-gutter-md">
                         <q-select class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
-                        <q-input class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
+                        <q-select class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
                       </div>
                       <div class="row items-start q-gutter-md">
                         <q-select class="col" dense disable v-model="props.row.courseMajor" label="所属专业"/>
@@ -158,7 +158,6 @@ export default defineComponent({
       .load_course_application_lists_page_admin()
       .then((r) => (rows.value = r));
 
-    //CourseAdder end
 
     //CourseEditor start
     const editShow = ref([false] as boolean[]);
