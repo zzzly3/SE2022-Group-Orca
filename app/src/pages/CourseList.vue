@@ -2,7 +2,6 @@
   <div class="q-pa-md column items-center">
     <q-table
       flat
-      style="width: 80%"
       :rows="rows"
       :columns="columns"
       row-key="courseId"
@@ -36,37 +35,65 @@
             </q-btn-group>
             <!--CourseEditor-->
             <q-dialog v-model="editShow[props.rowIndex]">
-              <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
-                <q-card-section class="row">
+              <q-card style="width: 460px">
+                <q-card-section>
+                  <div style="height: 50px" class="text-subtitle1 row items-center">
+                    <q-icon name="edit" size="sm"></q-icon>
+                    <span>修改课程</span>
+                  </div>
                 </q-card-section>
                 <q-card-section class="q-py-none">
-                  <q-form style="width: 350px" class="q-gutter-y-md">
-                    <q-input class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                    <q-input class="col" dense label="课程名称" v-model="props.row.courseName"/>
+                  <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                    <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
+                    <q-input style="height: 42px" class="col" dense label="课程名称" v-model="props.row.courseName"/>
                     <div class="row items-start q-gutter-md">
                       <q-select class="col" dense v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
-                      <q-input class="col" dense v-model="props.row.courseTimeStart" type="time"/>
-                      <q-field borderless readonly dense>
+                      <q-select class="col" dense v-model="props.row.courseTimeStart" :options="courseTimeStarts" label="开始时间"/>
+                      <q-field borderless disable dense>
                         <template v-slot:control>
                           <div class="self-center full-width no-outline">
                             至
                           </div>
                         </template>
                       </q-field>
-                      <q-input class="col" dense v-model="props.row.courseTimeEnd" type="time"/>
+                      <q-select class="col" dense v-model="props.row.courseTimeEnd" :options="courseTimeEnds" label="结束时间"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-input class="col" dense v-model="props.row.coursePlace" label="上课教室"/>
-                      <q-input class="col" dense v-model="props.row.courseTeacher" label="任课老师"/>
+                      <q-select class="col" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
+                      <q-select class="col" dense v-model="props.row.courseTeacher" :options="teachers" label="任课老师"/>
                     </div>
                     <div class="row items-start q-gutter-md">
                       <q-select class="col" dense v-model="props.row.courseMajor" :options="majors" label="所属专业"/>
                       <q-select class="col" dense v-model="props.row.courseDepartment" :options="departments" label="开课院系"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-input class="col" dense v-model="props.row.courseCredit" label="学分"/>
-                      <q-input class="col" dense v-model="props.row.courseCreditHour" label="学时"/>
-                      <q-input class="col" dense v-model="props.row.courseCapacity" label="课程容量"/>
+                      <q-select style="height: 56px" class="col" dense v-model="props.row.courseCredit" :options="credits" label="学分"/>
+                      <q-select class="col" dense v-model="props.row.courseCreditHour" :options="creditHours" label="学时"/>
+                      <q-input class="col" dense v-model="props.row.courseCapacity" label="课程容量">
+                        <template v-slot:append>
+                          <q-icon name="arrow_drop_down" class="cursor-pointer" >
+                          </q-icon>
+                        </template>
+                        <q-menu fit v-model="showMenuEdit">
+                          <q-list style="min-width: 100px">
+                            <q-item clickable @click="menuE1(props.rowIndex)">
+                              <q-item-section>10</q-item-section>
+                            </q-item>
+                            <q-item clickable @click="menuE2(props.rowIndex)">
+                              <q-item-section>20</q-item-section>
+                            </q-item>
+                            <q-item clickable @click="menuE3(props.rowIndex)">
+                              <q-item-section>30</q-item-section>
+                            </q-item>
+                            <q-item clickable @click="menuE4(props.rowIndex)">
+                              <q-item-section>40</q-item-section>
+                            </q-item>
+                            <q-item clickable @click="menuE5(props.rowIndex)">
+                              <q-item-section>50</q-item-section>
+                            </q-item>
+                          </q-list>
+                        </q-menu>
+                      </q-input>
                     </div>
                     <q-input class="col" dense v-model="props.row.courseDescription" autogrow label="课程描述"/>
                   </q-form>
@@ -113,34 +140,63 @@
         <div>
           <q-btn flat icon="add" @click="addShow = true" />
           <q-dialog v-model="addShow">
-            <q-card style="width: 450px" class="q-px-md q-gutter-y-md">
-              <q-card-section/>
+            <q-card style="width: 460px" >
+              <q-card-section>
+                <div style="height: 50px" class="text-subtitle1 row items-center">
+                  <q-icon name="add" size="sm"></q-icon>
+                  <span>新增课程</span>
+                </div>
+              </q-card-section>
               <q-card-section class="q-py-none">
-                <q-form style="width: 350px" class="q-gutter-y-md">
-                  <q-input class="col" label="课程编号" dense v-model="addCourseId" />
-                  <q-input class="col" label="课程名称" dense v-model="addCourseName"/>
+                <q-form style="width: 400px" class="q-px-md q-gutter-y-md">
+                  <q-input style="height: 53px" class="col" label="课程编号" dense v-model="addCourseId" />
+                  <q-input style="height: 42px" class="col" label="课程名称" dense v-model="addCourseName"/>
                   <div class="row items-start q-gutter-md">
-                    <q-select class="col" dense v-model="addCourseTimeDay" :options="weekdays" label="上课时间"/>
-                    <q-input class="col" dense v-model="addCourseTimeStart" type="time"/>
-                    <q-field borderless readonly dense>
+                    <q-select  class="col" dense v-model="addCourseTimeDay" :options="weekdays" label="上课时间"/>
+                    <q-select  class="col" dense v-model="addCourseTimeStart" :options="courseTimeStarts" label="开始时间"/>
+                    <q-field  borderless disable dense>
                       <template v-slot:control>
                         <div class="self-center full-width no-outline">至</div>
                       </template>
                     </q-field>
-                    <q-input class="col" dense v-model="addCourseTimeEnd" type="time"/>
+                    <q-select  class="col" dense v-model="addCourseTimeEnd" :options="courseTimeEnds" label="结束时间"/>
                   </div>
                   <div class="row items-start q-gutter-md">
-                    <q-input class="col" dense v-model="addCoursePlace" label="上课教室"/>
-                    <q-input class="col" dense v-model="addCourseTeacher" label="任课老师"/>
+                    <q-select  class="col" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"/>
+                    <q-select  class="col" dense v-model="addCourseTeacher" :options="teachers" label="任课老师"/>
                   </div>
                   <div class="row items-start q-gutter-md">
-                    <q-select class="col" dense v-model="addCourseMajor" :options="majors" label="所属专业"/>
-                    <q-select class="col" dense v-model="addCourseDepartment" :options="departments" label="开课院系"/>
+                    <q-select  class="col" dense v-model="addCourseMajor" :options="majors" label="所属专业"/>
+                    <q-select  class="col" dense v-model="addCourseDepartment" :options="departments" label="开课院系"/>
                   </div>
                   <div class="row items-start q-gutter-md">
-                    <q-input class="col" dense v-model="addCourseCredit" label="学分"/>
-                    <q-input class="col" dense v-model="addCourseCreditHour" label="学时"/>
-                    <q-input class="col" dense v-model="addCourseCapacity" label="课程容量"/>
+                    <q-select style="height: 56px" class="col" dense v-model="addCourseCredit" :options="credits" label="学分"/>
+                    <q-select class="col" dense v-model="addCourseCreditHour" :options="creditHours" label="学时"/>
+                    <q-input class="col" dense v-model="addCourseCapacity" label="课程容量">
+                      <template v-slot:append>
+                        <q-icon name="arrow_drop_down" class="cursor-pointer" >
+                        </q-icon>
+                      </template>
+                      <q-menu fit v-model="showMenu">
+                        <q-list style="min-width: 100px">
+                          <q-item clickable @click="menu1">
+                            <q-item-section>10</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="menu2">
+                            <q-item-section>20</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="menu3">
+                            <q-item-section>30</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="menu4">
+                            <q-item-section>40</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="menu5">
+                            <q-item-section>50</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
+                    </q-input>
                   </div>
                   <q-input class="col" dense v-model="addCourseDescription" autogrow label="课程描述"/>
                 </q-form>
@@ -247,7 +303,8 @@ const weekdays = [
   '星期日',
 ];
 
-const majors = ['计算机', '经济', '数学'];
+const credits = [1,2,3,4,5,6];
+const creditHours = [1,2,3,4,5,6];
 
 export default defineComponent({
   name: 'CourseList',
@@ -259,8 +316,23 @@ export default defineComponent({
 
     course.load_course_lists_page_admin().then((r) => (rows.value = r));
     course.load_course_constants()
+    const courseTimeStarts = computed(() => {
+      return course.courseTimeStartList
+    })
+    const courseTimeEnds = computed(() => {
+      return course.courseTimeEndList
+    })
+    const classrooms = computed(() => {
+      return course.classroomList
+    })
+    const teachers = computed(() => {
+      return course.teacherList
+    })
     const departments = computed(() => {
-      return course.departments
+      return course.departmentList
+    })
+    const majors = computed(() => {
+      return course.majorList
     })
     //BatchImport start
     const importShow = ref(false);
@@ -268,6 +340,7 @@ export default defineComponent({
     //BatchImport end
 
     //CourseAdder start
+    const showMenu = ref(false);
     const addShow = ref(false);
 
     const addCourseId = ref('');
@@ -302,10 +375,51 @@ export default defineComponent({
       addCourseCapacity.value = '';
       addCourseDescription.value = '';
     };
+    const menu1 = () => {
+      addCourseCapacity.value = '10';
+      showMenu.value =false
+    }
+    const menu2 = () => {
+      addCourseCapacity.value = '20';
+      showMenu.value =false
+    }
+    const menu3 = () => {
+      addCourseCapacity.value = '30';
+      showMenu.value =false
+    }
+    const menu4 = () => {
+      addCourseCapacity.value = '40';
+      showMenu.value =false
+    }
+    const menu5 = () => {
+      addCourseCapacity.value = '50';
+      showMenu.value =false
+    }
     //CourseAdder end
 
     //CourseEditor start
     const editShow = ref([false] as boolean[]);
+    const showMenuEdit = ref(false)
+    const menuE1 = (index:number) => {
+      rows.value[index].courseCapacity = '10'
+      showMenuEdit.value = false
+    }
+    const menuE2 = (index:number) => {
+      rows.value[index].courseCapacity = '20'
+      showMenuEdit.value = false
+    }
+    const menuE3 = (index:number) => {
+      rows.value[index].courseCapacity = '30'
+      showMenuEdit.value = false
+    }
+    const menuE4 = (index:number) => {
+      rows.value[index].courseCapacity = '40'
+      showMenuEdit.value = false
+    }
+    const menuE5 = (index:number) => {
+      rows.value[index].courseCapacity = '50'
+      showMenuEdit.value = false
+    }
     //CourseEditor end
 
     const deleteShow = ref([false] as boolean[]);
@@ -313,10 +427,17 @@ export default defineComponent({
       columns,
       rows,
       weekdays,
+      credits,
+      creditHours,
+      courseTimeStarts,
+      courseTimeEnds,
+      classrooms,
+      teachers,
       departments,
       majors,
 
       //CourseAdder start
+      showMenu,
       addShow,
 
       addCourseId,
@@ -333,8 +454,12 @@ export default defineComponent({
       addCourseCreditHour,
       addCourseCapacity,
       addCourseDescription,
-
       clear,
+      menu1,
+      menu2,
+      menu3,
+      menu4,
+      menu5,
       async addSubmit() {
         const addTime = addCourseTimeDay.value.concat(
           ' : ',
@@ -360,8 +485,7 @@ export default defineComponent({
             courseDescription: addCourseDescription.value,
           })
         ) {
-          await course.load_course_lists_page_admin();
-          rows.value = course.course_list;
+          await course.load_course_lists_page_admin().then((r) => (rows.value = r));
           clear();
         }
       },
@@ -369,6 +493,12 @@ export default defineComponent({
 
       //CourseEditor start
       editShow,
+      showMenuEdit,
+      menuE1,
+      menuE2,
+      menuE3,
+      menuE4,
+      menuE5,
 
       async editSubmit(row: CourseInfo) {
         const editTime = row.courseTimeDay.concat(
@@ -395,8 +525,7 @@ export default defineComponent({
             courseDescription: row.courseDescription,
           })
         ) {
-          await course.load_course_lists_page_admin();
-          rows.value = course.course_list;
+          await course.load_course_lists_page_admin().then((r) => (rows.value = r));
           clear();
         }
       },
@@ -407,7 +536,7 @@ export default defineComponent({
       async deleteCourse(courseId: string) {
         await course.delete_course(courseId);
         await course.load_course_lists_page_admin();
-        rows.value = course.course_list;
+        await course.load_course_lists_page_admin().then((r) => (rows.value = r));
       },
       //CourseDeleter end
       //BatchImport start

@@ -50,12 +50,23 @@ export const useCourseStore = defineStore('course', {
     name: user.name,
     login: false,
     type: user.type,
-    course_list: [],
-    departments: []
+    courseTimeStartList: [],
+    courseTimeEndList: [],
+    classroomList: [],
+    teacherList: [],
+    departmentList: [],
+    majorList: [],
   }),
   actions: {
     async load_course_constants() {
-      return
+      const r = await post('/course/load_course_constants', {}, false);
+      this.courseTimeStartList = r.courseTimeStartList
+      this.courseTimeEndList = r.courseTimeEndList
+      this.classroomList = r.classRoomList
+      this.teacherList = r.teacherList
+      this.departmentList = r.departmentList
+      this.majorList = r.majorList
+      return r
     },
     async load_course_lists_page_admin() {
       console.log(user.type);
@@ -65,7 +76,6 @@ export const useCourseStore = defineStore('course', {
       if (this.type === 'admin') {
         const r = await post('/course/get_course_all', {}, false);
         if (r != false) {
-          this.course_list = r;
           console.log(r);
           return r;
         }
@@ -302,7 +312,6 @@ export const useCourseStore = defineStore('course', {
           false
         );
         if (r != false) {
-          this.course_list = r;
           return r;
         }
       } else {

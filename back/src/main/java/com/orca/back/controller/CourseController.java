@@ -2,14 +2,8 @@ package com.orca.back.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.orca.back.entity.Constants;
-import com.orca.back.entity.Course;
-import com.orca.back.entity.CourseApplication;
-import com.orca.back.entity.User;
-import com.orca.back.mapper.ConstantsMapper;
-import com.orca.back.mapper.CourseApplicationMapper;
-import com.orca.back.mapper.CourseMapper;
-import com.orca.back.mapper.UserMapper;
+import com.orca.back.entity.*;
+import com.orca.back.mapper.*;
 import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 import com.orca.back.utils.constants.ErrorCode;
@@ -25,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/course")
@@ -38,11 +33,36 @@ public class CourseController {
     CourseApplicationMapper courseApplicationMapper;
     @Resource
     ConstantsMapper constantsMapper;
+    @Resource
+    ClassTimeMapper classTimeMapper;
+    @Resource
+    ClassroomMapper classroomMapper;
+    @Resource
+    CollegeMapper collegeMapper;
+    @Resource
+    MajorMapper majorMapper;
 
     Checker checker = new Checker();
 
     /*Load course constants*/
-    
+    @RequestMapping("/load_course_constants")
+    public Result<?> loadCourseConstants(HttpServletRequest request){
+        List<ClassTime> classTimeList = classTimeMapper.selectList(null);
+        List<Classroom> classroomList = classroomMapper.selectList(null);
+        List<User> teacherList = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getRole, 1).eq(User::getIsAdmin, 0));
+        List<College> collegeList = collegeMapper.selectList(null);
+        List<Major> majorList = majorMapper.selectList(null);
+
+        CourseConstantsInfo courseConstantsInfo = new CourseConstantsInfo();
+        courseConstantsInfo.setCourseTimeStartList(classTimeList.stream().map(ClassTime::getBegin).collect(Collectors.toList()));
+        courseConstantsInfo.setCourseTimeEndList(classTimeList.stream().map(ClassTime::getEnd).collect(Collectors.toList()));
+        courseConstantsInfo.setClassRoomList(classroomList.stream().map(Classroom::getName).collect(Collectors.toList()));
+        courseConstantsInfo.setTeacherList(teacherList.stream().map(user -> user.getName() + "——工号:" + user.getNumber()).collect(Collectors.toList()));
+        courseConstantsInfo.setDepartmentList(collegeList.stream().map(College::getName).collect(Collectors.toList()));
+        courseConstantsInfo.setMajorList(majorList.stream().map(Major::getName).collect(Collectors.toList()));
+        return Result.success(courseConstantsInfo);
+    }
+
 
     /*Admin*/
     @PostMapping("/get_course_all")
@@ -194,7 +214,12 @@ public class CourseController {
         Integer userId = (Integer) request.getSession().getAttribute("UserId");
         User user1 = userMapper.selectById(userId);
         if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
-        /*Check Pass*/
+        /*Check Form*/
+        err = checker.checkCourseApplication(courseApplication);
+        if (err != null){
+            return Result.error(err);
+        }
+        /**/
         Constants courseApplicationId = constantsMapper.selectOne(Wrappers.<Constants>lambdaQuery().eq(Constants::getConstantName, "course_application_id"));
         courseApplication.setApplicationId(courseApplicationId.getConstantValue());
         //set application time

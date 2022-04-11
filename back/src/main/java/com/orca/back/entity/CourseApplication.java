@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 @Data
 @TableName("course_application")
 public class CourseApplication {
-    @TableId(value = "application_id", type = IdType.AUTO)
+    @TableId(value = "application_id")
     private String applicationId;
 
     private String courseId;
