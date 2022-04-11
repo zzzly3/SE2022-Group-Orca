@@ -18,14 +18,10 @@ import java.util.regex.Pattern;
 public class Checker {
     private static final String TIME24HOURS_PATTERN =
             "([01]?[0-9]|2[0-3]):[0-5][0-9]";
-    private Pattern pattern;
-    private Matcher matcher;
-    @Resource
-    private MajorMapper majorMapper;
 
     public ErrorCode checkTime(String time){
         System.out.print("time is " + time);
-        pattern = Pattern.compile(TIME24HOURS_PATTERN);
+        Pattern pattern = Pattern.compile(TIME24HOURS_PATTERN);
         return pattern.matcher(time).matches() ? null:ErrorCode.E_202;
     }
     public ErrorCode checkClassTime(ClassTime classTime){

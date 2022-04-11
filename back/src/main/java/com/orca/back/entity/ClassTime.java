@@ -17,9 +17,9 @@ public class ClassTime {
     public Integer getId(){return id;}
     public void setId(Integer id){this.id=id;}
 
-    public String getBegin(){return begin;}
+    public String getBegin(){return begin.substring(0,5);}
     public void setBegin(String begin){this.begin=begin;}
 
-    public String getEnd(){return end;}
+    public String getEnd(){return end.substring(0,5);}
     public void setEnd(String end){this.end=end;}
 }

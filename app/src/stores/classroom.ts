@@ -24,6 +24,22 @@ export const useClassroomStore = defineStore('classroom', {
         return true
       }
       return false
+    },
+    async load_open_classroom() {
+      console.log('in load_open_classroom')
+      const r = await post('load_open_classroom', {}, true)
+      if(r === false){
+        Notify.create({type:'negative', message:'信息读取失败'})
+      }
+      return r
+    },
+    async load_all_classroom() {
+      console.log('in load_all_classroom')
+      const r = await post('load_all_classroom', {}, true)
+      if(r === false){
+        Notify.create({type:'negative', message:'信息读取失败'})
+      }
+      return r
     }
   }
   ,

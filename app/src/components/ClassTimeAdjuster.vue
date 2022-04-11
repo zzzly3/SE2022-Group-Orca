@@ -9,18 +9,18 @@
         </q-card-section>
         <q-card-section class="q-py-none">
           <q-form style="width: 300px" class="q-px-md q-gutter-y-xs">
-<!--            <q-select v-model="classTime" :options="classTimes" label="课程节次" dense ref="classTimeRef"-->
-<!--                      lazy-rules :rules="[val => !!val || '无效的类型']"-->
+            <q-select v-model="classTime" :options="classTimes" label="选择课程节次" dense ref="classTimeRef"
+                      lazy-rules :rules="[val => !!val || '无效的类型']"
+            />
+<!--            <q-input v-model="classTime" label="输入课程节次" ref="classTimeRef" dense-->
+<!--                     clearable clear-icon="close" maxlength="2" lazy-rules-->
+<!--                     :rules="[val => !!val || '不能为空']"-->
 <!--            />-->
-            <q-input v-model="classTime" label="输入课程节次" ref="classTimeRef" dense
-                     clearable clear-icon="close" maxlength="2" lazy-rules
-                     :rules="[val => !!val || '不能为空']"
-            />
 
-            <q-input v-model="beginTime" label="开始时间" ref="beginTimeRef" type="time"
+            <q-input v-model="beginTime" label="开始时间" dense ref="beginTimeRef" type="time"
                      :rules="[val => !!val || '不能为空']"
             />
-            <q-input v-model="endTime" label="结束时间" ref="endTimeRef" type="time"
+            <q-input v-model="endTime" label="结束时间" dense ref="endTimeRef" type="time"
                      :rules="[val => !!val || '不能为空']"
             />
           </q-form>
@@ -36,9 +36,13 @@
 
 <script>
 //import QValidate  from 'components/models';
-import {defineComponent, ref, onMounted} from 'vue';
-//import * as QValidate from 'components/QValidate.ts';
+import {defineComponent, ref} from 'vue';
 import {useClassTimeStore} from 'stores/class-time';
+import {Notify} from 'quasar';
+const classTimes = [
+  1,2,3,4,5,6,7,8,9,10,11,12,13
+]
+
 
 export default defineComponent({
   name: 'ClassTimeAdjuster ',
@@ -61,12 +65,8 @@ export default defineComponent({
     const clear = ()=>{
       show.value = false
     }
-    onMounted(()=>{
-      console.log(classTimeRef)
-      console.log(classTimeRef.value)
-    })
     return{
-      show, loading,
+      show, loading, classTimes,
       classTime, classTimeRef,
       beginTime, beginTimeRef,
       endTime, endTimeRef,
@@ -81,6 +81,7 @@ export default defineComponent({
         // if(classTimeRef.value.hasError || beginTimeRef.value.hasError || endTimeRef.value.hasError)
         //   return
         if (classTime.value === '' || beginTime.value === '' || endTime.value === ''){
+          Notify.create({type:'negative', message:'信息不能为空'})
           return
         }
         loading.value = true

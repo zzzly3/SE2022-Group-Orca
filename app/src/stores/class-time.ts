@@ -25,5 +25,14 @@ export const useClassTimeStore = defineStore('classTime', {
       }
       return false
     },
+    async load_classTime() {
+      console.log('in load_classTime')
+      const r = await post('load_classTime', {}, true)
+      if(r === false){
+        Notify.create({type:'negative', message:'信息读取失败'})
+      }
+      return r
+    }
   },
 });
+
