@@ -5,7 +5,7 @@
       style="width: 80%"
       :rows="rows"
       :columns="columns"
-      row-key="applicationId"
+      row-key="courseId"
     >
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -62,34 +62,46 @@ const columns = [
     field: 'courseName',
   },
   {
-    name: 'applicantName',
+    name: 'courseTime',
     align: 'center',
-    label: '申请者姓名',
-    field: 'applicantName',
+    label: '上课时间',
+    field: 'courseTime',
   },
   {
-    name: 'applicantNumber',
+    name: 'coursePlace',
     align: 'center',
-    label: '申请者工号',
-    field: 'applicantNumber',
+    label: '上课教室',
+    field: 'coursePlace',
   },
   {
-    name: 'applicationTime',
+    name: 'courseTeacher',
     align: 'center',
-    label: '申请时间',
-    field: 'applicationTime',
+    label: '任课教师',
+    field: 'courseTeacher',
   },
   {
-    name: 'applicationType',
+    name: 'courseDepartment',
+    label: '开课院系',
+    field: 'courseDepartment',
     align: 'center',
-    label: '申请类型',
-    field: 'applicationType',
   },
   {
-    name: 'applicationStatus',
+    name: 'courseCredit',
     align: 'center',
-    label: '申请状态',
-    field: 'applicationStatus',
+    label: '学分',
+    field: 'courseCredit',
+  },
+  {
+    name: 'courseCreditHour',
+    align: 'center',
+    label: '学时',
+    field: 'courseCreditHour',
+  },
+  {
+    name: 'courseCapacity',
+    align: 'center',
+    label: '课程容量',
+    field: 'courseCapacity',
   },
 ];
 
@@ -100,7 +112,7 @@ export default defineComponent({
     const course = useCourseStore();
     const rows = ref([] as CourseApplicationInfo[]);
     course
-      .load_course_application_lists_page_teacher()
+      .load_course_lists_page_student()
       .then((r) => (rows.value = r));
 
 
