@@ -3,7 +3,7 @@
     <q-card style="width: 400px">
       <q-card-section>
         <div class="text-subtitle1 row items-center">
-          <q-icon name="info" size="sm"></q-icon>
+          <q-icon name="info" size="sm" color="orange"></q-icon>
           <span>开/关选课</span>
         </div>
       </q-card-section>
@@ -13,6 +13,7 @@
                     lazy-rules :rules="[val => !!val || '无效的类型']"
           />
         </q-form>
+        <q-inner-loading :showing="tableLoading"/>
       </q-card-section>
 
       <q-card-actions align="right" class="q-pa-md">
@@ -39,6 +40,7 @@ export default {
   setup(){
     const CSS = useCourseSelectStateStore()
     const show = ref(false)
+    const tableLoading = ref(false)
     const loading = ref(false)
     const state = ref({label: '', value: ''})
 
@@ -47,10 +49,21 @@ export default {
     const clear = ()=>{
       show.value = false
     }
+    const load = async ()=>{
+      console.log('CourseSelectionStateAdjuster: in load')
+      tableLoading.value = true
+      show.value = true
+      const r = await CSS.load_course_selection_state()
+      if(r !== false){
+        state.value = r.open ? states[0]:states[1]
+      }
+      tableLoading.value = false
+    }
+
     return{
-      show, loading,
+      show, loading, tableLoading,
       state, states, stateRef,
-      clear,
+      clear, load,
       async submit(){
         console.log('CourseSelectionStateAdjuster: submit')
         if(!stateRef.value)

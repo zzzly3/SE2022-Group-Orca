@@ -32,7 +32,16 @@ export const useClassTimeStore = defineStore('classTime', {
         Notify.create({type:'negative', message:'信息读取失败'})
       }
       return r
+    },
+    async select_classTime(id: number){
+      console.log('in select_classTime')
+      const r = await post('select_classTime', {id}, true)
+      if(r === false){
+        Notify.create({type:'negative', message:'信息读取失败'})
+      }
+      return r
     }
+
   },
 });
 

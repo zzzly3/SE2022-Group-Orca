@@ -1,6 +1,7 @@
 <template>
     <q-dialog v-model="show" persistent transition-show="scale" transition-hide="scale">
       <q-card style="width: 400px">
+        <q-card-section>
         <q-tabs v-model="tab">
           <q-tab name="add">
             <div class="text-subtitle1 row items-center">
@@ -16,6 +17,8 @@
           </q-tab>
 
         </q-tabs>
+          </q-card-section>
+        <q-card-section>
         <q-tab-panels v-model="tab">
           <q-tab-panel name="add">
             <q-form style="width: 300px" class="q-px-md q-gutter-y-xs">
@@ -25,29 +28,25 @@
               <q-input v-model="building1" label="教学楼" dense ref="buildingRef" maxlength="4"
                        clearable clear-icon="close" :rules="[val => !!val || '不能为空']"
               />
-              <!--            <q-select v-model="building" :options="buildings" label="选择教学楼" dense ref="buildingRef"-->
-              <!--                      lazy-rules :rules="[val => !!val || '无效的类型']" />-->
               <q-select v-model="state1" :options="states" dense label="教室状态"
-                        clearable clear-icon="close" :rules="[val => !!val || '无效的类型']" />
+                        :rules="[val => !!val || '无效的类型']" />
             </q-form>
           </q-tab-panel>
           <q-tab-panel name="change">
             <q-form style="width: 300px" class="q-px-md q-gutter-y-xs">
               <q-select v-model="building0" :options="buildings" label="教学楼" dense
-                        clearable clear-icon="close" :rules="[val => !!val || '不能为空']"
+                         :rules="[val => !!val || '不能为空']"
               />
               <q-select v-model="classroom0" :options="classrooms" label="教室名称" dense
-                        clearable clear-icon="close" :rules="[val => !!val || '不能为空']"
+                         :rules="[val => !!val || '不能为空']"
               />
-              <!--            <q-select v-model="building" :options="buildings" label="选择教学楼" dense ref="buildingRef"-->
-              <!--                      lazy-rules :rules="[val => !!val || '无效的类型']" />-->
               <q-select v-model="state0" :options="states" label="教室状态" dense
-                        clearable clear-icon="close" :rules="[val => !!val || '无效的类型']" />
+                         :rules="[val => !!val || '无效的类型']" />
             </q-form>
             <q-inner-loading :showing="changeLoading" />
           </q-tab-panel>
         </q-tab-panels>
-
+        </q-card-section>
         <q-card-actions align="right" class="q-pa-md">
           <q-btn flat label="取消" @click="clear" :disable="loading" v-close-popup color="negative" />
           <q-btn flat label="确定" @click="submit" :loading="loading" color="primary" />
@@ -106,9 +105,11 @@ export default defineComponent({
     })
 
     const clear = ()=>{
-      building0.value = '';
-      classroom0.value = '';
       show.value = false
+      tab.value = 'add'
+      building0.value = building1.value ='';
+      classroom0.value = classroom1.value = '';
+      state0.value = state1.value = states[1]
     }
     const loadAll = async ()=>{
       console.log('ClassroomAdjuster: in loadAll')
@@ -122,7 +123,7 @@ export default defineComponent({
           if(row.building !== buildings.value[buildings.value.length-1])buildings.value.push(row.building)
         })
         //classrooms.value = r.map((item:{name:string; building:string; open:boolean}) => item.name)
-      }else clear()
+      }
       changeLoading.value = false
     }
 

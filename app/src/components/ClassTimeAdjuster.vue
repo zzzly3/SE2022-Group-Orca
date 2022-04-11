@@ -16,14 +16,35 @@
 <!--                     clearable clear-icon="close" maxlength="2" lazy-rules-->
 <!--                     :rules="[val => !!val || '不能为空']"-->
 <!--            />-->
+            <q-input v-model="beginTime" label="开始时间" mask="time" dense :rules="['time']">
+              <template v-slot:append>
+                <q-icon name="access_time" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                    <q-time v-model="beginTime">
+                      <div class="row items-center justify-end">
+                        <q-btn v-close-popup label="Close" color="primary" flat />
+                      </div>
+                    </q-time>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
 
-            <q-input v-model="beginTime" label="开始时间" dense ref="beginTimeRef" type="time"
-                     :rules="[val => !!val || '不能为空']"
-            />
-            <q-input v-model="endTime" label="结束时间" dense ref="endTimeRef" type="time"
-                     :rules="[val => !!val || '不能为空']"
-            />
+            <q-input v-model="endTime" label="结束时间" mask="time" dense :rules="['time']">
+              <template v-slot:append>
+                <q-icon name="access_time" class="cursor-pointer">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                    <q-time v-model="endTime">
+                      <div class="row items-center justify-end">
+                        <q-btn v-close-popup label="Close" color="primary" flat />
+                      </div>
+                    </q-time>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
           </q-form>
+          <q-inner-loading :showing="tableLoading"/>
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
@@ -36,7 +57,7 @@
 
 <script>
 //import QValidate  from 'components/models';
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, watch} from 'vue';
 import {useClassTimeStore} from 'stores/class-time';
 import {Notify} from 'quasar';
 const classTimes = [
@@ -50,6 +71,7 @@ export default defineComponent({
     const CT = useClassTimeStore()
     const show = ref(false)
     const loading = ref(false)
+    const tableLoading = ref(false)
 
     const classTime = ref('')
     const beginTime = ref('')
@@ -58,34 +80,45 @@ export default defineComponent({
     // const classTimeRef = ref<QValidate|null>(null)
     // const beginTimeRef = ref<QValidate|null>(null)
     // const endTimeRef = ref<QValidate|null>(null)
-    const classTimeRef = ref(null)
-    const beginTimeRef = ref(null)
-    const endTimeRef = ref(null)
 
     const clear = ()=>{
       show.value = false
+      classTime.value = beginTime.value = endTime.value = ''
     }
+    const loadById = async ()=>{
+      console.log('ClassTimeViewer: in load')
+      if(classTime.value === '')return
+      tableLoading.value = true
+      const r = await CT.select_classTime(classTime.value)
+      if(r !== false){
+        beginTime.value = r.begin
+        endTime.value = r.end
+      }
+      tableLoading.value = false
+    }
+    watch(classTime, loadById)
+
     return{
-      show, loading, classTimes,
-      classTime, classTimeRef,
-      beginTime, beginTimeRef,
-      endTime, endTimeRef,
+      show, loading, tableLoading, classTimes,
+      classTime,
+      beginTime,
+      endTime,
       clear,
       submit: async function () {
         console.log('ClassTimeAdjuster: in submit')
-        if (!classTimeRef.value || !beginTimeRef.value || !endTimeRef.value)
-          return
         // classTimeRef.value.validate()
         // beginTimeRef.value.validate()
         // endTimeRef.value.validate()
         // if(classTimeRef.value.hasError || beginTimeRef.value.hasError || endTimeRef.value.hasError)
         //   return
+        console.log('tag1')
         if (classTime.value === '' || beginTime.value === '' || endTime.value === ''){
           Notify.create({type:'negative', message:'信息不能为空'})
           return
         }
+        console.log('tag2')
         loading.value = true
-        if (await CT.modify_classTime({id: classTime.value, begin: beginTime.value, end: endTime.value})) {
+        if (await CT.modify_classTime({id: classTime.value, begin: beginTime.value, end: endTime.value}) !== false) {
           clear()
         }
         loading.value = false

@@ -29,7 +29,6 @@
 import {defineComponent, ref} from 'vue';
 import ClassroomAdjuster from 'components/ClassroomAdjuster.vue';
 import ClassTimeAdjuster from 'components/ClassTimeAdjuster.vue';
-import {QValidate} from 'components/models';
 import CourseSelectionStateAdjuster from 'components/CourseSelectionStateAdjuster.vue';
 import ClassTimeViewer from 'components/ClassTimeViewer.vue';
 import ClassroomViewer from 'components/ClassroomViewer.vue';
@@ -38,11 +37,11 @@ export default defineComponent({
   name: 'ManagePage',
   components: {ClassroomViewer, ClassTimeViewer, CourseSelectionStateAdjuster, ClassroomAdjuster, ClassTimeAdjuster},
   setup(){
-    const ref0 = ref(null)
-    const ref1 = ref<QValidate|null>(null)
-    const ref2 = ref<QValidate|null>(null)
-    const ref3 = ref<QValidate|null>(null)
-    const ref4 = ref<QValidate|null>(null)
+    const ref0 = ref<componentRef|null>(null)
+    const ref1 = ref<componentRef|null>(null)
+    const ref2 = ref<componentRef|null>(null)
+    const ref3 = ref<componentRef|null>(null)
+    const ref4 = ref<componentRef|null>(null)
 
     const icons = [
       {id:0, url:require('../assets/icon/classroom-adjust.png'),
@@ -56,6 +55,12 @@ export default defineComponent({
       {id:4, url:require('../assets/icon/open-classroom-search.png'),
         text:'开放教室查询'}
     ]
+
+    interface componentRef{
+      show: boolean;
+      load: ()=>void;
+    }
+
     const onClick = (id: number) =>{
       funcTable[id]();
     }
@@ -63,29 +68,28 @@ export default defineComponent({
     const showClassroomAdjuster=()=> {
       console.log('in ClassroomAdjuster')
       if(!ref0.value)return
-      (ref0.value as any).show = true;
+      ref0.value.show = true;
     }
     const showClassTimeAdjuster=()=> {
       console.log('in ClassTimeAdjuster');
       if(!ref1.value)return
-      (ref1.value as any).show = true
+      ref1.value.show = true
     }
     const showCourseSelectionStateAdjuster=()=>{
       console.log('in showCourseSelectionStateAdjuster')
       //ref2.value.show = true
       if(!ref2.value)return
-      (ref2.value as any).show = true
+      ref2.value.load()
     }
     const loadClassTimeTable=()=>{
       console.log('in loadClassTimeTable')
       if(!ref3.value)return
-      (ref3.value as any).load()
-      //(ref3.value as any).show = true
+      ref3.value.load()
     }
     const loadOpenClassroom=()=>{
       console.log('in loadOpenClassroom')
       if(!ref4.value)return
-      (ref4.value as any).load()
+      ref4.value.load()
     }
     const funcTable = [
       showClassroomAdjuster,

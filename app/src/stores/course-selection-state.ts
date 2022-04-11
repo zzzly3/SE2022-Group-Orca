@@ -14,6 +14,14 @@ export const useCourseSelectStateStore = defineStore('courseSelectionState', {
         return true
       }
       return false
+    },
+    async load_course_selection_state(){
+      console.log('frontend: in load_course_selection_state')
+      const r = await post('load_course_selection_state', {}, true)
+      if(r === false){
+        Notify.create({type:'negative', message:'信息读取失败'})
+      }
+      return r
     }
   }
 });
