@@ -19,6 +19,7 @@
       <ClassTimeAdjuster ref="ref1" class="q-ml-lg"></ClassTimeAdjuster>
       <CourseSelectionStateAdjuster ref="ref2" class="q-ml-lg"></CourseSelectionStateAdjuster>
       <ClassTimeViewer  ref="ref3" class="q-ml-lg"></ClassTimeViewer>
+      <ClassroomViewer ref="ref4" class="q-ml-lg"></ClassroomViewer>
     </q-page-container>
   </q-layout>
 
@@ -31,25 +32,29 @@ import ClassTimeAdjuster from 'components/ClassTimeAdjuster.vue';
 import {QValidate} from 'components/models';
 import CourseSelectionStateAdjuster from 'components/CourseSelectionStateAdjuster.vue';
 import ClassTimeViewer from 'components/ClassTimeViewer.vue';
+import ClassroomViewer from 'components/ClassroomViewer.vue';
 
 export default defineComponent({
   name: 'ManagePage',
-  components: {ClassTimeViewer, CourseSelectionStateAdjuster, ClassroomAdjuster, ClassTimeAdjuster},
+  components: {ClassroomViewer, ClassTimeViewer, CourseSelectionStateAdjuster, ClassroomAdjuster, ClassTimeAdjuster},
   setup(){
-    const ref0 = ref<QValidate|null>(null)
+    const ref0 = ref(null)
     const ref1 = ref<QValidate|null>(null)
     const ref2 = ref<QValidate|null>(null)
     const ref3 = ref<QValidate|null>(null)
+    const ref4 = ref<QValidate|null>(null)
 
     const icons = [
       {id:0, url:require('../assets/icon/classroom-adjust.png'),
         text:'上课教室调整'},
       {id:1, url:require('../assets/icon/classTime-adjust.png'),
         text:'上课时间调整'},
-      {id:2, url:require('../assets/icon/open-course-selection.png'),
+      {id:2, url:require('../assets/icon/open-close.png'),
         text:'开/关选课功能'},
       {id:3, url:require('../assets/icon/classroom-view.svg'),
-        text:'上课时间查询'}
+        text:'上课时间查询'},
+      {id:4, url:require('../assets/icon/open-classroom-search.png'),
+        text:'开放教室查询'}
     ]
     const onClick = (id: number) =>{
       funcTable[id]();
@@ -57,35 +62,42 @@ export default defineComponent({
 
     const showClassroomAdjuster=()=> {
       console.log('in ClassroomAdjuster')
-      if(!ref0.value) return
-      (ref0.value as any).show = true
+      if(!ref0.value)return
+      (ref0.value as any).show = true;
     }
     const showClassTimeAdjuster=()=> {
-      console.log('in ClassTimeAdjuster')
-      if(!ref1.value) return
+      console.log('in ClassTimeAdjuster');
+      if(!ref1.value)return
       (ref1.value as any).show = true
     }
     const showCourseSelectionStateAdjuster=()=>{
       console.log('in showCourseSelectionStateAdjuster')
+      //ref2.value.show = true
       if(!ref2.value)return
       (ref2.value as any).show = true
     }
     const loadClassTimeTable=()=>{
       console.log('in loadClassTimeTable')
       if(!ref3.value)return
-      //ref3.value.validate()
       (ref3.value as any).load()
+      //(ref3.value as any).show = true
+    }
+    const loadOpenClassroom=()=>{
+      console.log('in loadOpenClassroom')
+      if(!ref4.value)return
+      (ref4.value as any).load()
     }
     const funcTable = [
       showClassroomAdjuster,
       showClassTimeAdjuster,
       showCourseSelectionStateAdjuster,
-      loadClassTimeTable
+      loadClassTimeTable,
+      loadOpenClassroom
     ]
     return {
       icons,
       onClick,
-      ref0, ref1, ref2, ref3
+      ref0, ref1, ref2, ref3, ref4
     };
   },
 });

@@ -27,6 +27,7 @@
 <script>
 import {ref} from 'vue';
 import {useCourseSelectStateStore} from 'stores/course-selection-state';
+import {Notify} from 'quasar';
 
 const states = [
   {label: '开放选课', value: 1},
@@ -54,8 +55,10 @@ export default {
         console.log('CourseSelectionStateAdjuster: submit')
         if(!stateRef.value)
           return
-        if(state.value === {label:'', value:''})
+        if(state.value === {label:'', value:''}){
+          Notify.create({type:'negative', message:'信息不能为空'})
           return
+        }
         loading.value = true
 
         if(await CSS.modify_course_selection_state({open:state.value.value})){

@@ -35,7 +35,7 @@ public class UserController {
     public Result<?> onSubmit(@RequestBody User user, HttpServletRequest request) {
         Result<?> err1 = checkAdmin(request);
         if (err1 != null) return err1;
-        var err2 = register(user);
+        Result<?> err2 = register(user);
         if (err2 != null) return err2;
         return Result.success();
     }
@@ -49,7 +49,7 @@ public class UserController {
             if (res != null) err = ErrorCode.E_101;
         }
         if (err != null) return Result.error(err);
-        var err2 = checkCollege(user);
+        Result<?> err2 = checkCollege(user);
         if (err2 != null) return err2;
         /*OK*/
         user.setPassword("123456");
@@ -102,7 +102,8 @@ public class UserController {
             res.setEmail(user.getEmail());
             res.setPhone(user.getPhone());
         } else {
-            var err2 = checkCollege(user);
+
+            Result<?> err2 = checkCollege(user);
             if (err2 != null) return err2;
             res.setEmail(user.getEmail());
             res.setPhone(user.getPhone());
@@ -120,7 +121,7 @@ public class UserController {
                     userMapper.update(null, Wrappers.<User>lambdaUpdate().set(User::getMajor, null).eq(User::getNumber, res.getNumber()));
             }
         }
-        var x = userMapper.updateById(res);
+        userMapper.updateById(res);
         return Result.success();
     }
 
@@ -130,7 +131,7 @@ public class UserController {
         if (err1 != null) return err1;
         int from = page.getStart();
         int to = from + page.getCount();
-        var ulist = userMapper.selectList(Wrappers.<User>lambdaQuery().orderByAsc(User::getNumber).select(User::getNumber, User::getEmail, User::getPhone, User::getRole, User::getIdentifier, User::getName, User::getIsAdmin, User::getIsLeave, User::getMajor, User::getCollege).last(String.format("limit %d, %d", from, to - from)));
+        List<User> ulist = userMapper.selectList(Wrappers.<User>lambdaQuery().orderByAsc(User::getNumber).select(User::getNumber, User::getEmail, User::getPhone, User::getRole, User::getIdentifier, User::getName, User::getIsAdmin, User::getIsLeave, User::getMajor, User::getCollege).last(String.format("limit %d, %d", from, to - from)));
         ListInfo<User> list = new ListInfo<>(ulist, userMapper.selectCount(Wrappers.lambdaQuery()));
         return Result.success(list);
     }
@@ -386,7 +387,7 @@ public class UserController {
                 user.setPhone(items[6]);
                 user.setEmail(items[7]);
                 user.setIsLeave(0);
-                var r = register(user);
+                Result<?> r = register(user);
                 if (r != null)
                     err = r.getMsg();
             } catch (Exception ignored) {

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -32,12 +33,8 @@ public class AuthController {
 
     Checker check = new Checker();
 
-    @PostMapping("/modify_course_selection_state")
-    public Result<?> modify_course_selection_state(@RequestBody CourseSelectionState courseSelectionState, HttpServletRequest request){
-        System.out.print("in backend: modify_course_selection_state\n");
-        System.out.print(courseSelectionState);
+    private Result<?> checkAdmin(HttpServletRequest request) {
         ErrorCode err = null;
-        /*检查管理员权限*/
         Integer u_id = (Integer) request.getSession().getAttribute("UserId");
         if (u_id == null) err = ErrorCode.E_109;
         else{
@@ -45,6 +42,45 @@ public class AuthController {
             if (admin.getIsAdmin() == 0) err = ErrorCode.E_111;
         }
         if (err != null) return Result.error(err);
+        return null;
+    }
+
+    @PostMapping("/load_open_classroom")
+    public Result<?> load_open_classroom(HttpServletRequest request){
+        ErrorCode err;
+        err = check.checkLogin(request);
+        if(err != null)return Result.error(err);
+        List<Classroom> res = classroomMapper.findOpen();
+        System.out.print(res);
+        return Result.success(res);
+    }
+
+    @PostMapping("/load_all_classroom")
+    public Result<?> load_all_classroom(HttpServletRequest request){
+        ErrorCode err;
+        err = check.checkLogin(request);
+        if(err != null)return Result.error(err);
+        List<Classroom> res = classroomMapper.findAll();
+        System.out.print(res);
+        return Result.success(res);
+    }
+
+    @PostMapping("/load_classTime")
+    public Result<?> load_classTime(@RequestBody ClassTime classTime, HttpServletRequest request){
+        ErrorCode err;
+        err = check.checkLogin(request);
+        if(err != null)return Result.error(err);
+        List<ClassTime> res = classTimeMapper.findAll();
+        System.out.print(res);
+        return Result.success(res);
+    }
+
+    @PostMapping("/modify_course_selection_state")
+    public Result<?> modify_course_selection_state(@RequestBody CourseSelectionState courseSelectionState, HttpServletRequest request){
+        System.out.print("in backend: modify_course_selection_state\n");
+        System.out.print(courseSelectionState);
+        Result<?> err1 = checkAdmin(request);
+        if(err1 != null)return err1;
         courseSelectionStateMapper.updateById(courseSelectionState);
         return Result.success();
     }
@@ -53,17 +89,10 @@ public class AuthController {
     public Result<?> modify_classTime(@RequestBody Classroom classroom, HttpServletRequest request){
         System.out.print("in backend: modify_classroom\n");
         System.out.print(classroom);
-        ErrorCode err = null;
-        /*检查管理员权限*/
-        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
-        if (u_id == null) err = ErrorCode.E_109;
-        else{
-            User admin = userMapper.selectById(u_id);
-            if (admin.getIsAdmin() == 0) err = ErrorCode.E_111;
-        }
-        if (err != null) return Result.error(err);
+        Result<?> err1 = checkAdmin(request);
+        if(err1 != null)return err1;
         /*非法输入*/
-        err = check.checkClassroom(classroom);
+        ErrorCode err = check.checkClassroom(classroom);
         if(err != null)return Result.error(err);
         /*重复的教室*/
         Classroom res = classroomMapper.selectOne(
@@ -77,17 +106,10 @@ public class AuthController {
     public Result<?> modify_classTime(@RequestBody ClassTime classTime, HttpServletRequest request){
         System.out.print("in backend: modify_classTime\n");
         System.out.print(classTime);
-        ErrorCode err = null;
-        /*检查管理员权限*/
-        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
-        if (u_id == null) err = ErrorCode.E_109;
-        else{
-            User admin = userMapper.selectById(u_id);
-            if (admin.getIsAdmin() == 0) err = ErrorCode.E_111;
-        }
-        if (err != null) return Result.error(err);
+        Result<?> err1 = checkAdmin(request);
+        if(err1 != null)return err1;
         /*非法输入*/
-        err = check.checkClassTime(classTime);
+        ErrorCode err = check.checkClassTime(classTime);
         if(err != null)return Result.error(err);
             /*重复的课程节次*/
         ClassTime res = classTimeMapper.selectOne(
