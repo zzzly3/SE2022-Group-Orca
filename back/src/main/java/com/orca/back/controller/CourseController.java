@@ -180,9 +180,8 @@ public class CourseController {
         Result<?> result = checkAdmin(request);
         if (result != null) return result;
         /*Check Pass*/
-        try {
-            InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), StandardCharsets.UTF_8);
-            BufferedReader br = new BufferedReader(isr);
+        try(InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), StandardCharsets.UTF_8);
+            BufferedReader br = new BufferedReader(isr)) {
             String line;
             List<Course> courseList = new ArrayList<>();
             while ((line = br.readLine()) != null) {
