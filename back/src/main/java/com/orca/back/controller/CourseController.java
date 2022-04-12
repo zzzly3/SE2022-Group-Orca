@@ -180,31 +180,35 @@ public class CourseController {
         Result<?> result = checkAdmin(request);
         if (result != null) return result;
         /*Check Pass*/
-        InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), StandardCharsets.UTF_8);
-        BufferedReader br = new BufferedReader(isr);
-        String line;
-        List<Course> courseList = new ArrayList<>();
-        while ((line = br.readLine()) != null) {
-            String[] str = line.split(",");
-            Course course = new Course();
-            course.setCourseId(str[0]);
-            course.setCourseName(str[1]);
-            course.setCourseTimeDay(str[2]);
-            course.setCourseTimeStart(str[3]);
-            course.setCourseTimeEnd(str[4]);
-            course.setCourseTime(str[2] + " : " + str[3] + " - " + str[4]);
-            course.setCoursePlace(str[5]);
-            course.setCourseTeacher(str[6]);
-            course.setCourseCredit(Integer.parseInt(str[7]));
-            course.setCourseCreditHour(Integer.parseInt(str[8]));
-            course.setCourseCapacity(Integer.parseInt(str[9]));
-            course.setCourseDescription(str[10]);
-            courseList.add(course);
+        try {
+            InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), StandardCharsets.UTF_8);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+            List<Course> courseList = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                String[] str = line.split(",");
+                Course course = new Course();
+                course.setCourseId(str[0]);
+                course.setCourseName(str[1]);
+                course.setCourseTimeDay(str[2]);
+                course.setCourseTimeStart(str[3]);
+                course.setCourseTimeEnd(str[4]);
+                course.setCourseTime(str[2] + " : " + str[3] + " - " + str[4]);
+                course.setCoursePlace(str[5]);
+                course.setCourseTeacher(str[6]);
+                course.setCourseCredit(Integer.parseInt(str[7]));
+                course.setCourseCreditHour(Integer.parseInt(str[8]));
+                course.setCourseCapacity(Integer.parseInt(str[9]));
+                course.setCourseDescription(str[10]);
+                courseList.add(course);
+            }
+            for (Course course : courseList) {
+                courseMapper.insert(course);
+            }
+            System.out.println(courseList);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        for (Course course : courseList) {
-            courseMapper.insert(course);
-        }
-        System.out.println(courseList);
         return Result.success();
     }
 
