@@ -102,7 +102,6 @@ public class UserController {
             res.setEmail(user.getEmail());
             res.setPhone(user.getPhone());
         } else {
-
             Result<?> err2 = checkCollege(user);
             if (err2 != null) return err2;
             res.setEmail(user.getEmail());
