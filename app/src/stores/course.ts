@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { post } from 'boot/axios';
 import { Notify } from 'quasar';
 import { useUserStore } from './user';
+import {value_helper} from 'src/helper';
 
 export interface CourseInfo {
   courseId: string;
@@ -106,6 +107,7 @@ export const useCourseStore = defineStore('course', {
       courseCapacity: string;
       courseDescription: string;
     }) {
+      courseTeacher = value_helper(courseTeacher)
       console.log(courseTeacher)
       if (
         (await post('/course/add_course', {

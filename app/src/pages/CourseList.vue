@@ -321,7 +321,7 @@ const columns = [
     name: 'courseTeacher',
     align: 'center',
     label: '任课教师',
-    field: rows => rows.courseTeacher.split('(')[0],
+    field: (rows: { courseTeacher: string; }) => rows.courseTeacher.split('(')[0],
   },
   {
     name: 'courseDepartment',
@@ -575,7 +575,7 @@ export default defineComponent({
             courseTimeStart: addCourseTimeStart.value,
             courseTimeEnd: addCourseTimeEnd.value,
             coursePlace: addCoursePlace.value,
-            courseTeacher: addCourseTeacher.value.value,
+            courseTeacher: addCourseTeacher.value,
             courseCredit: addCourseCredit.value,
             courseCreditHour: addCourseCreditHour.value,
             courseCapacity: addCourseCapacity.value,

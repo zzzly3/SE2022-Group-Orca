@@ -15,10 +15,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.orca.back.controller.UserController.getResult;
 
 @RestController
 @RequestMapping("/api/course")
@@ -44,6 +47,10 @@ public class CourseController {
     CourseSelectionStateMapper courseSelectionStateMapper;
 
     Checker checker = new Checker();
+
+    private Result<?> checkAdmin(HttpServletRequest request) {
+        return getResult(request, userMapper);
+    }
 
     /*Load course constants*/
     @RequestMapping("/load_course_constants")
@@ -76,13 +83,8 @@ public class CourseController {
     @PostMapping("/get_course_all")
     public Result<?> getCourseAll(HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
         List<Course> courseList = courseMapper.selectList(null);
         List<CourseInfo> courseInfoList = new ArrayList<>();
@@ -102,14 +104,10 @@ public class CourseController {
     @PostMapping("/add_course")
     public Result<?> addCourse(@RequestBody Course course, HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null) return Result.error(err);
-
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
-        err = checker.checkCourse(course);
+        ErrorCode err = checker.checkCourse(course);
         if (err != null) return Result.error(err);
         course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
         courseMapper.insert(course);
@@ -120,15 +118,10 @@ public class CourseController {
     @PostMapping("/edit_course")
     public Result<?> editCourse(@RequestBody Course course, HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
-        err = checker.checkCourse(course);
+        ErrorCode err = checker.checkCourse(course);
         if (err != null) return Result.error(err);
         course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
         courseMapper.updateById(course);
@@ -139,13 +132,8 @@ public class CourseController {
     @PostMapping("/delete_course")
     public Result<?> deleteCourse(@RequestBody Course course, HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
         course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
         courseMapper.delete(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()).eq(Course::getCourseTeacher, course.getCourseTeacher()));
@@ -156,13 +144,8 @@ public class CourseController {
     @PostMapping("/get_course_application_all")
     public Result<?> getCourseApplicationAll(HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
         //use courseTeacher to present name:(工号: number)
         List<CourseApplication> courseApplicationList = courseApplicationMapper.selectList(Wrappers.<CourseApplication>lambdaQuery().eq(CourseApplication::getApplicationStatus, 0));
@@ -180,13 +163,8 @@ public class CourseController {
     @PostMapping("/update_course_application_status")
     public Result<?> updateCourseApplicationStatus(@RequestBody CourseApplication courseApplication, HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
         courseApplication.transBackApplicationType();
         courseApplication.setCourseTeacher(courseApplication.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
@@ -199,15 +177,10 @@ public class CourseController {
     public Result<?> batchImport(@RequestPart(value = "file") final MultipartFile uploadfile, HttpServletRequest request) throws IOException {
         System.out.println(uploadfile.getOriginalFilename());
         /*Check Admin*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user = userMapper.selectById(userId);
-        if (user == null || user.getIsAdmin() == 0) return Result.error(ErrorCode.E_111);
+        Result<?> result = checkAdmin(request);
+        if (result != null) return result;
         /*Check Pass*/
-        InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), "UTF-8");
+        InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), StandardCharsets.UTF_8);
         BufferedReader br = new BufferedReader(isr);
         String line;
         List<Course> courseList = new ArrayList<>();

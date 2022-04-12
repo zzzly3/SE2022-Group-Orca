@@ -137,6 +137,10 @@ public class UserController {
     }
 
     private Result<?> checkAdmin(HttpServletRequest request) {
+        return getResult(request, userMapper);
+    }
+
+    static Result<?> getResult(HttpServletRequest request, UserMapper userMapper) {
         ErrorCode err = null;
         Integer u_id = (Integer) request.getSession().getAttribute("UserId");
         if (u_id == null) err = ErrorCode.E_109;
