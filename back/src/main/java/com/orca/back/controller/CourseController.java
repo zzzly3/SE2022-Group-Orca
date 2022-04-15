@@ -71,8 +71,8 @@ public class CourseController {
         }
 
         CourseConstantsInfo courseConstantsInfo = new CourseConstantsInfo();
-        courseConstantsInfo.setCourseTimeStartList(classTimeList.stream().map(ClassTime::getBegin).collect(Collectors.toList()));
-        courseConstantsInfo.setCourseTimeEndList(classTimeList.stream().map(ClassTime::getEnd).collect(Collectors.toList()));
+        courseConstantsInfo.setCourseTimeStartList(classTimeList.stream().map(ClassTime::getId).collect(Collectors.toList()));
+        courseConstantsInfo.setCourseTimeEndList(classTimeList.stream().map(ClassTime::getId).collect(Collectors.toList()));
         courseConstantsInfo.setClassRoomList(classroomList.stream().map(Classroom::getName).collect(Collectors.toList()));
         courseConstantsInfo.setTeacherList(teacherSelectInfoList);
         return Result.success(courseConstantsInfo);
@@ -110,6 +110,30 @@ public class CourseController {
         ErrorCode err = checker.checkCourse(course);
         if (err != null) return Result.error(err);
         course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
+        /*check if course exists*/
+        Course repeatCourse = courseMapper.selectOne(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()).eq(Course::getCourseTeacher, course.getCourseTeacher()));
+        if (repeatCourse != null) return Result.error(ErrorCode.E_314);
+        /*check whether exists conflicts between coursePlace and courseTime*/
+        List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCoursePlace, course.getCoursePlace()));
+        int courseTimeStart = Integer.parseInt(course.getCourseTimeStart());
+        int courseTimeEnd = Integer.parseInt(course.getCourseTimeEnd());
+        for (Course course1 : courseList1){
+            if (course1.getCourseId().equals(course.getCourseId())) continue;
+            if (!course1.getCourseTimeDay().equals(course.getCourseTimeDay()))continue;
+            int courseTimeStart1 = Integer.parseInt(course1.getCourseTimeStart());
+            int courseTimeEnd1 = Integer.parseInt(course1.getCourseTimeEnd());
+            if (courseTimeEnd < courseTimeStart1 || courseTimeStart > courseTimeEnd1) continue;
+            else return Result.error(ErrorCode.E_318);
+        }
+        /*check the course list with the same courseId*/
+        List<Course> courseList = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()));
+        User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, course.getCourseTeacher()));
+        for (Course c : courseList){
+            User t = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, c.getCourseTeacher()));
+            if (t.getMajor() != teacher.getMajor()) return Result.error(ErrorCode.E_315);
+            c.updateCourse(course);
+            courseMapper.update(c, Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, c.getCourseId()).eq(Course::getCourseTeacher, c.getCourseTeacher()));
+        }
         courseMapper.insert(course);
         return Result.success();
     }
@@ -124,7 +148,24 @@ public class CourseController {
         ErrorCode err = checker.checkCourse(course);
         if (err != null) return Result.error(err);
         course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
-        courseMapper.updateById(course);
+        /*check whether exists conflicts between coursePlace and courseTime*/
+        List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCoursePlace, course.getCoursePlace()));
+        int courseTimeStart = Integer.parseInt(course.getCourseTimeStart());
+        int courseTimeEnd = Integer.parseInt(course.getCourseTimeEnd());
+        for (Course course1 : courseList1){
+            if (course1.getCourseId().equals(course.getCourseId())) continue;
+            if (!course1.getCourseTimeDay().equals(course.getCourseTimeDay()))continue;
+            int courseTimeStart1 = Integer.parseInt(course1.getCourseTimeStart());
+            int courseTimeEnd1 = Integer.parseInt(course1.getCourseTimeEnd());
+            if (courseTimeEnd < courseTimeStart1 || courseTimeStart > courseTimeEnd1) continue;
+            else return Result.error(ErrorCode.E_318);
+        }
+        /*check the course list with the same courseId*/
+        List<Course> courseList = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()));
+        for (Course c : courseList){
+            c.updateCourse(course);
+            courseMapper.update(c, Wrappers.<Course>lambdaUpdate().eq(Course::getCourseId, c.getCourseId()).eq(Course::getCourseTeacher, c.getCourseTeacher()));
+        }
         return Result.success();
     }
 
@@ -152,7 +193,6 @@ public class CourseController {
         for (CourseApplication courseApplication : courseApplicationList) {
             courseApplication.translateApplicationType();
             courseApplication.translateApplicationStatus();
-            System.out.println(courseApplication.getCourseTeacher());
             User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, courseApplication.getCourseTeacher()));
             courseApplication.setCourseTeacher(teacher.getName().concat(" (工号: ").concat(teacher.getNumber().toString()).concat(")"));
         }
@@ -175,7 +215,6 @@ public class CourseController {
     //batch import
     @PostMapping("/batch_import")
     public Result<?> batchImport(@RequestPart(value = "file") final MultipartFile uploadfile, HttpServletRequest request) throws IOException {
-        System.out.println(uploadfile.getOriginalFilename());
         /*Check Admin*/
         Result<?> result = checkAdmin(request);
         if (result != null) return result;
@@ -187,6 +226,8 @@ public class CourseController {
             List<Course> courseList = new ArrayList<>();
             while ((line = br.readLine()) != null) {
                 String[] str = line.split(",");
+                //if any of the 10 field is empty, skip
+                if (str[0].isEmpty() || str[1].isEmpty() || str[2].isEmpty() || str[3].isEmpty() || str[4].isEmpty() || str[5].isEmpty() || str[6].isEmpty() || str[7].isEmpty() || str[8].isEmpty() || str[9].isEmpty()) return Result.error(ErrorCode.E_316);
                 Course course = new Course();
                 course.setCourseId(str[0]);
                 course.setCourseName(str[1]);
@@ -200,12 +241,16 @@ public class CourseController {
                 course.setCourseCreditHour(Integer.parseInt(str[8]));
                 course.setCourseCapacity(Integer.parseInt(str[9]));
                 course.setCourseDescription(str[10]);
+                //check whether courseTeacher and coursePlace exist
+                //check coursePlace whether exist
+                Classroom classroom = classroomMapper.selectOne(Wrappers.<Classroom>lambdaQuery().eq(Classroom::getName, course.getCoursePlace()));
+                User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, course.getCourseTeacher()));
+                if (classroom == null || teacher == null) return Result.error(ErrorCode.E_317);
                 courseList.add(course);
             }
             for (Course course : courseList) {
                 courseMapper.insert(course);
             }
-            System.out.println(courseList);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -256,6 +301,21 @@ public class CourseController {
         err = checker.checkCourseApplication(courseApplication);
         if (err != null){
             return Result.error(err);
+        }
+        /*check whether classtime has been occupied*/
+        if (courseApplication.getApplicationType().equals("1") || courseApplication.getApplicationType().equals("3")){
+            /*check whether exists conflicts between coursePlace and courseTime*/
+            List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCoursePlace, courseApplication.getCoursePlace()));
+            int courseTimeStart = Integer.parseInt(courseApplication.getCourseTimeStart());
+            int courseTimeEnd = Integer.parseInt(courseApplication.getCourseTimeEnd());
+            for (Course course1 : courseList1){
+                if (course1.getCourseId().equals(courseApplication.getCourseId())) continue;
+                if (!course1.getCourseTimeDay().equals(courseApplication.getCourseTimeDay()))continue;
+                int courseTimeStart1 = Integer.parseInt(course1.getCourseTimeStart());
+                int courseTimeEnd1 = Integer.parseInt(course1.getCourseTimeEnd());
+                if (courseTimeEnd < courseTimeStart1 || courseTimeStart > courseTimeEnd1) continue;
+                else return Result.error(ErrorCode.E_318);
+            }
         }
         /*set application id*/
         Constants courseApplicationId = constantsMapper.selectOne(Wrappers.<Constants>lambdaQuery().eq(Constants::getConstantName, "course_application_id"));

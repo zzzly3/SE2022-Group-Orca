@@ -50,7 +50,7 @@
                 <q-card-section class="q-py-none">
                   <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
                     <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                    <q-input style="height: 60px" class="col" dense label="课程名称" disable v-model="props.row.courseName"/>
+                    <q-input style="height: 60px" class="col" dense label="课程名称"  v-model="props.row.courseName"/>
                     <div class="row items-start q-gutter-md">
                       <q-select style="height: 60px" class="col" dense v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
                       <q-select class="col" dense v-model="props.row.courseTimeStart" :options="courseTimeStarts" label="开始时间"/>
@@ -64,27 +64,27 @@
                       <q-select class="col" dense v-model="props.row.courseTimeEnd" :options="courseTimeEnds" label="结束时间"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-select style="height: 63px" class="col" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
                       <q-select class="col" dense v-model="addCourseTeacher" label="任课老师" disable/>
+                      <q-select style="height: 63px" class="col-5" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
-                      <q-select class="col" dense disable v-model="props.row.courseCreditHour" label="学时"/>
-                      <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量">
+                      <q-select style="height: 56px" class="col" dense v-model="props.row.courseCredit" label="学分"/>
+                      <q-select class="col" dense v-model="props.row.courseCreditHour" label="学时"/>
+                      <q-input class="col" dense v-model="props.row.courseCapacity" label="课程容量">
                         <template v-slot:append>
                           <q-icon name="arrow_drop_down" class="cursor-pointer" >
                           </q-icon>
                         </template>
                       </q-input>
                     </div>
-                    <q-input class="col" dense disable v-model="props.row.courseDescription" autogrow label="课程描述"/>
+                    <q-input class="col" dense v-model="props.row.courseDescription" autogrow label="课程描述"/>
                   </q-form>
                 </q-card-section>
                 <q-card-section align="right">
                   <q-btn color="red" flat label="取消"
                     @click="editShow[props.rowIndex] = false"/>
-                  <q-btn color="teal-10" flat label="确认修改" v-close-popup
-                    @click="editSubmit(props.row)"/>
+                  <q-btn color="teal-10" flat label="确认修改"
+                    @click="editSubmit(props.row, props.rowIndex)"/>
                 </q-card-section>
               </q-card>
             </q-dialog>
@@ -149,10 +149,10 @@
                     lazy-rules :rules="[val => !!val || '课程结束时间不能为空']" ref="addCourseTimeEndRef"/>
                   </div>
                   <div class="row items-start q-gutter-md">
-                    <q-select class="col" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"
-                    lazy-rules :rules="[val => !!val || '课程教室不能为空']" ref="addCoursePlaceRef"/>
                     <q-select disable class="col" dense v-model="addCourseTeacher" :options="teachers" label="任课老师"
                     lazy-rules :rules="[val => !!val || '任课教师不能为空']" ref="addCourseTeacherRef"/>
+                    <q-select class="col-5" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"
+                    lazy-rules :rules="[val => !!val || '课程教室不能为空']" ref="addCoursePlaceRef"/>
                   </div>
                   <div class="row items-start q-gutter-md">
                     <q-select style="height: 56px" class="col" dense v-model="addCourseCredit" :options="credits" label="学分"
@@ -480,13 +480,14 @@ export default defineComponent({
           })
         ) {
           clear();
+          course.load_course_lists_page_teacher().then((r) => (rows.value = r));
         }
       },
       //CourseAdder end
 
       //CourseEditor start
       editShow,
-      async editSubmit(row: CourseInfo) {
+      async editSubmit(row: CourseInfo, index: number) {
         const editTime = row.courseTimeDay.concat(
           ' : ',
           row.courseTimeStart,
@@ -510,7 +511,9 @@ export default defineComponent({
             applicationType: '3',
           })
         ) {
+          editShow.value[index] = false
           clear();
+          course.load_course_lists_page_teacher().then((r) => (rows.value = r));
         }
       },
       //CourseEditor end

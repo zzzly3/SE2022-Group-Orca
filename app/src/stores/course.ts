@@ -107,8 +107,7 @@ export const useCourseStore = defineStore('course', {
       courseCapacity: string;
       courseDescription: string;
     }) {
-      courseTeacher = value_helper(courseTeacher)
-      console.log(courseTeacher)
+
       if (
         (await post('/course/add_course', {
           courseId,
