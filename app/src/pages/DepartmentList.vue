@@ -24,7 +24,7 @@
                         <q-popup-edit v-model="c.name" auto-save v-slot="scope" :ref="'college' + c.id"
                                       @before-show="show_edit||$refs['college' + c.id][0].hide()" @before-hide="show_edit=false"
                                       :validate="val => !!val" @save="v=>update_college(c, v)">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                       <span class="float-right">
@@ -45,7 +45,7 @@
                         <q-popup-edit v-model="add_name" auto-save v-slot="scope"
                                       @hide="add_name=''"
                                       :validate="val => !!val" @save="add_college">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                     </div>
@@ -75,7 +75,7 @@
                         <q-popup-edit v-model="m.name" auto-save v-slot="scope" :ref="'major' + m.id"
                                       @before-show="show_edit||$refs['major' + m.id][0].hide()" @before-hide="show_edit=false"
                                       :validate="val=>!!val" @save="v=>update_major(m,v)">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                       <span class="float-right">
@@ -99,7 +99,7 @@
                         <q-popup-edit v-model="add_name" auto-save v-slot="scope"
                                       @hide="add_name=''"
                                       :validate="val => !!val" @save="add_major">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                     </td>
