@@ -1,5 +1,6 @@
 package com.orca.back.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.orca.back.entity.*;
 import com.orca.back.mapper.CollegeMapper;
@@ -293,6 +294,10 @@ public class UserController {
         // check if the new name is empty
         if (college.getName().equals(""))
             return Result.error(ErrorCode.E_134);
+        // check if the college name is unique
+        College college1 = collegeMapper.selectOne(new QueryWrapper<College>().eq("name", college.getName()));
+        if (college1 != null)
+            return Result.error(ErrorCode.E_136);
         // check if the college exists
         College target = collegeMapper.selectById(college.getId());
         if (target == null)
@@ -310,6 +315,9 @@ public class UserController {
         if (err1 != null) return err1;
         if (major.getName().equals(""))
             return Result.error(ErrorCode.E_134);
+        Major major1 = majorMapper.selectOne(new QueryWrapper<Major>().eq("name", major.getName()));
+        if (major1 != null)
+            return Result.error(ErrorCode.E_137);
         Major target = majorMapper.selectById(major.getId());
         if (target == null)
             return Result.error(ErrorCode.E_133);
