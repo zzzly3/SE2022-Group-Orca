@@ -42,6 +42,8 @@
               />
               <q-select v-model="state0" :options="states" label="教室状态" dense
                          :rules="[val => !!val || '无效的类型']" />
+              <q-input v-model="classroomTo" label="要修改的名称" dense
+                       />
             </q-form>
             <q-inner-loading :showing="changeLoading" />
           </q-tab-panel>
@@ -75,6 +77,7 @@ export default defineComponent({
     const loading = ref(false)
     const changeLoading = ref(false)
     const tab = ref('add')
+    const classroomTo = ref('');
 
     const classroom0 = ref('')
     const building0 = ref('')
@@ -152,9 +155,18 @@ export default defineComponent({
         return
       }
       loading.value = true
-
-      if (await CR.modify_classroom({name: classroom0.value, building: building0.value, open: state0.value.value})) {
-        clear()
+      if(classroomTo.value === ''){
+        if (await CR.modify_classroom({name: classroom0.value, building: building0.value, open: state0.value.value})) {
+          clear()
+        }
+      }else{
+        if(await CR.delete_classroom(classroom0.value, false)){
+          if(await CR.add_classroom({name: classroomTo.value, building: building0.value, open: state0.value.value})){
+            clear()
+          }else {
+            await CR.add_classroom({name: classroom0.value, building: building0.value, open: state0.value.value}, false)
+          }
+        }
       }
       loading.value = false
     }
@@ -170,14 +182,14 @@ export default defineComponent({
       }
       loading.value = true
 
-      if (await CR.modify_classroom({name: classroom1.value, building: building1.value, open: state1.value.value})) {
+      if (await CR.add_classroom({name: classroom1.value, building: building1.value, open: state1.value.value})) {
         clear()
       }
       loading.value = false
     }
     return{
       show, loading, changeLoading, tab,
-      classroom0, classroom1, classrooms,
+      classroom0, classroom1, classrooms, classroomTo,
       building0, building1, buildings,
       state0, state1, states,
       clear, loadAll, deleteClassroom,
