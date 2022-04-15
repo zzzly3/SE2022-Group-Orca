@@ -12,7 +12,7 @@
           <q-tab name="change">
             <div class="text-subtitle1 row items-center">
               <q-icon name="corporate_fare" size="sm" color="green"></q-icon>
-              <span>调整教室</span>
+              <span>调整/删除教室</span>
             </div>
           </q-tab>
 
@@ -48,6 +48,7 @@
         </q-tab-panels>
         </q-card-section>
         <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat align="left" label="删除教室" @click="deleteClassroom" :disable="loading" v-if="tab === 'change'" color="warning"></q-btn>
           <q-btn flat label="取消" @click="clear" :disable="loading" v-close-popup color="negative" />
           <q-btn flat label="确定" @click="submit" :loading="loading" color="primary" />
         </q-card-actions>
@@ -131,6 +132,19 @@ export default defineComponent({
       if(tab.value === 'change')loadAll()
     })
 
+    const deleteClassroom = async ()=>{
+      console.log('in deleteClassroom')
+      if (classroom0.value === '') {
+        Notify.create({type: 'negative', message: '信息不能为空'})
+        return
+      }
+      loading.value = true
+      if (await CR.delete_classroom(classroom0.value)) {
+        clear()
+      }
+      loading.value = false
+    }
+
     const changeClassroom = async()=>{
       console.log('ClassroomAdjuster: changeClassroom')
       if (classroom0.value === '' || building0.value === '' || state0.value.label === '') {
@@ -166,7 +180,7 @@ export default defineComponent({
       classroom0, classroom1, classrooms,
       building0, building1, buildings,
       state0, state1, states,
-      clear, loadAll,
+      clear, loadAll, deleteClassroom,
       async submit() {
         console.log('ClassroomAdjuster: submit')
         if (tab.value === 'change') await changeClassroom()
