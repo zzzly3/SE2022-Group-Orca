@@ -6,8 +6,8 @@ import java.util.List;
 
 @Data
 public class CourseConstantsInfo {
-    private List<String> courseTimeStartList;
-    private List<String> courseTimeEndList;
+    private List<Integer> courseTimeStartList;
+    private List<Integer> courseTimeEndList;
     private List<String> classRoomList;
     private List<TeacherSelectInfo> teacherList;
 }

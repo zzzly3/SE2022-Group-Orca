@@ -58,8 +58,8 @@
                         <q-select class="col" dense disable v-model="props.row.courseTimeEnd" label="结束时间"/>
                       </div>
                       <div class="row items-start q-gutter-md">
-                        <q-select style="height: 63px" class="col" dense disable v-model="props.row.coursePlace" label="上课教室"/>
                         <q-select class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
+                        <q-select style="height: 63px" class="col-5" dense disable v-model="props.row.coursePlace" label="上课教室"/>
                       </div>
                       <div class="row items-start q-gutter-md">
                         <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
@@ -75,8 +75,8 @@
                     </q-form>
                   </q-card-section>
                   <q-card-section align="right">
-                    <q-btn color="primary" flat label="同意申请" v-close-popup
-                      @click="agree(props.row)"
+                    <q-btn color="primary" flat label="同意申请"
+                      @click="agree(props.row, props.rowIndex)"
                     />
                     <q-btn color="red" flat label="拒绝申请" v-close-popup
                       @click="decline(props.row)"
@@ -165,9 +165,9 @@ export default defineComponent({
 
       //CourseEditor start
       editShow,
-      async agree(row: CourseApplicationInfo) {
+      async agree(row: CourseApplicationInfo, index: number) {
         if (row.applicationType === '新增') {
-          await course.add_course({
+          if( await course.add_course({
             courseId: row.courseId,
             courseName: row.courseName,
             courseTime: row.courseTime,
@@ -175,14 +175,20 @@ export default defineComponent({
             courseTimeStart: row.courseTimeStart,
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
-            courseTeacher: row.courseTeacher,
+            courseTeacher:row.courseTeacher,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
             courseDescription: row.courseDescription,
-          });
+          })){
+            editShow.value[index] = false;
+          }
+          else{
+            console.log(row.courseTeacher)
+            return;
+          }
         } else if (row.applicationType === '修改') {
-          await course.edit_course({
+          if( await course.edit_course({
             courseId: row.courseId,
             courseName: row.courseName,
             courseTime: row.courseTime,
@@ -195,9 +201,12 @@ export default defineComponent({
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
             courseDescription: row.courseDescription,
-          });
+          })){
+            editShow.value[index] = false;
+          }
         } else if (row.applicationType === '删除') {
           await course.delete_course(row.courseId, row.courseTeacher);
+          editShow.value[index] = false;
         }
 
         await course.update_course_application_status({

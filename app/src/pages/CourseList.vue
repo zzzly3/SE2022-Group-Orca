@@ -60,8 +60,8 @@
                       <q-select class="col" dense v-model="props.row.courseTimeEnd" :options="courseTimeEnds" label="结束时间"/>
                     </div>
                     <div class="row items-start q-gutter-md">
-                      <q-select style="height: 63px" class="col" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
                       <q-select disable class="col" dense v-model="props.row.courseTeacher" label="任课老师"/>
+                      <q-select style="height: 63px" class="col-5" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
                     </div>
                     <div class="row items-start q-gutter-md">
                       <q-select style="height: 56px" class="col" dense v-model="props.row.courseCredit" :options="credits" label="学分"/>
@@ -177,7 +177,7 @@
                         </q-item>
                       </template>
                     </q-select>
-                    <q-select  class="col" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"
+                    <q-select  class="col-5" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"
                     lazy-rules :rules="[val => !!val || '课程教室不能为空']" ref="addCoursePlaceRef"/>
                   </div>
                   <div class="row items-start q-gutter-md">
@@ -275,8 +275,8 @@
             label="选择文件"
             :field-name="'file'"
             class = "hidden"
-            @failed="$q.notify({color:'negative',message:'网络异常'})"
             ref="uploader"
+            @uploaded="onuploaded"
           />
         </div>
         <!--BatchImport-->
@@ -324,9 +324,9 @@ const columns = [
     field: (rows: { courseTeacher: string; }) => rows.courseTeacher.split('(')[0],
   },
   {
-    name: 'courseDepartment',
-    label: '开课院系',
-    field: 'courseDepartment',
+    name: 'courseMajor',
+    label: '课程专业',
+    field: 'courseMajor',
     align: 'center',
   },
   {
@@ -408,7 +408,7 @@ export default defineComponent({
     const addCourseTimeStart = ref();
     const addCourseTimeEnd = ref();
     const addCoursePlace = ref('');
-    const addCourseTeacher = ref('');
+    const addCourseTeacher = ref({label:'',value:'',description:''});
     const addCourseCredit = ref('');
     const addCourseCreditHour = ref('');
     const addCourseCapacity = ref('');
@@ -435,7 +435,7 @@ export default defineComponent({
       addCourseTimeStart.value = '';
       addCourseTimeEnd.value = '';
       addCoursePlace.value = '';
-      addCourseTeacher.value = '';
+      addCourseTeacher.value = {label:'',value:'',description:''};
       addCourseCredit.value = '';
       addCourseCreditHour.value = '';
       addCourseCapacity.value = '';
@@ -493,6 +493,11 @@ export default defineComponent({
     //CourseEditor end
 
     const deleteShow = ref([false] as boolean[]);
+    const load = async () => {
+      const r = await course.load_course_lists_page_admin();
+      rows.value = r;
+    };
+    load();
     return {
       rules,
       columns,
@@ -575,7 +580,7 @@ export default defineComponent({
             courseTimeStart: addCourseTimeStart.value,
             courseTimeEnd: addCourseTimeEnd.value,
             coursePlace: addCoursePlace.value,
-            courseTeacher: addCourseTeacher.value,
+            courseTeacher: addCourseTeacher.value.value,
             courseCredit: addCourseCredit.value,
             courseCreditHour: addCourseCreditHour.value,
             courseCapacity: addCourseCapacity.value,
@@ -652,6 +657,7 @@ export default defineComponent({
       importShow,
       file,
       uploader,
+      load,
       upload_csv() {
         if (file.value === null){
           $q.notify({
@@ -667,7 +673,24 @@ export default defineComponent({
         uploader.value.reset()
         uploader.value.addFiles([file.value])
         uploader.value.upload()
-        importShow.value = false
+      },
+      onuploaded({xhr}: {xhr: XMLHttpRequest}) {
+        console.log(xhr)
+        if (xhr.status === 200) {
+          const r = JSON.parse(xhr.responseText)
+          if (Number(r.code) === 200) {
+            importShow.value=false;file.value=null;
+            $q.notify({
+              message: '导入成功',
+              color: 'positive',
+            });
+            load()
+          } else {
+            $q.notify({color:'negative',message:r.msg})
+          }
+        } else {
+          $q.notify({color:'negative',message:'网络异常'})
+        }
       },
 
       //BatchImport end

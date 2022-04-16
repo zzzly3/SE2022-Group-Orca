@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 @Data
 @TableName("course")
 public class Course {
-    @TableId("course_id")
     private String courseId;
     private String courseName;
     private String courseTime;
@@ -22,6 +21,19 @@ public class Course {
     private Integer courseCreditHour;
     private Integer courseCapacity;
     private String courseDescription;
+
+    public void updateCourse(Course course){
+        this.courseName = course.getCourseName();
+        this.courseTime = course.getCourseTime();
+        this.courseTimeDay = course.getCourseTimeDay();
+        this.courseTimeStart = course.getCourseTimeStart();
+        this.courseTimeEnd = course.getCourseTimeEnd();
+        this.coursePlace = course.getCoursePlace();
+        this.courseCredit = course.getCourseCredit();
+        this.courseCreditHour = course.getCourseCreditHour();
+        this.courseCapacity = course.getCourseCapacity();
+        this.courseDescription = course.getCourseDescription();
+    }
 }
 
 
