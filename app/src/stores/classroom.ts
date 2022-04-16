@@ -17,10 +17,18 @@ export const useClassroomStore = defineStore('classroom', {
 
   }),
   actions: {
-    async delete_classroom(name:string){
+    async add_classroom({name, building, open}: {name:string, building: string, open:boolean}, notify=true){
+      console.log('frontend: in add_classroom')
+      if(await post('add_classroom', {name, building, open}, notify) !== false){
+        if(notify)Notify.create({type:'positive', message:'添加/修改成功'})
+        return true
+      }
+      return false
+    },
+    async delete_classroom(name:string, notify=true){
       console.log('frontend: in delete_classroom')
-      if(await post('delete_classroom', {name}) !== false){
-        Notify.create({type:'positive', message:'删除成功'})
+      if(await post('delete_classroom', {name}, notify) !== false){
+        if(notify)Notify.create({type:'positive', message:'删除成功'})
         return true
       }
       return false

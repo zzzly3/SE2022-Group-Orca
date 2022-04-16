@@ -21,6 +21,7 @@ export const useClassTimeStore = defineStore('classTime', {
       console.log('in delete_classTime')
       if(await post('delete_classTime', {id}) !== false){
         Notify.create({type:'positive', message:'删除成功'})
+        return true
       }
       return false;
     },
