@@ -381,6 +381,10 @@ public class UserController {
                     err = "格式错误";
                     throw new Exception();
                 }
+                // remove the space in the beginning and end of the string
+                for (int j = 0; j < items.length; j++) {
+                    items[j] = items[j].trim();
+                }
                 User user = new User();
                 user.setNumber(Integer.valueOf(items[0]));
                 if (items[1].equals("student"))
