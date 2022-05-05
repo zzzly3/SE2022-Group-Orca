@@ -25,7 +25,7 @@
                      :disable="update"
                      :rules="[val => (type.value==='teacher'?rules.id_t:rules.id_s).test(val) || '无效的学/工号']"
             />
-            <div class="q-gutter-md row items-start">
+            <div class="q-gutter-md row items-start q-pt-xs">
               <q-select v-model="college" :options="colleges" label="学院" dense ref="collegeRef" class="col"
                         :disable="(update && user.type !== 'admin') || type.value === 'admin'"
                         lazy-rules :rules="[val => !!val || '无效的学院']" />
@@ -33,10 +33,6 @@
                         :options="majors"
                         :disable="(update && user.type !== 'admin') || type.value === 'admin'"
                         lazy-rules :rules="[val => !!val || '无效的专业']" />
-              <q-inner-loading
-                :showing="load_list"
-                color="teal"
-              />
             </div>
             <q-input label="姓名" v-model="name" dense ref="nameRef"
                      maxlength="12" lazy-rules
@@ -53,13 +49,13 @@
               <q-icon name="close" @click.stop="pid = ''" class="cursor-pointer" />
             </template></q-input>
             <q-input label="手机号（可选）" v-model="phone" dense ref="phoneRef"
-                     maxlength="11"
+                     maxlength="11" lazy-rules
                      :rules="[val => rules.phone.test(val) || '无效的手机号']"
             ><template v-if="phone" v-slot:append>
               <q-icon name="close" @click.stop="phone = ''" class="cursor-pointer" />
             </template></q-input>
             <q-input label="邮箱（可选）" v-model="email" dense ref="emailRef"
-                     maxlength="40"
+                     maxlength="40" lazy-rules
                      :rules="[val => rules.email.test(val) || '无效的邮箱']"
             ><template v-if="email" v-slot:append>
               <q-icon name="close" @click.stop="email = ''" class="cursor-pointer" />
@@ -67,6 +63,10 @@
             <p class="text-grey-7" v-if="!update">
               <q-icon name="info"/> 初始密码统一设置为123456
             </p>
+            <q-inner-loading
+              :showing="load_list"
+              color="teal"
+            />
           </q-form>
         </q-card-section>
 
@@ -131,17 +131,15 @@ export default defineComponent({
     const email = ref('')
     const type = ref(types[0])
     const leave = ref(leave_type_student[0])
-    const colleges = ref([] as {value: number, label: string}[])
     const college = ref({value: 0, label: ''} as {value: number, label: string})
-    const majors = ref([] as {value: number, label: string}[])
     const major = ref({value: 0, label: ''} as {value: number, label: string})
+    const colleges = computed(() => [{value: 0, label: '未分配'}].concat(user.colleges.map(c => ({value: c.id, label: c.name}))))
+    const majors = computed(() => [{value: 0, label: '未分配'}].concat(user.majors.filter(m => m.college === college.value.value).map(m => ({value: m.id, label: m.name}))))
 
     const autofill = async () => {
-      load_list.value = true
-      const cl = await user.load_college()
-      colleges.value = cl.map((c: { id: number; name: string; }) => ({value: c.id, label: c.name}))
-      colleges.value.unshift({value: 0, label: '未分配'})
-      load_list.value = false
+      // load_list.value = true
+      // await Promise.all([user.load_college(), user.load_major()])
+      // load_list.value = false
       college.value = colleges.value[0]
       if (props.old) {
         update.value = true
@@ -203,16 +201,7 @@ export default defineComponent({
       else if (val.value === 'teacher')
         leave.value = leave_type_teacher[0]
     })
-    watch(college, async val => {
-      if (val.value === 0) {
-        majors.value = [{value: 0, label: '未分配'}]
-      } else {
-        load_list.value = true
-        const ml = await user.load_major(val.value)
-        majors.value = ml.map((m: { id: number; name: string; }) => ({value: m.id, label: m.name}))
-        majors.value.unshift({value: 0, label: '未分配'})
-        load_list.value = false
-      }
+    watch(college, () => {
       major.value = majors.value[0]
       if (props.old)
         for (const m of majors.value)

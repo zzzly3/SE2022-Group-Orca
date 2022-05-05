@@ -1,14 +1,14 @@
 package com.orca.back.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+
 @Data
 @TableName("course_application")
 public class CourseApplication {
-    @TableId(value = "application_id", type = IdType.AUTO)
+    @TableId(value = "application_id")
     private String applicationId;
 
     private String courseId;
@@ -19,7 +19,6 @@ public class CourseApplication {
     private String courseTimeEnd;
     private String coursePlace;
     private String courseTeacher;
-    private String courseDepartment;
     private Integer courseCredit;
     private Integer courseCreditHour;
     private Integer courseCapacity;
@@ -32,33 +31,30 @@ public class CourseApplication {
     private String applicantNumber;
 
     public void translateApplicationType() {
-        if (this.applicationType.equals("1")) {
-            this.applicationType = "新增";
-        } else if (this.applicationType.equals("2")) {
-            this.applicationType = "删除";
-        } else if (this.applicationType.equals("3")) {
-            this.applicationType = "修改";
-        }
+        this.applicationType = switch (this.applicationType) {
+            case "1" -> "新增";
+            case "2" -> "删除";
+            case "3" -> "修改";
+            default -> "未知";
+        };
     }
 
     public void transBackApplicationType() {
-        if (this.applicationType.equals("新增")) {
-            this.applicationType = "1";
-        } else if (this.applicationType.equals("删除")) {
-            this.applicationType = "2";
-        } else if (this.applicationType.equals("修改")) {
-            this.applicationType = "3";
-        }
+        this.applicationType = switch (this.applicationType) {
+            case "新增" -> "1";
+            case "删除" -> "2";
+            case "修改" -> "3";
+            default -> "0";
+        };
     }
 
     public void translateApplicationStatus() {
-        if (this.applicationStatus.equals("0")) {
-            this.applicationStatus = "未审核";
-        } else if (this.applicationStatus.equals("1")) {
-            this.applicationStatus = "审核通过";
-        } else if (this.applicationStatus.equals("2")) {
-            this.applicationStatus = "审核未通过";
-        }
+        this.applicationStatus = switch (this.applicationStatus) {
+            case "0" -> "未审核";
+            case "1" -> "审核通过";
+            case "2" -> "审核未通过";
+            default -> "未知";
+        };
     }
 
 }

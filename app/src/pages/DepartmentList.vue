@@ -24,7 +24,7 @@
                         <q-popup-edit v-model="c.name" auto-save v-slot="scope" :ref="'college' + c.id"
                                       @before-show="show_edit||$refs['college' + c.id][0].hide()" @before-hide="show_edit=false"
                                       :validate="val => !!val" @save="v=>update_college(c, v)">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                       <span class="float-right">
@@ -45,7 +45,7 @@
                         <q-popup-edit v-model="add_name" auto-save v-slot="scope"
                                       @hide="add_name=''"
                                       :validate="val => !!val" @save="add_college">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                     </div>
@@ -75,7 +75,7 @@
                         <q-popup-edit v-model="m.name" auto-save v-slot="scope" :ref="'major' + m.id"
                                       @before-show="show_edit||$refs['major' + m.id][0].hide()" @before-hide="show_edit=false"
                                       :validate="val=>!!val" @save="v=>update_major(m,v)">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                       <span class="float-right">
@@ -88,18 +88,18 @@
                   <tr v-if="major_list.length === 0">
                     <td class="row full-width text-center">
                       <span class="col self-center text-center q-pl-md text-basic text-body2">
-                        {{select_college === 0 ? '请选择学院' : '选择的学院下无专业'}}
+                        {{select_college === 0 ? '选择学院来查看其中的专业' : '选择的学院下无专业'}}
                       </span>
                     </td>
                   </tr>
                   <tr v-if="select_college !== 0">
-                    <td class="row full-width text-center cursor-pointer" v-ripple>
+                    <td class="row full-width text-center cursor-pointer" v-ripple @click.stop>
                       <span class="q-pl-md text-body2 text-positive self-center col">
                         <q-icon name="add"/>添加专业
                         <q-popup-edit v-model="add_name" auto-save v-slot="scope"
                                       @hide="add_name=''"
                                       :validate="val => !!val" @save="add_major">
-                          <q-input v-model="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
+                          <q-input v-model.trim="scope.value" dense autofocus @keyup.enter="scope.set" maxlength="20" clearable clear-icon="close"/>
                         </q-popup-edit>
                       </span>
                     </td>
@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, watch, nextTick} from 'vue';
+import {defineComponent, ref, nextTick, computed} from 'vue';
 import {useUserStore} from 'stores/user';
 import {useQuasar} from 'quasar';
 
@@ -129,37 +129,18 @@ export default defineComponent( {
     const user = useUserStore()
     const $q = useQuasar()
     const splitterModel = ref(40)
-    const college_list = ref([] as {id: number, name: string}[])
-    const major_list = ref([] as {id: number, name: string}[])
     const select_college = ref(0)
     const show_edit = ref(false)
     const left_loading = ref(false)
     const right_loading = ref(false)
     const add_name = ref('')
+    const college_list = computed(() => user.colleges)
+    const major_list = computed(() => user.majors.filter(m => m.college === select_college.value))
 
     left_loading.value = true
-    user.load_college().then(res => {
-      college_list.value = res
+    Promise.all([user.load_college(), user.load_major()]).then(() => {
       left_loading.value = false
     })
-
-    const load_major = () => {
-      if (select_college.value === 0) {
-        major_list.value = []
-        return
-      }
-      right_loading.value = true
-      user.load_major(select_college.value).then(res => {
-        if (res !== false) {
-          major_list.value = res
-          right_loading.value = false
-        } else {
-          right_loading.value = false
-          select_college.value = 0
-        }
-      })
-    }
-    watch(select_college, load_major)
 
     return {
       left_loading, right_loading,
@@ -168,7 +149,6 @@ export default defineComponent( {
       college_list, major_list,
       select_college,
       add_name,
-      load_major,
       async update_college(college: {id: number, name: string}, new_name: string) {
         left_loading.value = true
         const old_name = college.name
@@ -195,7 +175,7 @@ export default defineComponent( {
         left_loading.value = true
         const res = await user.add_college(new_name)
         if (res !== false)
-          college_list.value = await user.load_college()
+          await user.load_college()
         left_loading.value = false
       },
       async add_major(new_name: string) {
@@ -203,7 +183,7 @@ export default defineComponent( {
         console.log(new_name)
         const res = await user.add_major(select_college.value, new_name)
         if (res !== false)
-          major_list.value = await user.load_major(select_college.value)
+          await user.load_major()
         right_loading.value = false
       },
       async delete_college(cid: number) {
@@ -223,7 +203,7 @@ export default defineComponent( {
           left_loading.value = true
           const res = await user.delete_college(cid)
           if (res !== false) {
-            college_list.value = await user.load_college()
+            await user.load_college()
             if (select_college.value === cid) select_college.value = 0
           }
           left_loading.value = false
@@ -246,7 +226,7 @@ export default defineComponent( {
           right_loading.value = true
           const res = await user.delete_major(mid)
           if (res !== false)
-            major_list.value = await user.load_major(select_college.value)
+            await user.load_major()
           right_loading.value = false
         })
       }

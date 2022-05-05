@@ -1,5 +1,6 @@
 package com.orca.back.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.orca.back.entity.*;
 import com.orca.back.mapper.CollegeMapper;
@@ -102,7 +103,6 @@ public class UserController {
             res.setEmail(user.getEmail());
             res.setPhone(user.getPhone());
         } else {
-
             Result<?> err2 = checkCollege(user);
             if (err2 != null) return err2;
             res.setEmail(user.getEmail());
@@ -137,6 +137,10 @@ public class UserController {
     }
 
     private Result<?> checkAdmin(HttpServletRequest request) {
+        return getResult(request, userMapper);
+    }
+
+    static Result<?> getResult(HttpServletRequest request, UserMapper userMapper) {
         ErrorCode err = null;
         Integer u_id = (Integer) request.getSession().getAttribute("UserId");
         if (u_id == null) err = ErrorCode.E_109;
@@ -251,8 +255,8 @@ public class UserController {
 
     // list majors with the given college id through post request
     @PostMapping("/majors")
-    public Result<List<Major>> majors(@RequestBody College college){
-        List<Major> list = majorMapper.selectList(Wrappers.<Major>lambdaQuery().eq(Major::getCollege, college.getId()));
+    public Result<List<Major>> majors() {
+        List<Major> list = majorMapper.selectList(null);
         return Result.success(list);
     }
 
@@ -290,6 +294,10 @@ public class UserController {
         // check if the new name is empty
         if (college.getName().equals(""))
             return Result.error(ErrorCode.E_134);
+        // check if the college name is unique
+        College college1 = collegeMapper.selectOne(new QueryWrapper<College>().eq("name", college.getName()));
+        if (college1 != null)
+            return Result.error(ErrorCode.E_136);
         // check if the college exists
         College target = collegeMapper.selectById(college.getId());
         if (target == null)
@@ -307,6 +315,9 @@ public class UserController {
         if (err1 != null) return err1;
         if (major.getName().equals(""))
             return Result.error(ErrorCode.E_134);
+        Major major1 = majorMapper.selectOne(new QueryWrapper<Major>().eq("name", major.getName()));
+        if (major1 != null)
+            return Result.error(ErrorCode.E_137);
         Major target = majorMapper.selectById(major.getId());
         if (target == null)
             return Result.error(ErrorCode.E_133);
@@ -369,6 +380,10 @@ public class UserController {
                 if (items.length != 8) {
                     err = "格式错误";
                     throw new Exception();
+                }
+                // remove the space in the beginning and end of the string
+                for (int j = 0; j < items.length; j++) {
+                    items[j] = items[j].trim();
                 }
                 User user = new User();
                 user.setNumber(Integer.valueOf(items[0]));
