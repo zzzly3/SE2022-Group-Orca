@@ -104,17 +104,13 @@ export default defineComponent({
       .then((r) => (rows.value = r));
 
 
-    //CourseEditor start
     const editShow = ref([false] as boolean[]);
-    //CourseEditor end
 
     return {
       columns,
       rows,
 
-      //CourseEditor start
       editShow,
-      //CourseEditor end
     };
   },
 });
