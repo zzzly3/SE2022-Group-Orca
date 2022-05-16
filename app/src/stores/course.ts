@@ -261,7 +261,7 @@ export const useCourseStore = defineStore('course', {
           courseTimeStart: applicationInfo.courseTimeStart,
           courseTimeEnd: applicationInfo.courseTimeEnd,
           coursePlace: applicationInfo.coursePlace,
-          courseTeacher: applicationInfo.courseTeacher,
+          courseTeacher: user.id,
           courseCredit: applicationInfo.courseCredit,
           courseCreditHour: applicationInfo.courseCreditHour,
           courseCapacity: applicationInfo.courseCapacity,
