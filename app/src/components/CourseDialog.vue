@@ -73,7 +73,7 @@
         <q-card-section>
           <q-card-actions align="right">
             <q-btn v-if="!adminCheck" color="red" flat @click="clear" label="取消"/>
-            <q-btn v-else flat color="red" @click="applicationStatus='2';submit" label="拒绝申请"/>
+            <q-btn v-else flat color="red" @click="applicationStatus='2';submit()" label="拒绝申请"/>
             <q-btn v-if="adminEdit || teacherEdit" color="teal-10" flat @click="submit" label="修改"/>
             <q-btn v-else-if="adminAdd || teacherAdd" color="teal-10" flat @click="submit" label="添加"/>
             <q-btn v-else color="teal-10" flat @click="applicationStatus='1';submit()" label="同意申请"/>
@@ -281,7 +281,10 @@ export default defineComponent({
       }
     }
     const showMenuEdit = ref(false)
-
+    const updateDialog = async () => {
+      emit('update:modelValue', false);
+      emit('user_update')
+    }
 
     return {
       /*Dialog Constants*/
@@ -338,6 +341,7 @@ export default defineComponent({
       courseDescriptionRef,
 
       /*Dialog Methods*/
+      updateDialog,
       async submit() {
         /*Validate */
         if (!courseIdRef.value || !courseNameRef.value || !courseTimeDayRef.value || !courseTimeStartRef.value || !courseTimeEndRef.value || !coursePlaceRef.value || !courseTeacherRef.value || !courseCreditRef.value || !courseCreditHourRef.value || !courseCapacityRef.value || !courseDescriptionRef.value) {
@@ -428,31 +432,35 @@ export default defineComponent({
         /*Data submit */
         //CourseList
         if (adminAdd.value) {
-          await course.add_course({courseInfo});
+          if(await course.add_course({courseInfo})) updateDialog();
         }else if (adminEdit.value) {
-          await course.edit_course({courseInfo});
+          if(await course.edit_course({courseInfo})) updateDialog();
         }
         //CourseListTeacher
         if (teacherAdd.value || teacherEdit.value) {
-          await course.send_course_application({applicationInfo});
+          if(await course.send_course_application({applicationInfo})) updateDialog();
         }
         //CourseListApplication
 
         /*Handle CourseApplication */
         if (adminCheck.value) {
           if (applicationStatus.value === '1') {
-            if (applicationType.value === '新增')
+            if (applicationType.value === '新增'){
               await course.add_course({courseInfo});
-            else if (applicationType.value === '修改')
+            }
+            else if (applicationType.value === '修改'){
               await course.edit_course({courseInfo});
-            else if (applicationType.value === '删除')
+            }
+            else if (applicationType.value === '删除'){
               await course.delete_course(courseId.value, String(courseTeacher.value));
+
+            }
           }
           await course.update_course_application_status({applicationInfo});
+          updateDialog();
         }
 
-        emit('update:modelValue', false);
-        emit('user_update')
+
 
 
       },
