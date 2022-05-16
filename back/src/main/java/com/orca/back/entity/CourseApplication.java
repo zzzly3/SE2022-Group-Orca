@@ -2,7 +2,11 @@ package com.orca.back.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.orca.back.mapper.ConstantsMapper;
 import lombok.Data;
+
+import java.text.SimpleDateFormat;
 
 
 @Data
@@ -57,4 +61,20 @@ public class CourseApplication {
         };
     }
 
+    public void teacherStr2Id(){
+        this.courseTeacher = this.courseTeacher.split(":")[1].split("\\)")[0].strip();
+    }
+
+    public void teacherId2Str(String name, Integer number){
+        this.courseTeacher = name + " (工号: " + number + ")";
+    }
+
+    public void initApplication(ConstantsMapper constantsMapper){
+        /*set application id*/
+        Constants courseApplicationId = constantsMapper.selectOne(Wrappers.<Constants>lambdaQuery().eq(Constants::getConstantName, "course_application_id"));
+        this.applicationId = courseApplicationId.getConstantValue();
+        /*set application time*/
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        this.applicationTime = simpleDateFormat.format(System.currentTimeMillis());
+    }
 }

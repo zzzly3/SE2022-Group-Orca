@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.orca.back.entity.*;
 import com.orca.back.mapper.*;
 import com.orca.back.utils.common.Checker;
+import com.orca.back.utils.common.CourseChecker;
+import com.orca.back.utils.common.CourseUtils;
 import com.orca.back.utils.common.Result;
 import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.orca.back.controller.UserController.getResult;
 
 @RestController
 @RequestMapping("/api/course")
@@ -46,57 +44,25 @@ public class CourseController {
     @Resource
     CourseSelectionStateMapper courseSelectionStateMapper;
 
-    Checker checker = new Checker();
-
-    private Result<?> checkAdmin(HttpServletRequest request) {
-        return getResult(request, userMapper);
-    }
+    CourseChecker courseChecker = new CourseChecker();
+    CourseUtils courseUtils = new CourseUtils();
 
     /*Load course constants*/
     @RequestMapping("/load_course_constants")
     public Result<?> loadCourseConstants(){
-        List<ClassTime> classTimeList = classTimeMapper.selectList(null);
-        List<Classroom> classroomList = classroomMapper.selectList(null);
-        List<User> teacherList = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getRole, 1).eq(User::getIsAdmin, 0).isNotNull(User::getCollege));
-        List<TeacherSelectInfo> teacherSelectInfoList = new ArrayList<>();
-
-        for (User teacher : teacherList){
-            TeacherSelectInfo teacherSelectInfo = new TeacherSelectInfo();
-            teacherSelectInfo.setLabel(teacher.getName() + " (工号: " + teacher.getNumber() + ")");
-            teacherSelectInfo.setValue(teacher.getName() + " (工号: " + teacher.getNumber() + ")");
-            String major = majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getId, teacher.getMajor())).getName();
-            String college = collegeMapper.selectOne(Wrappers.<College>lambdaQuery().eq(College::getId, teacher.getCollege())).getName();
-            teacherSelectInfo.setDescription("专业：" + major + "， 院系：" + college);
-            teacherSelectInfoList.add(teacherSelectInfo);
-        }
-
-        CourseConstantsInfo courseConstantsInfo = new CourseConstantsInfo();
-        courseConstantsInfo.setCourseTimeStartList(classTimeList.stream().map(ClassTime::getId).collect(Collectors.toList()));
-        courseConstantsInfo.setCourseTimeEndList(classTimeList.stream().map(ClassTime::getId).collect(Collectors.toList()));
-        courseConstantsInfo.setClassRoomList(classroomList.stream().map(Classroom::getName).collect(Collectors.toList()));
-        courseConstantsInfo.setTeacherList(teacherSelectInfoList);
+        CourseConstantsInfo courseConstantsInfo = courseUtils.getCourseConstantsInfo(classTimeMapper, classroomMapper, userMapper, majorMapper, collegeMapper);
         return Result.success(courseConstantsInfo);
     }
-
 
     /*Admin*/
     @PostMapping("/get_course_all")
     public Result<?> getCourseAll(HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
         List<Course> courseList = courseMapper.selectList(null);
-        List<CourseInfo> courseInfoList = new ArrayList<>();
-        for (Course course : courseList){
-            CourseInfo courseInfo = new CourseInfo();
-            courseInfo.setCourse(course);
-            User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, course.getCourseTeacher()));
-            courseInfo.setCourseMajor(majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getId, teacher.getMajor())).getName());
-            courseInfo.setCourseDepartment(collegeMapper.selectOne(Wrappers.<College>lambdaQuery().eq(College::getId, teacher.getCollege())).getName());
-            courseInfo.setCourseTeacher(teacher.getName() + " (工号: " + teacher.getNumber() + ")");
-            courseInfoList.add(courseInfo);
-        }
+        List<CourseInfo> courseInfoList = courseUtils.getCourseInfoList(courseList, false, userMapper, majorMapper, collegeMapper);
         return Result.success(courseInfoList);
     }
 
@@ -104,36 +70,14 @@ public class CourseController {
     @PostMapping("/add_course")
     public Result<?> addCourse(@RequestBody Course course, HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
-        /*Check Pass*/
-        ErrorCode err = checker.checkCourse(course);
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
         if (err != null) return Result.error(err);
-        course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
-        /*check if course exists*/
-        Course repeatCourse = courseMapper.selectOne(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()).eq(Course::getCourseTeacher, course.getCourseTeacher()));
-        if (repeatCourse != null) return Result.error(ErrorCode.E_314);
-        /*check whether exists conflicts between coursePlace and courseTime*/
-        List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCoursePlace, course.getCoursePlace()));
-        int courseTimeStart = Integer.parseInt(course.getCourseTimeStart());
-        int courseTimeEnd = Integer.parseInt(course.getCourseTimeEnd());
-        for (Course course1 : courseList1){
-            if (course1.getCourseId().equals(course.getCourseId())) continue;
-            if (!course1.getCourseTimeDay().equals(course.getCourseTimeDay()))continue;
-            int courseTimeStart1 = Integer.parseInt(course1.getCourseTimeStart());
-            int courseTimeEnd1 = Integer.parseInt(course1.getCourseTimeEnd());
-            if (courseTimeEnd < courseTimeStart1 || courseTimeStart > courseTimeEnd1) continue;
-            else return Result.error(ErrorCode.E_318);
-        }
-        /*check the course list with the same courseId*/
-        List<Course> courseList = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()));
-        User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, course.getCourseTeacher()));
-        for (Course c : courseList){
-            User t = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, c.getCourseTeacher()));
-            if (t.getMajor() != teacher.getMajor()) return Result.error(ErrorCode.E_315);
-            c.updateCourse(course);
-            courseMapper.update(c, Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, c.getCourseId()).eq(Course::getCourseTeacher, c.getCourseTeacher()));
-        }
+        /*Check Course*/
+        course.teacherStr2Id();
+        err = courseChecker.checkCourse(course, true, courseMapper, userMapper);
+        if (err != null) return Result.error(err);
+        /*Check pass*/
+        courseUtils.updateCourseBatch(course, courseMapper);
         courseMapper.insert(course);
         return Result.success();
     }
@@ -142,30 +86,14 @@ public class CourseController {
     @PostMapping("/edit_course")
     public Result<?> editCourse(@RequestBody Course course, HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
-        /*Check Pass*/
-        ErrorCode err = checker.checkCourse(course);
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
         if (err != null) return Result.error(err);
-        course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
-        /*check whether exists conflicts between coursePlace and courseTime*/
-        List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCoursePlace, course.getCoursePlace()));
-        int courseTimeStart = Integer.parseInt(course.getCourseTimeStart());
-        int courseTimeEnd = Integer.parseInt(course.getCourseTimeEnd());
-        for (Course course1 : courseList1){
-            if (course1.getCourseId().equals(course.getCourseId())) continue;
-            if (!course1.getCourseTimeDay().equals(course.getCourseTimeDay()))continue;
-            int courseTimeStart1 = Integer.parseInt(course1.getCourseTimeStart());
-            int courseTimeEnd1 = Integer.parseInt(course1.getCourseTimeEnd());
-            if (courseTimeEnd < courseTimeStart1 || courseTimeStart > courseTimeEnd1) continue;
-            else return Result.error(ErrorCode.E_318);
-        }
-        /*check the course list with the same courseId*/
-        List<Course> courseList = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()));
-        for (Course c : courseList){
-            c.updateCourse(course);
-            courseMapper.update(c, Wrappers.<Course>lambdaUpdate().eq(Course::getCourseId, c.getCourseId()).eq(Course::getCourseTeacher, c.getCourseTeacher()));
-        }
+        /*Check Course*/
+        course.teacherStr2Id();
+        err = courseChecker.checkCourse(course, false, courseMapper, userMapper);
+        if (err != null) return Result.error(err);
+        /*Check pass*/
+        courseUtils.updateCourseBatch(course, courseMapper);
         return Result.success();
     }
 
@@ -173,10 +101,10 @@ public class CourseController {
     @PostMapping("/delete_course")
     public Result<?> deleteCourse(@RequestBody Course course, HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
-        course.setCourseTeacher(course.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
+        course.teacherStr2Id();
         courseMapper.delete(Wrappers.<Course>lambdaQuery().eq(Course::getCourseId, course.getCourseId()).eq(Course::getCourseTeacher, course.getCourseTeacher()));
         return Result.success();
     }
@@ -185,17 +113,10 @@ public class CourseController {
     @PostMapping("/get_course_application_all")
     public Result<?> getCourseApplicationAll(HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
-        //use courseTeacher to present name:(工号: number)
-        List<CourseApplication> courseApplicationList = courseApplicationMapper.selectList(Wrappers.<CourseApplication>lambdaQuery().eq(CourseApplication::getApplicationStatus, 0));
-        for (CourseApplication courseApplication : courseApplicationList) {
-            courseApplication.translateApplicationType();
-            courseApplication.translateApplicationStatus();
-            User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, courseApplication.getCourseTeacher()));
-            courseApplication.setCourseTeacher(teacher.getName().concat(" (工号: ").concat(teacher.getNumber().toString()).concat(")"));
-        }
+        List<CourseApplication> courseApplicationList = courseUtils.getCourseApplicationList(courseApplicationMapper, userMapper);
         return Result.success(courseApplicationList);
     }
 
@@ -203,21 +124,21 @@ public class CourseController {
     @PostMapping("/update_course_application_status")
     public Result<?> updateCourseApplicationStatus(@RequestBody CourseApplication courseApplication, HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
         courseApplication.transBackApplicationType();
-        courseApplication.setCourseTeacher(courseApplication.getCourseTeacher().split(":")[1].split("\\)")[0].strip());
+        courseApplication.teacherStr2Id();
         courseApplicationMapper.updateById(courseApplication);
         return Result.success();
     }
 
     //batch import
     @PostMapping("/batch_import")
-    public Result<?> batchImport(@RequestPart(value = "file") final MultipartFile uploadfile, HttpServletRequest request) throws IOException {
+    public Result<?> batchImport(@RequestPart(value = "file") final MultipartFile uploadfile, HttpServletRequest request){
         /*Check Admin*/
-        Result<?> result = checkAdmin(request);
-        if (result != null) return result;
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
         try {
             InputStreamReader isr = new InputStreamReader(uploadfile.getInputStream(), StandardCharsets.UTF_8);
@@ -262,25 +183,11 @@ public class CourseController {
     @PostMapping("/get_course_teacher")
     public Result<?> getCourseTeacher(@RequestBody User user, HttpServletRequest request){
         /*Check Teacher*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user1 = userMapper.selectById(userId);
-        if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
+        ErrorCode err = courseChecker.checkAuthTeacher(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
         List<Course> courseList = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseTeacher, user.getNumber()));
-        List<CourseInfo> courseInfoList = new ArrayList<>();
-        for (Course course : courseList){
-            CourseInfo courseInfo = new CourseInfo();
-            courseInfo.setCourse(course);
-            User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, course.getCourseTeacher()));
-            courseInfo.setCourseMajor(majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getId, teacher.getMajor())).getName());
-            courseInfo.setCourseDepartment(collegeMapper.selectOne(Wrappers.<College>lambdaQuery().eq(College::getId, teacher.getCollege())).getName());
-            courseInfo.setCourseTeacher(teacher.getName().concat(" (工号: ").concat(teacher.getNumber().toString()).concat(")"));
-            courseInfoList.add(courseInfo);
-        }
+        List<CourseInfo> courseInfoList = courseUtils.getCourseInfoList(courseList, false, userMapper, majorMapper, collegeMapper);
         return Result.success(courseInfoList);
     }
 
@@ -288,45 +195,16 @@ public class CourseController {
     @PostMapping("/send_course_application")
     public Result<?> sendCourseApplication(@RequestBody CourseApplication courseApplication, HttpServletRequest request){
         /*Check Teacher*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user1 = userMapper.selectById(userId);
-        if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
-        //The teacher can only send courses concerning his/her own department
-        courseApplication.setCourseTeacher(courseApplication.getApplicantNumber());
+        ErrorCode err = courseChecker.checkAuthTeacher(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Form*/
-        err = checker.checkCourseApplication(courseApplication);
-        if (err != null){
-            return Result.error(err);
-        }
-        /*check whether classtime has been occupied*/
-        if (courseApplication.getApplicationType().equals("1") || courseApplication.getApplicationType().equals("3")){
-            /*check whether exists conflicts between coursePlace and courseTime*/
-            List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCoursePlace, courseApplication.getCoursePlace()));
-            int courseTimeStart = Integer.parseInt(courseApplication.getCourseTimeStart());
-            int courseTimeEnd = Integer.parseInt(courseApplication.getCourseTimeEnd());
-            for (Course course1 : courseList1){
-                if (course1.getCourseId().equals(courseApplication.getCourseId())) continue;
-                if (!course1.getCourseTimeDay().equals(courseApplication.getCourseTimeDay()))continue;
-                int courseTimeStart1 = Integer.parseInt(course1.getCourseTimeStart());
-                int courseTimeEnd1 = Integer.parseInt(course1.getCourseTimeEnd());
-                if (courseTimeEnd < courseTimeStart1 || courseTimeStart > courseTimeEnd1) continue;
-                else return Result.error(ErrorCode.E_318);
-            }
-        }
-        /*set application id*/
-        Constants courseApplicationId = constantsMapper.selectOne(Wrappers.<Constants>lambdaQuery().eq(Constants::getConstantName, "course_application_id"));
-        courseApplication.setApplicationId(courseApplicationId.getConstantValue());
-        //set application time
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        courseApplication.setApplicationTime(simpleDateFormat.format(System.currentTimeMillis()));
+        err = courseChecker.checkCourseApplication(courseApplication, courseMapper);
+        if (err != null) return Result.error(err);
+        /*Check Pass*/
+        courseApplication.initApplication(constantsMapper);
         courseApplicationMapper.insert(courseApplication);
-        //update constants by 1
-        courseApplicationId.setConstantValue(new BigInteger(courseApplicationId.getConstantValue()).add(BigInteger.ONE).toString());
-        constantsMapper.updateById(courseApplicationId);
+        /*update constants by 1*/
+        courseUtils.incCourseApplicationId(constantsMapper);
         return Result.success();
     }
 
@@ -334,20 +212,10 @@ public class CourseController {
     @PostMapping("/get_course_application_teacher")
     public Result<?> getCourseApplicationTeacher(@RequestBody User user, HttpServletRequest request){
         /*Check Teacher*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user1 = userMapper.selectById(userId);
-        if (user1 == null || user1.getRole() != 1) return Result.error(ErrorCode.E_111);
+        ErrorCode err = courseChecker.checkAuthTeacher(request, userMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
-        List<CourseApplication> courseApplicationList = courseApplicationMapper.selectList(Wrappers.<CourseApplication>lambdaQuery().eq(CourseApplication::getApplicantNumber, user.getNumber()));
-        for (CourseApplication courseApplication : courseApplicationList) {
-            courseApplication.translateApplicationType();
-            courseApplication.translateApplicationStatus();
-            courseApplication.setCourseTeacher(user1.getName() + " (工号: " + user1.getNumber() + ")");
-        }
+        List<CourseApplication> courseApplicationList = courseUtils.getCourseApplicationListTeacher(courseApplicationMapper, user);
         return Result.success(courseApplicationList);
     }
 
@@ -356,35 +224,14 @@ public class CourseController {
     @PostMapping("/get_course_student")
     public Result<?> getCourseListStudent(@RequestBody User user, HttpServletRequest request){
         /*Check Student*/
-        ErrorCode err = checker.checkLogin(request);
-        if (err != null){
-            return Result.error(err);
-        }
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
-        User user1 = userMapper.selectById(userId);
-        if (user1 == null || user1.getRole() != 2) return Result.error(ErrorCode.E_111);
-        /*选课是否开放*/
-        if (!courseSelectionStateMapper.selectOne(Wrappers.<CourseSelectionState>lambdaQuery().eq(CourseSelectionState::getYear, 2022).eq(CourseSelectionState::getSemester, 1)).getOpen())
-            return Result.error(ErrorCode.E_400);
+        ErrorCode err = courseChecker.checkAuthStudent(request, userMapper);
+        if (err != null) return Result.error(err);
+        /*Whether in Selection state*/
+        err = courseChecker.checkCourseSelectionState(courseSelectionStateMapper);
+        if (err != null) return Result.error(err);
         /*Check Pass*/
-        Major major = majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getId, user.getMajor()));
-        List<User> teacherList = userMapper.selectList(Wrappers.<User>lambdaQuery().eq(User::getMajor, major.getId()).eq(User::getRole, 1).eq(User::getIsAdmin, 0).isNotNull(User::getMajor));
-        List<Course> courseList = new ArrayList<>();
-        for (User teacher : teacherList) {
-            List<Course> courseList1 = courseMapper.selectList(Wrappers.<Course>lambdaQuery().eq(Course::getCourseTeacher, teacher.getNumber()));
-            //add courseList1 to courseList
-            courseList.addAll(courseList1);
-        }
-        List<CourseInfo> courseInfoList = new ArrayList<>();
-        for (Course course : courseList){
-            CourseInfo courseInfo = new CourseInfo();
-            courseInfo.setCourse(course);
-            User teacher = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getNumber, course.getCourseTeacher()));
-            courseInfo.setCourseMajor(majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getId, teacher.getMajor())).getName());
-            courseInfo.setCourseDepartment(collegeMapper.selectOne(Wrappers.<College>lambdaQuery().eq(College::getId, teacher.getCollege())).getName());
-            courseInfo.setCourseTeacher(teacher.getName());
-            courseInfoList.add(courseInfo);
-        }
+        List<Course> courseList = courseUtils.getCourseListStudent(user, userMapper, courseMapper, majorMapper);
+        List<CourseInfo> courseInfoList = courseUtils.getCourseInfoList(courseList, true, userMapper, majorMapper, collegeMapper);
         return Result.success(courseInfoList);
     }
 }
