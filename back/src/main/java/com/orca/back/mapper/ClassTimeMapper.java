@@ -9,4 +9,7 @@ import java.util.List;
 public interface ClassTimeMapper extends BaseMapper<ClassTime> {
     @Select("select * from classtime")
     List<ClassTime> findAll();
+
+    @Select("select id from classtime where #{end}>begin && end>#{begin} && id != #{id}")
+    List<Integer> findConflictTime(ClassTime classTime);
 }
