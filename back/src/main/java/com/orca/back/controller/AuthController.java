@@ -2,10 +2,7 @@ package com.orca.back.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.orca.back.entity.*;
-import com.orca.back.mapper.ClassTimeMapper;
-import com.orca.back.mapper.ClassroomMapper;
-import com.orca.back.mapper.CourseSelectionStateMapper;
-import com.orca.back.mapper.UserMapper;
+import com.orca.back.mapper.*;
 
 import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
@@ -14,9 +11,7 @@ import com.orca.back.utils.constants.ErrorCode;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +26,7 @@ public class AuthController {
     @Resource
     ClassroomMapper classroomMapper;
     @Resource
-    CourseSelectionStateMapper courseSelectionStateMapper;
+    ConstantsMapper constantsMapper;
 
     Checker check = new Checker();
 
@@ -54,18 +49,15 @@ public class AuthController {
         if(err1 != null)return err1;
         Classroom cr = classroomMapper.selectById(pair.get("name"));
         if(cr == null)return Result.error(ErrorCode.E_207);
-        if(cr.getOld())return Result.error(ErrorCode.E_208);
         classroomMapper.deleteById(pair.get("name"));
         return Result.success();
     }
 
     @PostMapping("/add_classroom")
-    public  Result<?> add_classroom(@RequestBody Classroom classroom, HttpServletRequest request){
+    public Result<?> add_classroom(@RequestBody Classroom classroom, HttpServletRequest request){
         System.out.print("in backend: add_classroom\n");
-        System.out.print(classroom);
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
-        /*非法输入*/
         ErrorCode err = check.checkClassroom(classroom);
         if(err != null)return Result.error(err);
         Classroom res = classroomMapper.selectOne(
@@ -77,8 +69,7 @@ public class AuthController {
 
     @PostMapping("/modify_classroom")
     public Result<?> modify_classroom(@RequestBody Classroom classroom, HttpServletRequest request){
-        System.out.print("in backend: modify_classroom\n");
-        System.out.print(classroom);
+        System.out.print("in backend: modify_classroom_state\n");
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
         /*非法输入*/
@@ -92,7 +83,7 @@ public class AuthController {
         return Result.success();
     }
 
-    @PostMapping("/load_open_classroom")
+    @GetMapping("/load_open_classroom")
     public Result<?> load_open_classroom(HttpServletRequest request){
         ErrorCode err;
         err = check.checkLogin(request);
@@ -101,7 +92,7 @@ public class AuthController {
         return Result.success(res);
     }
 
-    @PostMapping("/load_all_classroom")
+    @GetMapping("/load_all_classroom")
     public Result<?> load_all_classroom(HttpServletRequest request){
         ErrorCode err;
         err = check.checkLogin(request);
@@ -110,8 +101,8 @@ public class AuthController {
         return Result.success(res);
     }
 
-    @PostMapping("/load_classTime")
-    public Result<?> load_classTime(@RequestBody ClassTime classTime, HttpServletRequest request){
+    @GetMapping("/load_all_classTime")
+    public Result<?> load_classTime(HttpServletRequest request){
         ErrorCode err;
         err = check.checkLogin(request);
         if(err != null)return Result.error(err);
@@ -139,8 +130,6 @@ public class AuthController {
         if(err != null)return Result.error(err);
         /*重复的课程节次*/
         List<Integer> intL = classTimeMapper.findConflictTime(classTime);
-        System.out.print("modify_classTime\n");
-        System.out.println(intL);
         if(intL.size() > 0)return Result.error(ErrorCode.E_210);
 
         ClassTime res = classTimeMapper.selectOne(
@@ -158,27 +147,25 @@ public class AuthController {
         if(err1 != null)return err1;
         ClassTime res = classTimeMapper.selectById(pair.get("id"));
         if(res == null)return Result.error(ErrorCode.E_206);
-        if(res.getOld())return Result.error(ErrorCode.E_209);
         classTimeMapper.deleteById(pair.get("id"));
         return Result.success();
     }
 
-    @PostMapping("/load_course_selection_state")
+    @GetMapping("/load_course_selection_state")
     public Result<?> load_course_selection_state(HttpServletRequest request){
         System.out.print("in backend: load_course_selection_state\n");
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
-        CourseSelectionState res = courseSelectionStateMapper.getState();
+        Constants res = constantsMapper.getCourseSelectionState();
         return Result.success(res);
     }
 
     @PostMapping("/modify_course_selection_state")
-    public Result<?> modify_course_selection_state(@RequestBody CourseSelectionState courseSelectionState, HttpServletRequest request){
+    public Result<?> modify_course_selection_state(@RequestBody Map<String, Boolean> pair, HttpServletRequest request){
         System.out.print("in backend: modify_course_selection_state\n");
-        System.out.print(courseSelectionState);
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
-        courseSelectionStateMapper.updateById(courseSelectionState);
+        constantsMapper.updateCourseSelectionState(pair.get("value"));
         return Result.success();
     }
 }

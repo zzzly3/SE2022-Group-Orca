@@ -10,18 +10,18 @@ public class Classroom {
     @TableId("name")
     private String name;
     private String building;
+    private int capacity;
     private boolean open;
-    private boolean old;
 
-    public String getName(){return name;}
-    public void setName(String name){this.name=name;}
-
-    public String getBuilding(){return building;}
-    public void setBuilding(String building){this.building=building;}
-
-    public boolean getOpen(){return open;}
-    public void setOpen(boolean open){this.open=open;}
-
-    public boolean getOld(){return old;}
-    public void setOld(boolean old){this.old=old;}
+//    public String getName(){return name;}
+//    public void setName(String name){this.name=name;}
+//
+//    public String getBuilding(){return building;}
+//    public void setBuilding(String building){this.building=building;}
+//
+//    public int getCapacity(){return capacity;}
+//    public void setCapacity(int capacity){this.capacity=capacity;}
+//
+//    public boolean getOpen(){return open;}
+//    public void setOpen(boolean open){this.open=open;}
 }

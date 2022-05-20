@@ -13,7 +13,6 @@ public class ClassTime {
     private Integer id;
     private String begin;
     private String end;
-    private Boolean old;
 
     public Integer getId(){return id;}
     public void setId(Integer id){this.id=id;}
@@ -23,7 +22,4 @@ public class ClassTime {
 
     public String getEnd(){return end.substring(0,5);}
     public void setEnd(String end){this.end=end;}
-
-    public Boolean getOld(){return old;}
-    public void setOld(boolean old){this.old=old;}
 }

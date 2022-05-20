@@ -52,4 +52,27 @@ async function post(url: string, data: object = {}, notify = true) {
   }
 }
 
-export { api, post };
+async function get(url: string, notify = true) {
+  try {
+    const r = await api.get(url)
+    if (Number(r.data.code) === 200) {
+      return r.data.data
+    }
+    if (notify)
+      Notify.create({
+        type: 'negative',
+        message: r.data.msg
+      })
+    return false
+  }
+  catch (e) {
+    if (notify)
+      Notify.create({
+        type: 'negative',
+        message: '网络异常'
+      })
+    return false
+  }
+}
+
+export { api, post, get };

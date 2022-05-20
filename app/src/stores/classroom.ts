@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import {post} from 'boot/axios';
+import {post, get} from 'boot/axios';
 import {Notify} from 'quasar';
 //
 // const demo_list = [
@@ -17,9 +17,9 @@ export const useClassroomStore = defineStore('classroom', {
 
   }),
   actions: {
-    async add_classroom({name, building, open}: {name:string, building: string, open:boolean}, notify=true){
+    async add_classroom({name, building, capacity, open}: {name:string, building: string, capacity:number, open:boolean}, notify=true){
       console.log('frontend: in add_classroom')
-      if(await post('add_classroom', {name, building, open}, notify) !== false){
+      if(await post('add_classroom', {name, building, capacity, open}, notify) !== false){
         if(notify)Notify.create({type:'positive', message:'添加/修改成功'})
         return true
       }
@@ -33,9 +33,9 @@ export const useClassroomStore = defineStore('classroom', {
       }
       return false
     },
-    async modify_classroom({name, building, open}: {name: string, building: string, open:boolean}){
+    async modify_classroom({name, building, capacity, open}: {name: string, building: string, capacity:number,open:boolean}){
       console.log('frontend: in modify_classroom')
-      if(await post('modify_classroom', {name, building, open}) !== false){
+      if(await post('modify_classroom', {name, building, capacity, open}) !== false){
         Notify.create({type:'positive', message:'添加/修改成功'})
         return true
       }
@@ -43,7 +43,7 @@ export const useClassroomStore = defineStore('classroom', {
     },
     async load_open_classroom() {
       console.log('in load_open_classroom')
-      const r = await post('load_open_classroom', {}, true)
+      const r = await get('load_open_classroom',  true)
       if(r === false){
         Notify.create({type:'negative', message:'信息读取失败'})
       }
@@ -51,7 +51,7 @@ export const useClassroomStore = defineStore('classroom', {
     },
     async load_all_classroom() {
       console.log('in load_all_classroom')
-      const r = await post('load_all_classroom', {}, true)
+      const r = await get('load_all_classroom', true)
       if(r === false){
         Notify.create({type:'negative', message:'信息读取失败'})
       }
