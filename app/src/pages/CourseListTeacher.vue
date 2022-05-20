@@ -39,56 +39,7 @@
                 @click="deleteShow[props.rowIndex] = true"/>
             </q-btn-group>
             <!--CourseEditor-->
-            <q-dialog v-model="editShow[props.rowIndex]">
-              <q-card style="width: 460px">
-                <q-card-section>
-                  <div style="height: 50px" class="text-subtitle1 row items-center">
-                    <q-icon name="edit" size="sm"></q-icon>
-                    <span>修改课程</span>
-                  </div>
-                </q-card-section>
-                <q-card-section class="q-py-none">
-                  <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
-                    <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
-                    <q-input style="height: 60px" class="col" dense label="课程名称"  v-model="props.row.courseName"/>
-                    <div class="row items-start q-gutter-md">
-                      <q-select style="height: 60px" class="col" dense v-model="props.row.courseTimeDay" :options="weekdays" label="上课时间"/>
-                      <q-select class="col" dense v-model="props.row.courseTimeStart" :options="courseTimeStarts" label="开始时间"/>
-                      <q-field borderless disable dense>
-                        <template v-slot:control>
-                          <div class="self-center full-width no-outline">
-                            至
-                          </div>
-                        </template>
-                      </q-field>
-                      <q-select class="col" dense v-model="props.row.courseTimeEnd" :options="courseTimeEnds" label="结束时间"/>
-                    </div>
-                    <div class="row items-start q-gutter-md">
-                      <q-select class="col" dense v-model="addCourseTeacher" label="任课老师" disable/>
-                      <q-select style="height: 63px" class="col-5" dense v-model="props.row.coursePlace" :options="classrooms" label="上课教室"/>
-                    </div>
-                    <div class="row items-start q-gutter-md">
-                      <q-select style="height: 56px" class="col" dense v-model="props.row.courseCredit" label="学分"/>
-                      <q-select class="col" dense v-model="props.row.courseCreditHour" label="学时"/>
-                      <q-input class="col" dense v-model="props.row.courseCapacity" label="课程容量">
-                        <template v-slot:append>
-                          <q-icon name="arrow_drop_down" class="cursor-pointer" >
-                          </q-icon>
-                        </template>
-                      </q-input>
-                    </div>
-                    <q-input class="col" dense v-model="props.row.courseDescription" autogrow label="课程描述"/>
-                  </q-form>
-                </q-card-section>
-                <q-card-section align="right">
-                  <q-btn color="red" flat label="取消"
-                    @click="editShow[props.rowIndex] = false"/>
-                  <q-btn color="teal-10" flat label="确认修改"
-                    @click="editSubmit(props.row, props.rowIndex)"/>
-                </q-card-section>
-              </q-card>
-            </q-dialog>
-            <!--CourseEditor-->
+            <CourseDialog v-model="editShow[props.rowIndex]" :row="props.row" :isAdmin='false' :isAdd="false" :isEdit="true"/>
             <!-- courseDelete -->
             <q-dialog v-model="deleteShow[props.rowIndex]">
               <q-card style="width: 300px" class="q-pa-md">
@@ -119,98 +70,17 @@
 
       <template v-slot:top-right>
         <!--CourseAdder-->
-        <div>
-          <q-btn flat icon="add" @click="addShow = true" />
-          <q-dialog v-model="addShow">
-            <q-card style="width: 460px">
-              <q-card-section>
-                <div style="height: 50px" class="text-subtitle1 row items-center">
-                  <q-icon name="add" size="sm"></q-icon>
-                  <span>新增课程</span>
-                </div>
-              </q-card-section>
-              <q-card-section class="q-py-none">
-                <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
-                  <q-input style="height: 53px" class="col" dense label="课程编号" v-model="addCourseId"
-                  lazy-rules :rules="[val => rules.courseId.test(val) || '无效的课程编号']" ref="addCourseIdRef"/>
-                  <q-input style="height: 53px" class="col" dense label="课程名称" v-model="addCourseName"
-                  lazy-rules :rules="[val => rules.courseName.test(val) || '无效的课程名称']" ref="addCourseNameRef"/>
-                  <div class="row items-start q-gutter-md">
-                    <q-select class="col" dense v-model="addCourseTimeDay" :options="weekdays" label="上课时间"
-                    lazy-rules :rules="[val => !!val || '上课时间不能为空']" ref="addCourseTimeDayRef"/>
-                    <q-select class="col" dense v-model="addCourseTimeStart" :options="courseTimeStarts" label="开始时间"
-                    lazy-rules :rules="[val => !!val || '课程开始时间不能为空']" ref="addCourseTimeStartRef"/>
-                    <q-field borderless disable dense>
-                      <template v-slot:control>
-                        <div class="self-center full-width no-outline">至</div>
-                      </template>
-                    </q-field>
-                    <q-select class="col" dense v-model="addCourseTimeEnd" :options="courseTimeEnds" label="结束时间"
-                    lazy-rules :rules="[val => !!val || '课程结束时间不能为空']" ref="addCourseTimeEndRef"/>
-                  </div>
-                  <div class="row items-start q-gutter-md">
-                    <q-select disable class="col" dense v-model="addCourseTeacher" :options="teachers" label="任课老师"
-                    lazy-rules :rules="[val => !!val || '任课教师不能为空']" ref="addCourseTeacherRef"/>
-                    <q-select class="col-5" dense v-model="addCoursePlace" :options="classrooms" label="上课教室"
-                    lazy-rules :rules="[val => !!val || '课程教室不能为空']" ref="addCoursePlaceRef"/>
-                  </div>
-                  <div class="row items-start q-gutter-md">
-                    <q-select style="height: 56px" class="col" dense v-model="addCourseCredit" :options="credits" label="学分"
-                    lazy-rules :rules="[val => !!val || '学分不能为空']" ref="addCourseCreditRef"/>
-                    <q-select class="col" dense v-model="addCourseCreditHour" :options="creditHours" label="学时"
-                    lazy-rules :rules="[val => !!val || '学时不能为空']" ref="addCourseCreditHourRef"/>
-                    <q-input class="col" dense v-model="addCourseCapacity" label="课程容量" ref="addCourseCapacityRef"
-                    lazy-rules :rules="[val => rules.courseCapacity.test(val) || '无效的课程容量']" >
-                      <template v-slot:append>
-                        <q-icon name="arrow_drop_down" class="cursor-pointer" >
-                        </q-icon>
-                      </template>
-                      <q-menu fit v-model="showMenu">
-                        <q-list style="min-width: 100px">
-                          <q-item clickable @click="menu1">
-                            <q-item-section>10</q-item-section>
-                          </q-item>
-                          <q-item clickable @click="menu2">
-                            <q-item-section>20</q-item-section>
-                          </q-item>
-                          <q-item clickable @click="menu3">
-                            <q-item-section>30</q-item-section>
-                          </q-item>
-                          <q-item clickable @click="menu4">
-                            <q-item-section>40</q-item-section>
-                          </q-item>
-                          <q-item clickable @click="menu5">
-                            <q-item-section>50</q-item-section>
-                          </q-item>
-                        </q-list>
-                      </q-menu>
-                    </q-input>
-                  </div>
-                  <q-input class="col" dense v-model="addCourseDescription" autogrow label="课程描述"
-                  lazy-rules :rules="[val => !!val || '课程描述不能为空']" ref="addCourseDescriptionRef"/>
-                </q-form>
-              </q-card-section>
-
-              <q-card-section>
-                <q-card-actions align="right">
-                  <q-btn flat label="取消" @click="clear" color="red" v-close-popup/>
-                  <q-btn flat label="确认增加" @click="addSubmit" color="primary"/>
-                </q-card-actions>
-              </q-card-section>
-            </q-card>
-          </q-dialog>
-        </div>
-        <!--CourseAdder-->
+        <q-btn flat icon="add" @click="addShow = true" />
+        <CourseDialog v-model="addShow" :isAdmin='false' :isAdd="true" :isEdit="false"/>
       </template>
     </q-table>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
-import { CourseInfo, useCourseStore } from 'stores/course';
-import { useUserStore } from 'src/stores/user';
-import { QValidate } from 'src/components/models';
+import { defineComponent, ref} from 'vue';
+import { CourseApplicationInfo, CourseInfo, useCourseStore } from 'stores/course';
+import CourseDialog from 'src/components/CourseDialog.vue';
 
 const columns = [
   {
@@ -270,257 +140,29 @@ const columns = [
   },
 ];
 
-const weekdays = [
-  '星期一',
-  '星期二',
-  '星期三',
-  '星期四',
-  '星期五',
-  '星期六',
-  '星期日',
-];
-
-const credits = [1,2,3,4,5,6];
-const creditHours = [1,2,3,4,5,6];
-
-const rules = {
-  courseId: /^[A-Z]+[0-9]+$/,
-  courseName: /^[^0-9]+$/,
-  courseCapacity: /^[0-9]+$/,
-}
-
 export default defineComponent({
   name: 'CourseList',
-  components: {},
+  components: { CourseDialog},
   setup() {
-    const user = useUserStore();
     const course = useCourseStore();
     const rows = ref([] as CourseInfo[]);
     course.load_course_lists_page_teacher().then((r) => (rows.value = r));
     course.load_course_constants()
-    const courseTimeStarts = computed(() => {
-      return course.courseTimeStartList
-    })
-    const courseTimeEnds = computed(() => {
-      return course.courseTimeEndList
-    })
-    const classrooms = computed(() => {
-      return course.classroomList
-    })
-    const teachers = computed(() => {
-      return course.teacherList
-    })
 
-    //CourseAdder start
-    const showMenu = ref(false);
     const addShow = ref(false);
-
-    const addCourseId = ref('');
-    const addCourseName = ref('');
-    const addCourseTime = ref('');
-    const addCourseTimeDay = ref('');
-    const addCourseTimeStart = ref();
-    const addCourseTimeEnd = ref();
-    const addCoursePlace = ref('');
-    const addCourseTeacher = computed(() => {
-      return user.name.concat(' (工号: ', user.id, ')');
-    })
-    const addCourseCredit = ref('');
-    const addCourseCreditHour = ref('');
-    const addCourseCapacity = ref('');
-    const addCourseDescription = ref('');
-
-    const addCourseIdRef = ref<QValidate|null>(null);
-    const addCourseNameRef = ref<QValidate|null>(null);
-    const addCourseTimeDayRef = ref<QValidate|null>(null);
-    const addCourseTimeStartRef = ref<QValidate|null>(null);
-    const addCourseTimeEndRef = ref<QValidate|null>(null);
-    const addCoursePlaceRef = ref<QValidate|null>(null);
-    const addCourseTeacherRef = ref<QValidate|null>(null);
-    const addCourseCreditRef = ref<QValidate|null>(null);
-    const addCourseCreditHourRef = ref<QValidate|null>(null);
-    const addCourseCapacityRef = ref<QValidate|null>(null);
-    const addCourseDescriptionRef = ref<QValidate|null>(null);
-
-    const clear = () => {
-      addShow.value = false;
-      addCourseId.value = '';
-      addCourseName.value = '';
-      addCourseTime.value = '';
-      addCourseTimeDay.value = '';
-      addCourseTimeStart.value = '';
-      addCourseTimeEnd.value = '';
-      addCoursePlace.value = '';
-      addCourseCredit.value = '';
-      addCourseCreditHour.value = '';
-      addCourseCapacity.value = '';
-      addCourseDescription.value = '';
-    };
-    const menu1 = () => {
-      addCourseCapacity.value = '10';
-      showMenu.value =false
-    }
-    const menu2 = () => {
-      addCourseCapacity.value = '20';
-      showMenu.value =false
-    }
-    const menu3 = () => {
-      addCourseCapacity.value = '30';
-      showMenu.value =false
-    }
-    const menu4 = () => {
-      addCourseCapacity.value = '40';
-      showMenu.value =false
-    }
-    const menu5 = () => {
-      addCourseCapacity.value = '50';
-      showMenu.value =false
-    }
-    //CourseAdder end
-
-    //CourseEditor start
     const editShow = ref([false] as boolean[]);
-    //CourseEditor end
-    //CourseDelete start
     const deleteShow = ref([false] as boolean[]);
-    //CourseDelete end
 
     return {
-      rules,
-
       columns,
       rows,
-      weekdays,
-      credits,
-      creditHours,
-      courseTimeStarts,
-      courseTimeEnds,
-      classrooms,
-      teachers,
 
-      //CourseAdder start
-      showMenu,
       addShow,
-
-      addCourseId,
-      addCourseName,
-      addCourseTime,
-      addCourseTimeDay,
-      addCourseTimeStart,
-      addCourseTimeEnd,
-      addCoursePlace,
-      addCourseTeacher,
-      addCourseCredit,
-      addCourseCreditHour,
-      addCourseCapacity,
-      addCourseDescription,
-
-      addCourseIdRef,
-      addCourseNameRef,
-      addCourseTimeDayRef,
-      addCourseTimeStartRef,
-      addCourseTimeEndRef,
-      addCoursePlaceRef,
-      addCourseTeacherRef,
-      addCourseCreditRef,
-      addCourseCreditHourRef,
-      addCourseCapacityRef,
-      addCourseDescriptionRef,
-
-
-      clear,
-      menu1,
-      menu2,
-      menu3,
-      menu4,
-      menu5,
-
-      async addSubmit() {
-        if(!addCourseIdRef.value || !addCourseNameRef.value || !addCourseTimeDayRef.value || !addCourseTimeStartRef.value || !addCourseTimeEndRef.value || !addCoursePlaceRef.value || !addCourseTeacherRef.value || !addCourseCreditRef.value || !addCourseCreditHourRef.value || !addCourseCapacityRef.value || !addCourseDescriptionRef.value) {
-          return;
-        }
-
-        addCourseIdRef.value.validate();
-        addCourseNameRef.value.validate();
-        addCourseTimeDayRef.value.validate();
-        addCourseTimeStartRef.value.validate();
-        addCourseTimeEndRef.value.validate();
-        addCoursePlaceRef.value.validate();
-        addCourseTeacherRef.value.validate();
-        addCourseCreditRef.value.validate();
-        addCourseCreditHourRef.value.validate();
-        addCourseCapacityRef.value.validate();
-        addCourseDescriptionRef.value.validate();
-        if (addCourseIdRef.value.hasError || addCourseNameRef.value.hasError || addCourseTimeDayRef.value.hasError || addCourseTimeStartRef.value.hasError || addCourseTimeEndRef.value.hasError || addCoursePlaceRef.value.hasError || addCourseTeacherRef.value.hasError || addCourseCreditRef.value.hasError || addCourseCreditHourRef.value.hasError || addCourseCapacityRef.value.hasError || addCourseDescriptionRef.value.hasError) {
-          return;
-        }
-
-        const addTime = addCourseTimeDay.value.concat(
-          ' : ',
-          addCourseTimeStart.value,
-          ' - ',
-          addCourseTimeEnd.value
-        );
-        if (
-          //apply add course
-          await course.send_course_application({
-            courseId: addCourseId.value,
-            courseName: addCourseName.value,
-            courseTime: addTime,
-            courseTimeDay: addCourseTimeDay.value,
-            courseTimeStart: addCourseTimeStart.value,
-            courseTimeEnd: addCourseTimeEnd.value,
-            coursePlace: addCoursePlace.value,
-            courseTeacher: addCourseTeacher.value,
-            courseCredit: addCourseCredit.value,
-            courseCreditHour: addCourseCreditHour.value,
-            courseCapacity: addCourseCapacity.value,
-            courseDescription: addCourseDescription.value,
-            applicationType: '1',
-          })
-        ) {
-          clear();
-          course.load_course_lists_page_teacher().then((r) => (rows.value = r));
-        }
-      },
-      //CourseAdder end
-
-      //CourseEditor start
       editShow,
-      async editSubmit(row: CourseInfo, index: number) {
-        const editTime = row.courseTimeDay.concat(
-          ' : ',
-          row.courseTimeStart,
-          ' - ',
-          row.courseTimeEnd
-        );
-        if (
-          await course.send_course_application({
-            courseId: row.courseId,
-            courseName: row.courseName,
-            courseTime: editTime,
-            courseTimeDay: row.courseTimeDay,
-            courseTimeStart: row.courseTimeStart,
-            courseTimeEnd: row.courseTimeEnd,
-            coursePlace: row.coursePlace,
-            courseTeacher: row.courseTeacher,
-            courseCredit: row.courseCredit,
-            courseCreditHour: row.courseCreditHour,
-            courseCapacity: row.courseCapacity,
-            courseDescription: row.courseDescription,
-            applicationType: '3',
-          })
-        ) {
-          editShow.value[index] = false
-          clear();
-          course.load_course_lists_page_teacher().then((r) => (rows.value = r));
-        }
-      },
-      //CourseEditor end
-      //CourseDelete start
       deleteShow,
+
       async deleteCourse(row: CourseInfo) {
-        await course.send_course_application({
+        const applicationInfo: CourseApplicationInfo = {
           courseId: row.courseId,
           courseName: row.courseName,
           courseTime: row.courseTime,
@@ -534,6 +176,14 @@ export default defineComponent({
           courseCapacity: row.courseCapacity,
           courseDescription: row.courseDescription,
           applicationType: '2',
+          applicationTime: '',
+          applicantName: '',
+          applicantNumber: '',
+          applicationStatus: '',
+          applicationId: '',
+        };
+        await course.send_course_application({
+          applicationInfo
         });
       },
       //CourseDelete end

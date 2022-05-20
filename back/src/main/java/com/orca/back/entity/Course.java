@@ -1,10 +1,8 @@
 package com.orca.back.entity;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import javax.persistence.Entity;
 
 @Data
 @TableName("course")
@@ -33,6 +31,15 @@ public class Course {
         this.courseCreditHour = course.getCourseCreditHour();
         this.courseCapacity = course.getCourseCapacity();
         this.courseDescription = course.getCourseDescription();
+    }
+
+    public void teacherStr2Id(){
+        this.courseTeacher = this.courseTeacher.split(":")[1].split("\\)")[0].strip();
+    }
+
+    public String teacherId2Str(String name, Integer number){
+        this.courseTeacher = name + " (工号: " + number + ")";
+        return this.courseTeacher;
     }
 }
 
