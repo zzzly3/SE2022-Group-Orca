@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.orca.back.controller.UserController.getResult;
@@ -43,8 +44,6 @@ public class CourseController {
     CollegeMapper collegeMapper;
     @Resource
     MajorMapper majorMapper;
-    @Resource
-    CourseSelectionStateMapper courseSelectionStateMapper;
 
     Checker checker = new Checker();
 
@@ -363,7 +362,7 @@ public class CourseController {
         User user1 = userMapper.selectById(userId);
         if (user1 == null || user1.getRole() != 2) return Result.error(ErrorCode.E_111);
         /*选课是否开放*/
-        if (!courseSelectionStateMapper.selectOne(Wrappers.<CourseSelectionState>lambdaQuery().eq(CourseSelectionState::getYear, 2022).eq(CourseSelectionState::getSemester, 1)).getOpen())
+        if (Objects.equals(constantsMapper.getCourseSelectionState().getConstantValue(), "0"))
             return Result.error(ErrorCode.E_400);
         /*Check Pass*/
         Major major = majorMapper.selectOne(Wrappers.<Major>lambdaQuery().eq(Major::getId, user.getMajor()));
