@@ -40,11 +40,13 @@ public class Checker {
         ErrorCode err = null;
         String name = classroom.getName();
         String building = classroom.getBuilding();
+        int capacity = classroom.getCapacity();
         if(name == null || building == null)err = ErrorCode.E_201;
         if(err == null)err = checkDigitAlphabet(name);
         if(err == null)err = checkDigitAlphabet(building);
         if(err == null)err = name.length() > building.length() ? null : ErrorCode.E_204;
         if(err == null)err = name.startsWith(classroom.getBuilding()) ? null: ErrorCode.E_204;
+        if(err == null)err = capacity > 0 && capacity <= 500 ? null: ErrorCode.E_212;
         return err;
     }
 

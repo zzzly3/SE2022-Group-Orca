@@ -28,8 +28,9 @@
               <q-input v-model="building1" label="教学楼" dense maxlength="4"
                        clearable clear-icon="close" :rules="[val => !!val || '不能为空']"
               />
-              <q-input v-model="capacity1" label="教室容量" dense maxlength="3" type="number"
-                       clearable clear-icon="close" :rules="[val => !!val || '不能为空']"
+              <q-input v-model="capacity1" label="教室容量" dense maxlength="3"
+                       type="number"
+                       clearable clear-icon="close" :rules="[val => (!!val && val > 0) || '教室容量需要大于0']"
               />
               <q-select v-model="state1" :options="states" dense label="教室状态"
                         :rules="[val => !!val || '无效的类型']" />
@@ -158,7 +159,7 @@ export default defineComponent({
 
     const changeClassroom = async()=>{
       console.log('ClassroomAdjuster: changeClassroom')
-      if (classroom0.value === '' || building0.value === '' || capacity0.value === 0 || state0.value.label === '') {
+      if (classroom0.value === '' || building0.value === '' || capacity0.value <= 0 || state0.value.label === '') {
         Notify.create({type: 'negative', message: '无效信息'})
         return
       }
