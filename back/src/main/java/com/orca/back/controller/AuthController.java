@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
+import static com.orca.back.controller.UserController.getResult;
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -31,15 +33,7 @@ public class AuthController {
     Checker check = new Checker();
 
     private Result<?> checkAdmin(HttpServletRequest request) {
-        ErrorCode err = null;
-        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
-        if (u_id == null) err = ErrorCode.E_109;
-        else{
-            User admin = userMapper.selectById(u_id);
-            if (admin.getIsAdmin() == 0) err = ErrorCode.E_111;
-        }
-        if (err != null) return Result.error(err);
-        return null;
+        return getResult(request, userMapper);
     }
 
     @PostMapping("/delete_classroom")

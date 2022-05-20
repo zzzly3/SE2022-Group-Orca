@@ -54,7 +54,10 @@ export default defineComponent({
       id: user.id,
       email: user.email,
       phone: user.phone,
-      type: user.type
+      type: user.type,
+      leave: user.leave,
+      college: user.college ? user.college.id : 0,
+      major: user.major ? user.major.id : 0
     }) as UserInfo)
 
     return {

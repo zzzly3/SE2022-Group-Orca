@@ -3,11 +3,9 @@
     <q-table
       flat
       style="width: 80%"
-      title="申请列表"
       :rows="rows"
       :columns="columns"
-      row-key="courseId"
-      v-model:pagination="pagination"
+      row-key="applicationId"
     >
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -16,16 +14,13 @@
             {{ col.label }}
           </q-th>
           <q-th auto-width />
-          <q-th auto-width />
         </q-tr>
       </template>
 
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td auto-width>
-            <q-btn
-              size="sm"
-              flat
+            <q-btn size="sm" flat
               @click="props.expand = !props.expand"
               :icon="props.expand ? 'expand_less' : 'expand_more'"
             />
@@ -35,120 +30,60 @@
           </q-td>
           <!--CourseEditor-->
           <q-td>
-            <div class="row">
-              <q-btn
-                label="查看"
-                color="primary"
+              <q-btn color="primary" flat icon="visibility"
                 @click="editShow[props.rowIndex] = true"
-              ></q-btn>
-
+              />
               <q-dialog v-model="editShow[props.rowIndex]">
-                <q-card style="width: 600px" class="q-pa-lg">
+                <q-card style="width: 460px">
                   <q-card-section>
-                    <q-form class="q-gutter-md row items-start">
-                      <q-field disable style="width: 450px">
-                        <template v-slot:control>
-                          <div class="text-subtitle1 self-center full-width">
-                            课程编号：{{ props.row.courseId }}
-                          </div>
-                        </template>
-                      </q-field>
-
-                      <q-input
-                        style="width: 450px"
-                        label="课程名称"
-                        v-model="props.row.courseName"
-                        disable
-                      />
-                      <q-select
-                        style="width: 200px"
-                        v-model="props.row.courseTimeDay"
-                        label="上课时间"
-                        disable
-                      />
-                      <q-input
-                        v-model="props.row.courseTimeStart"
-                        type="time"
-                        disable
-                      />
-                      <q-field borderless readonly>
-                        <template v-slot:control>
-                          <div class="self-center full-width no-outline">
-                            至
-                          </div>
-                        </template>
-                      </q-field>
-                      <q-input
-                        v-model="props.row.courseTimeEnd"
-                        type="time"
-                        disable
-                      />
-                      <q-input
-                        v-model="props.row.coursePlace"
-                        style="width: 450px"
-                        label="上课教室"
-                        disable
-                      />
-                      <q-input
-                        v-model="props.row.courseTeacher"
-                        style="width: 180px"
-                        label="任课教师"
-                        disable
-                      />
-
-                      <q-select
-                        disable
-                        v-model="props.row.courseDepartment"
-                        style="width: 260px"
-                        label="开课院系"
-                      />
-                      <q-input
-                        v-model="props.row.courseCredit"
-                        style="width: 140px"
-                        label="学分"
-                        disable
-                      />
-                      <q-input
-                        v-model="props.row.courseCreditHour"
-                        style="width: 140px"
-                        label="学时"
-                        disable
-                      />
-
-                      <q-input
-                        v-model="props.row.courseCapacity"
-                        style="width: 140px"
-                        label="课程容量"
-                        disable
-                      />
-
-                      <q-input
-                        v-model="props.row.courseDescription"
-                        style="width: 450px"
-                        label="课程描述"
-                        disable
-                      />
+                    <div style="height: 50px" class="text-subtitle1 row items-center">
+                      <q-icon name="visibility" color="primary" size="sm"></q-icon>
+                      <span>查看申请</span>
+                    </div>
+                  </q-card-section>
+                  <q-card-section class="q-py-none">
+                    <q-form style="width: 400px" class="q-px-md q-gutter-y-sm">
+                      <q-input style="height: 53px" class="col" dense disable label="课程编号" v-model="props.row.courseId"/>
+                      <q-input style="height: 60px" class="col" dense disable label="课程名称" v-model="props.row.courseName"/>
+                      <div class="row items-start q-gutter-md">
+                        <q-select style="height: 60px" class="col" dense disable v-model="props.row.courseTimeDay" label="上课时间"/>
+                        <q-select class="col" dense disable v-model="props.row.courseTimeStart" label="开始时间"/>
+                        <q-field borderless disable dense>
+                          <template v-slot:control>
+                            <div class="self-center full-width no-outline">
+                              至
+                            </div>
+                          </template>
+                        </q-field>
+                        <q-select class="col" dense disable v-model="props.row.courseTimeEnd" label="结束时间"/>
+                      </div>
+                      <div class="row items-start q-gutter-md">
+                        <q-select class="col" dense disable v-model="props.row.courseTeacher" label="任课老师"/>
+                        <q-select style="height: 63px" class="col-5" dense disable v-model="props.row.coursePlace" label="上课教室"/>
+                      </div>
+                      <div class="row items-start q-gutter-md">
+                        <q-select style="height: 56px" class="col" dense disable v-model="props.row.courseCredit" label="学分"/>
+                        <q-select class="col" dense disable v-model="props.row.courseCreditHour" label="学时"/>
+                        <q-input class="col" dense disable v-model="props.row.courseCapacity" label="课程容量">
+                          <template v-slot:append>
+                            <q-icon name="arrow_drop_down" class="cursor-pointer" />
+                          </template>
+                        </q-input>
+                      </div>
+                      <q-input class="col" dense disable v-model="props.row.courseDescription" autogrow label="课程描述">
+                      </q-input>
                     </q-form>
                   </q-card-section>
                   <q-card-section align="right">
-                    <q-btn
-                      color="primary"
-                      flat
-                      @click="agree(props.row)"
-                      label="同意申请"
-                      v-close-popup
+                    <q-btn color="primary" flat label="同意申请"
+                      @click="agree(props.row, props.rowIndex)"
                     />
-                    <q-btn
-                      color="red"
-                      flat
+                    <q-btn color="red" flat label="拒绝申请" v-close-popup
                       @click="decline(props.row)"
-                      label="拒绝申请"
-                      v-close-popup
                     />
                   </q-card-section>
                 </q-card>
               </q-dialog>
-            </div>
           </q-td>
           <!--CourseEditor-->
         </q-tr>
@@ -160,9 +95,7 @@
         </q-tr>
       </template>
 
-      <template v-slot:top-right>
-        <CourseSearcher></CourseSearcher>
-      </template>
+      <template v-slot:top-right> </template>
     </q-table>
   </div>
 </template>
@@ -170,16 +103,13 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { CourseApplicationInfo, useCourseStore } from 'stores/course';
-//import CourseAdder from 'components/course/CourseAdder.vue';
-//import CourseEditor from 'components/course/CourseEditor.vue';
-import CourseSearcher from 'components/course/CourseSearcher.vue';
 
 const columns = [
   {
     name: 'courseId',
     required: true,
     label: '课程编号',
-    align: 'left',
+    align: 'center',
     field: 'courseId',
   },
   {
@@ -198,7 +128,7 @@ const columns = [
     name: 'applicantNumber',
     align: 'center',
     label: '申请者工号',
-    field: 'applicationNumber',
+    field: 'applicantNumber',
   },
   {
     name: 'applicationTime',
@@ -216,23 +146,14 @@ const columns = [
 
 export default defineComponent({
   name: 'CourseListApplication',
-  components: { /*CourseAdder, CourseEditor, */ CourseSearcher },
+  components: {},
   setup() {
     const course = useCourseStore();
     const rows = ref([] as CourseApplicationInfo[]);
-
-    const pagination = ref({
-      sortBy: 'courseId',
-      descending: false,
-      page: 5,
-      rowsPerPage: 5,
-      rowsNumber: 1,
-    });
     course
       .load_course_application_lists_page_admin()
       .then((r) => (rows.value = r));
 
-    //CourseAdder end
 
     //CourseEditor start
     const editShow = ref([false] as boolean[]);
@@ -241,13 +162,12 @@ export default defineComponent({
     return {
       columns,
       rows,
-      pagination,
 
       //CourseEditor start
       editShow,
-      async agree(row: CourseApplicationInfo) {
+      async agree(row: CourseApplicationInfo, index: number) {
         if (row.applicationType === '新增') {
-          await course.add_course({
+          if( await course.add_course({
             courseId: row.courseId,
             courseName: row.courseName,
             courseTime: row.courseTime,
@@ -255,15 +175,20 @@ export default defineComponent({
             courseTimeStart: row.courseTimeStart,
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
-            courseTeacher: row.courseTeacher,
-            courseDepartment: row.courseDepartment,
+            courseTeacher:row.courseTeacher,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
             courseDescription: row.courseDescription,
-          });
+          })){
+            editShow.value[index] = false;
+          }
+          else{
+            console.log(row.courseTeacher)
+            return;
+          }
         } else if (row.applicationType === '修改') {
-          await course.edit_course({
+          if( await course.edit_course({
             courseId: row.courseId,
             courseName: row.courseName,
             courseTime: row.courseTime,
@@ -272,14 +197,16 @@ export default defineComponent({
             courseTimeEnd: row.courseTimeEnd,
             coursePlace: row.coursePlace,
             courseTeacher: row.courseTeacher,
-            courseDepartment: row.courseDepartment,
             courseCredit: row.courseCredit,
             courseCreditHour: row.courseCreditHour,
             courseCapacity: row.courseCapacity,
             courseDescription: row.courseDescription,
-          });
+          })){
+            editShow.value[index] = false;
+          }
         } else if (row.applicationType === '删除') {
-          await course.delete_course(row.courseId);
+          await course.delete_course(row.courseId, row.courseTeacher);
+          editShow.value[index] = false;
         }
 
         await course.update_course_application_status({
@@ -291,7 +218,6 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
-          courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
           courseCapacity: row.courseCapacity,
@@ -318,7 +244,6 @@ export default defineComponent({
           courseTimeEnd: row.courseTimeEnd,
           coursePlace: row.coursePlace,
           courseTeacher: row.courseTeacher,
-          courseDepartment: row.courseDepartment,
           courseCredit: row.courseCredit,
           courseCreditHour: row.courseCreditHour,
           courseCapacity: row.courseCapacity,

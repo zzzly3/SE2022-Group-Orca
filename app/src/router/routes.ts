@@ -13,11 +13,11 @@ const routes: RouteRecordRaw[] = [
       { path: 'course_application', component: () => import('pages/CourseListApplication.vue') },
       { path: 'my_course_list', component: () => import('pages/CourseListTeacher.vue') },
       { path: 'my_course_application', component: () => import('pages/CourseListApplicationTeacher.vue') },
+      { path: 'selectable_course_list', component: () => import('pages/CourseListStudent.vue') },
       { path: 'manage', component: () => import('pages/ManagePage.vue') },
     ],
   },
   { path: '/login', component: () => import('pages/LoginPage.vue') },
-
   // Always leave this as last one,
   // but you can also remove it
   {

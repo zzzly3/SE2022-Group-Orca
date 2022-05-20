@@ -32,8 +32,12 @@ export const useUserStore = defineStore('user', {
     },
     major: {
       id: 0,
-      name: ''
+      name: '',
+      college: 0
     },
+    colleges: [] as {id: number, name: string}[],
+    majors: [] as {id: number, name: string, college: number}[],
+    init: false
   }),
   actions: {
     async load_user_info() {
@@ -56,6 +60,17 @@ export const useUserStore = defineStore('user', {
           this.type = 'student'
       } else {
         this.login = false
+      }
+      if (this.login && !this.init) {
+        if (this.type === 'admin')
+          await Promise.all([this.load_college(), this.load_major()]);
+        else {
+          if (this.college)
+            this.colleges = [this.college]
+          if (this.major)
+            this.majors = [this.major]
+        }
+        this.init = true
       }
     },
     async load_user_list(start: number, count: number) {
@@ -131,10 +146,19 @@ export const useUserStore = defineStore('user', {
       return false
     },
     async load_college() {
-      return await post('user/colleges')
+      const r = await post('user/colleges')
+      if (r !== false) {
+        this.colleges = r
+        return true
+      }
+      return false
     },
-    async load_major(cid: number) {
-      return await post('user/majors', {id: cid})
+    async load_major() {
+      const r = await post('user/majors')
+      if (r !== false) {
+        this.majors = r
+        return true
+      }
     },
     async update_college(cid: number, name: string) {
       if (await post('user/update_college', {id: cid, name: name}) !== false) {
@@ -178,5 +202,35 @@ export const useUserStore = defineStore('user', {
       }
       return false
     },
+    get_college_name(cid: number) {
+      let r = '未分配'
+      for (const c of this.colleges) {
+        if (c.id === cid) {
+          r = c.name
+          break
+        }
+      }
+      return r
+    },
+    get_major_name(mid: number) {
+      let r = '未分配'
+      for (const m of this.majors) {
+        if (m.id === mid) {
+          r = m.name
+          break
+        }
+      }
+      return r
+    },
+    get_type_name(type: string) {
+      if (type === 'admin')
+        return '管理员'
+      else if (type === 'teacher')
+        return '教师'
+      else if (type === 'student')
+        return '学生'
+      else
+        return '未知'
+    }
   },
 });

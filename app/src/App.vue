@@ -17,13 +17,13 @@ export default defineComponent({
     const init = ref(false)
     const $q = useQuasar()
     $q.loadingBar.start()
-    user.load_user_info().then(() => {
+    user.load_user_info().then(async () => {
       $q.loadingBar.stop()
       init.value = true
       if (!user.login && route.path !== '/login') {
         $q.notify({type:'info', message:'请先登录'})
         user.login_redirect = route.fullPath
-        router.replace('/login')
+        await router.replace('/login')
       }
     })
 
