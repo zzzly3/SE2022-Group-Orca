@@ -150,7 +150,7 @@ public class AuthController {
         System.out.print("in backend: load_course_selection_state\n");
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
-        Constants res = constantsMapper.getCourseSelectionState();
+        String res = constantsMapper.getCourseSelectionState();
         return Result.success(res);
     }
 

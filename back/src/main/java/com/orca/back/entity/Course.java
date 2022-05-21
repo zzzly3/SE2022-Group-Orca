@@ -3,12 +3,19 @@ package com.orca.back.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.Year;
+
 
 @Data
 @TableName("course")
 public class Course {
     private String courseId;
     private String courseName;
+    private Year year;
+    private Integer semester;
+    private String allowedMajor;
+    private Integer courseCapacity;
+    private Integer selected;
     private String courseTime;
     private String courseTimeDay;
     private String courseTimeStart;
@@ -17,7 +24,6 @@ public class Course {
     private String courseTeacher;
     private Integer courseCredit;
     private Integer courseCreditHour;
-    private Integer courseCapacity;
     private String courseDescription;
 
     public void updateCourse(Course course){

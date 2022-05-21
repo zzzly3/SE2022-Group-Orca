@@ -119,7 +119,7 @@ public class CourseChecker {
     }
 
     public ErrorCode checkCourseSelectionState(ConstantsMapper constantsMapper){
-        if (Objects.equals(constantsMapper.getCourseSelectionState().getConstantValue(), "0"))
+        if (Objects.equals(constantsMapper.getCourseSelectionState(), "0"))
             return ErrorCode.E_400;
         return null;
     }

@@ -17,6 +17,7 @@ public class User {
     private Integer number;
     private Integer isFirst;
     private Integer isAdmin;
+    private Integer grade;
 
     public Integer getCollege() {
         return college;

@@ -22,7 +22,7 @@ export const useCourseSelectStateStore = defineStore('courseSelectionState', {
         Notify.create({type:'negative', message:'信息读取失败'})
         return r
       }
-      return {open:r.constantValue}
+      return r
     }
   }
 });

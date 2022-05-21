@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Update;
 
 public interface ConstantsMapper extends BaseMapper<Constants> {
     @Select("select constant_value from constants where constant_name='course_selection_state'")
-    Constants getCourseSelectionState();
+    String getCourseSelectionState();
 
     @Update("update constants set constant_value = #{open} where constant_name = 'course_selection_state'")
     void updateCourseSelectionState(boolean open);

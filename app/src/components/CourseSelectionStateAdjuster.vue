@@ -31,8 +31,9 @@ import {useCourseSelectStateStore} from 'stores/course-selection-state';
 import {Notify} from 'quasar';
 
 const states = [
-  {label: '开放选课', value: 1},
-  {label: '关闭选课', value: 0}
+  {label: '关闭选课', value: 0},
+  {label: '一轮选课', value: 1},
+  {label: '二轮选课', value: 2}
 ]
 
 export default {
@@ -55,7 +56,7 @@ export default {
       show.value = true
       const r = await CSS.load_course_selection_state()
       if(r !== false){
-        state.value = r.open === '1' ? states[0]:states[1]
+        state.value = states[Number(r)]
       }
       tableLoading.value = false
     }
