@@ -11,6 +11,6 @@ public interface ConstantsMapper extends BaseMapper<Constants> {
     String getCourseSelectionState();
 
     @Update("update constants set constant_value = #{open} where constant_name = 'course_selection_state'")
-    void updateCourseSelectionState(boolean open);
+    void updateCourseSelectionState(Integer open);
 
 }

@@ -1,7 +1,9 @@
 package com.orca.back.entity;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.springframework.context.annotation.Primary;
 
 import java.time.Year;
 
@@ -9,6 +11,7 @@ import java.time.Year;
 @Data
 @TableName("course")
 public class Course {
+    @TableId("course_id")
     private String courseId;
     private String courseName;
     private Year year;

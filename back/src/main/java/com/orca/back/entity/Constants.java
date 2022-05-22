@@ -10,4 +10,6 @@ public class Constants {
     @TableId("constant_name")
     private String constantName;
     private String constantValue;
+
+
 }

@@ -152,6 +152,14 @@ public class UserController {
         return null;
     }
 
+    static User getUser(HttpServletRequest request, UserMapper userMapper) {
+        Integer u_id = (Integer) request.getSession().getAttribute("UserId");
+        if (u_id == null) return null;
+        else{
+            return userMapper.selectById(u_id);
+        }
+    }
+
     @PostMapping("/login")
     public Result<?> login(@RequestBody User user, HttpServletRequest request, HttpServletResponse response){
         response.setHeader("Set-Cookie", "SameSite=None");

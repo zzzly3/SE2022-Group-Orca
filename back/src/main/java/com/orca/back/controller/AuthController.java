@@ -155,7 +155,7 @@ public class AuthController {
     }
 
     @PostMapping("/modify_course_selection_state")
-    public Result<?> modify_course_selection_state(@RequestBody Map<String, Boolean> pair, HttpServletRequest request){
+    public Result<?> modify_course_selection_state(@RequestBody Map<String, Integer> pair, HttpServletRequest request){
         System.out.print("in backend: modify_course_selection_state\n");
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
