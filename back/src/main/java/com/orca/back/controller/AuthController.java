@@ -5,6 +5,7 @@ import com.orca.back.entity.*;
 import com.orca.back.mapper.*;
 
 import com.orca.back.utils.common.Checker;
+import com.orca.back.utils.common.CourseUtils;
 import com.orca.back.utils.common.Result;
 
 import com.orca.back.utils.constants.ErrorCode;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,12 @@ public class AuthController {
     ClassroomMapper classroomMapper;
     @Resource
     ConstantsMapper constantsMapper;
+    @Resource
+    SelectionConditionMapper selectionConditionMapper;
+    @Resource
+    CourseMapper courseMapper;
+
+    CourseUtils courseUtils = new CourseUtils();
 
     Checker check = new Checker();
 
@@ -160,6 +168,32 @@ public class AuthController {
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
         constantsMapper.updateCourseSelectionState(pair.get("value"));
+        if (pair.get("value") == 2) {
+            List<Course> courses = courseMapper.selectList(null);
+            for (Course course : courses) {
+                // get selection conditions whose state is 0
+                List<SelectionCondition> selectionCondition = selectionConditionMapper.selectList(
+                        Wrappers.<SelectionCondition>lambdaQuery().eq(SelectionCondition::getCourseId, course.getCourseId())
+                                .eq(SelectionCondition::getState, 0));
+                // sort by student id
+                selectionCondition.sort(Comparator.comparing(SelectionCondition::getStudentId));
+                // preserve the first course.capacity students and delete others
+                int cnt = 0;
+                for (SelectionCondition sc : selectionCondition) {
+                    if (cnt < course.getCourseCapacity()) {
+                        sc.setState(2);
+                        selectionConditionMapper.update(sc, Wrappers.<SelectionCondition>lambdaUpdate().eq(SelectionCondition::getStudentId, sc.getStudentId())
+                                .eq(SelectionCondition::getCourseId, sc.getCourseId()));
+                        cnt++;
+                    } else {
+                        selectionConditionMapper.delete(Wrappers.<SelectionCondition>lambdaQuery().eq(SelectionCondition::getStudentId, sc.getStudentId())
+                                .eq(SelectionCondition::getCourseId, sc.getCourseId()));
+                    }
+                }
+                course.setSelected(cnt);
+                courseUtils.updateCourseBatch(course, courseMapper);
+            }
+        }
         return Result.success();
     }
 }

@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia';
-import { post } from 'boot/axios';
-import { Notify } from 'quasar';
-import { useUserStore } from './user';
+import {defineStore} from 'pinia';
+import {post} from 'boot/axios';
+import {Notify} from 'quasar';
+import {useUserStore} from './user';
 
 export interface CourseInfo {
   courseId: string;
@@ -18,6 +18,8 @@ export interface CourseInfo {
   courseCreditHour: string;
   courseCapacity: string;
   courseDescription: string;
+  allowMajor: string;
+  full: boolean;
 }
 
 export interface CourseApplicationInfo {
@@ -54,6 +56,19 @@ export const useCourseStore = defineStore('course', {
     teacherList: [],
   }),
   actions: {
+    async select_course(course_id: string, state: number, data: string) {
+      return await post('selection/select', {courseId: course_id, state, description: data, studentId: data}) !== false
+    },
+    async load_selection(course_id: string) {
+      const r = await post('selection/list', {courseId: course_id})
+      return r ? r : []
+    },
+    async drop_course(course_id: string, student_id: string) {
+      return await post('selection/drop', {courseId: course_id, studentId: student_id}) !== false
+    },
+    async update_allow(course_id: string, allow: string) {
+      return await post('course/update_allow', {id: course_id, value: allow}) !== false
+    },
     async load_course_constants() {
       const r = await post('/course/load_course_constants', {}, false);
       this.courseTimeStartList = r.courseTimeStartList
@@ -78,8 +93,7 @@ export const useCourseStore = defineStore('course', {
     async load_course_application_lists_page_admin() {
       this.type = user.type;
       if (this.type === 'admin') {
-        const r = await post('/course/get_course_application_all', {}, false);
-        return r;
+        return await post('/course/get_course_application_all', {}, false);
       } else {
         Notify.create({
           type: 'negative',

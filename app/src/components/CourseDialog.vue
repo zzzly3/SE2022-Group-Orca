@@ -406,6 +406,8 @@ export default defineComponent({
           courseCreditHour: courseCreditHour.value,
           courseCapacity: courseCapacity.value,
           courseDescription: courseDescription.value,
+          allowMajor: '',
+          full: false
         };
 
         const applicationInfo: CourseApplicationInfo = {

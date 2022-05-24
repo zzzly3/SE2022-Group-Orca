@@ -369,7 +369,7 @@ public class UserController {
         if (!uploadfile.getOriginalFilename().endsWith(".csv"))
             return Result.error(ErrorCode.E_135);
         // get the file content
-        String content = null;
+        String content;
         try {
             content = new String(uploadfile.getBytes());
         }

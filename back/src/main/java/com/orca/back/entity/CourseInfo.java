@@ -18,6 +18,8 @@ public class CourseInfo {
     private Integer courseCreditHour;
     private Integer courseCapacity;
     private String courseDescription;
+    private String allowMajor;
+    private Boolean full;
 
     public void setCourse(Course course) {
         this.courseId = course.getCourseId();
@@ -32,5 +34,7 @@ public class CourseInfo {
         this.courseCreditHour = course.getCourseCreditHour();
         this.courseCapacity = course.getCourseCapacity();
         this.courseDescription = course.getCourseDescription();
+        this.allowMajor = course.getAllowedMajor();
+        this.full = course.getSelected() >= course.getCourseCapacity();
     }
 }
