@@ -5,6 +5,7 @@ import com.orca.back.entity.*;
 import com.orca.back.mapper.*;
 
 import com.orca.back.utils.common.Checker;
+import com.orca.back.utils.common.CourseUtils;
 import com.orca.back.utils.common.Result;
 
 import com.orca.back.utils.constants.ErrorCode;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +32,12 @@ public class AuthController {
     ClassroomMapper classroomMapper;
     @Resource
     ConstantsMapper constantsMapper;
+    @Resource
+    SelectionConditionMapper selectionConditionMapper;
+    @Resource
+    CourseMapper courseMapper;
+
+    CourseUtils courseUtils = new CourseUtils();
 
     @Autowired
     SelectionController selectionController = new SelectionController();

@@ -40,6 +40,8 @@ public class Course {
         this.courseCreditHour = course.getCourseCreditHour();
         this.courseCapacity = course.getCourseCapacity();
         this.courseDescription = course.getCourseDescription();
+        this.allowedMajor = course.getAllowedMajor();
+        this.selected = course.getSelected();
     }
 
     public void teacherStr2Id(){

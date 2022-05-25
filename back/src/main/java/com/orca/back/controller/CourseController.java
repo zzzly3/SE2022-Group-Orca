@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.orca.back.controller.UserController.getUser;
+
 
 @RestController
 @RequestMapping("/api/course")
@@ -52,12 +54,32 @@ public class CourseController {
         return Result.success(courseConstantsInfo);
     }
 
+    @PostMapping("/update_allow")
+    public Result<?> updateAllow(@RequestBody Map<String, String> pair, HttpServletRequest request){
+        User u = getUser(request, userMapper);
+        if (u == null) return Result.error(ErrorCode.E_111);
+        if (u.getIsAdmin() == 0) {
+            if (u.getRole() != 1) return Result.error(ErrorCode.E_111);
+            Course course = courseMapper.selectOne(
+                    Wrappers.<Course>lambdaQuery()
+                            .eq(Course::getCourseId, pair.get("id"))
+                            .eq(Course::getCourseTeacher, u.getNumber()));
+            if (course == null) return Result.error(ErrorCode.E_422);
+        }
+        Course course = courseMapper.selectOne(
+                Wrappers.<Course>lambdaQuery()
+                        .eq(Course::getCourseId, pair.get("id")));
+        course.setAllowedMajor(pair.get("value"));
+        courseUtils.updateCourseBatch(course, courseMapper);
+        return Result.success();
+    }
+
     /*Admin*/
     @PostMapping("/get_course_all")
     public Result<?> getCourseAll(HttpServletRequest request){
         /*Check Admin*/
-        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
-        if (err != null) return Result.error(err);
+//        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+//        if (err != null) return Result.error(err);
         /*Check Pass*/
         List<Course> courseList = courseMapper.selectList(null);
         List<CourseInfo> courseInfoList = courseUtils.getCourseInfoList(courseList, false, userMapper, majorMapper, collegeMapper);
