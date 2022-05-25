@@ -5,7 +5,7 @@
       style="width: 100%"
       :rows="rows"
       dense
-      :columns="showState === 1 || showState === 2 ? columns: appliedColumns"
+      :columns="showState === 1 ? columns: appliedColumns"
       :loading="loading"
       row-key="courseId"
     >
@@ -35,10 +35,10 @@
         <q-tr v-show="props.expand" :props="props">
           <q-td></q-td>
           <q-td colspan="100%">
-            <q-btn v-show="showState === 1 || showState === 2" size="4px" color="positive" flat label="选课" @click="selectCourse(props.row.courseId)"></q-btn>
-            <q-btn v-show="showState === 1 || showState === 2" size="4px" color="warning" flat label="选课申请" @click="applyCourse(props.row.courseId)"></q-btn>
-            <q-btn v-show="showState === 3" size="4px" color="negative" flat label="退课" @click="dropCourse(props.row.courseId)"></q-btn>
-            <q-btn v-show="showState === 4" size="4px" color="negative" flat label="撤销选课申请" @click="cancelCourseApplied(props.row.courseId)"></q-btn>
+            <q-btn v-show="showState === 1" flat class="q-ml-sm" color="primary" icon="info" :disable="loading" @click="showSelection(props.row.courseId)" />
+            <q-btn v-show="showState === 1" flat class="q-ml-sm" color="warning" icon="edit" :disable="loading" @click="modifyCapacity(props.row.courseId)" />
+            <q-btn v-show="showState === 2" size="4px" color="positive" flat label="通过申请" @click="pass(props.row.courseId, props.row.studentId)"></q-btn>
+            <q-btn v-show="showState === 2" size="4px" color="negative" flat label="驳回申请" @click="reject(props.row.courseId, props.row.studentId)"></q-btn>
           </q-td>
         </q-tr>
       </template>
@@ -46,10 +46,7 @@
       <template v-slot:top>
         <div class="row">
           <q-btn flat class="q-ml-sm" color="primary" :disable="loading" label="所有课程" @click="showCourses(1)" />
-          <q-btn flat class="q-ml-sm" color="primary" :disable="loading" label="可选课程" @click="showCourses(2)" />
-          <q-btn flat class="q-ml-sm" color="primary" :disable="loading" label="已选课程" @click="showCourses(3)" />
-          <q-btn flat class="q-ml-sm" color="primary" :disable="loading" label="已申请课程" @click="showCourses(4)" />
-          <q-btn flat class="q-ml-sm" color="positive" :disable="loading" label="已修课程" @click="showCourses(5)" />
+          <q-btn flat class="q-ml-sm" color="primary" :disable="loading" label="选课申请" @click="showCourses(2)" />
         </div>
         <div class="row">
           <q-input dense rounded outlined v-model="cid" label="课程序号"></q-input>
@@ -61,6 +58,7 @@
 
         <q-btn icon="search" color="primary" round flat @click="search"></q-btn>
       </template>
+      <SelectionViewer ref="SelectionViewRef"></SelectionViewer>
     </q-table>
   </div>
 </template>
@@ -70,8 +68,17 @@ import { defineComponent, ref } from 'vue';
 import { CourseApplicationInfo} from 'stores/course';
 import {useSelectionConditionsStore} from 'stores/selection-conditions';
 import { useQuasar } from 'quasar'
+import SelectionViewer from 'components/SelectionViewer.vue';
+
 
 const appliedColumns = [
+  {
+    name: 'studentId',
+    required: true,
+    label: '学生学号',
+    align: 'center',
+    field: 'studentId',
+  },
   {
     name: 'courseId',
     required: true,
@@ -152,8 +159,13 @@ const columns = [
 
 export default defineComponent({
   name: 'CourseListApplication',
-  components: {},
+  components: {SelectionViewer},
   setup() {
+    interface componentRef{
+      show: boolean;
+      load: (cid:string)=>void;
+    }
+    const SelectionViewRef = ref<componentRef|null>(null)
     const selection = useSelectionConditionsStore();
     const rows = ref([] as CourseApplicationInfo[]);
     const loading = ref(false)
@@ -166,24 +178,24 @@ export default defineComponent({
     const showState = ref(1)
 
     selection.loadAllCourses().then((r) => (rows.value = r));
-    const selectCourse = async (cid:string)=>{
+    const pass = async (cid:string, sid:string)=>{
       console.log('in selectCourse courseId is', cid)
       $q.dialog({
-        title: '选课提交',
-        message: '确认提交选课吗?',
+        title: '通过选课申请',
+        message: '确认通过吗?',
         cancel: true,
         persistent: true,
       }).onOk(async () => {
         loading.value = true
-        await selection.addSelection(cid)
+        await selection.passAppliedSelection({sid, cid})
         loading.value = false
       })
     }
-    const applyCourse = async (cid:string)=>{
+    const reject = async (cid:string, sid:string)=>{
       console.log('in applyCourse courseId is', cid)
       $q.dialog({
-        title: '选课申请',
-        message: '请输入选课申请理由',
+        title: '驳回选课申请',
+        message: '请输入理由',
         prompt: {
           model: '',
           type: 'text' // optional
@@ -193,33 +205,26 @@ export default defineComponent({
       }).onOk(async (des: string) => {
         console.log('>>>> OK ', des)
         loading.value = true
-        await selection.applySelection({cid, des})
+        await selection.rejectAppliedSelection({sid, cid, des})
         loading.value = false
       })
     }
-    const dropCourse = async (cid:string)=>{
-      console.log('in dropCourse')
+
+    const modifyCapacity = async (cid:string)=>{
+      console.log('in modifyCapacity')
       $q.dialog({
-        title: '退课',
-        message: '确认退课吗?',
+        title: '修改课程容量',
+        message: '请输入修改后的课程容量',
+        prompt: {
+          model: '',
+          isValid: val => val.length <= 3,
+          type: 'number' // optional
+        },
         cancel: true,
-        persistent: true
-      }).onOk(async () => {
+        persistent: true,
+      }).onOk(async (capacity) => {
         loading.value = true
-        await selection.deleteSelection(cid)
-        loading.value = false
-      })
-    }
-    const cancelCourseApplied = async (cid:string)=>{
-      console.log('in cancelCourseApplied')
-      $q.dialog({
-        title: '撤回选课申请',
-        message: '确认撤回选课申请吗?',
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        loading.value = true
-        await selection.deleteAppliedSelection(cid)
+        await selection.updateCourseCapacity(cid, capacity)
         loading.value = false
       })
     }
@@ -229,11 +234,8 @@ export default defineComponent({
       loading.value = true
       let r;
       switch (idx) {
-        case 1: r = await selection.loadAllCourses(); console.log('in', idx); break;
-        case 2: r = await selection.loadSelectableCourses(); console.log('in', idx); break;
-        case 3: r = await selection.loadSelectedCourses(); console.log('in', idx); break;
-        case 4: r = await selection.loadAppliedCourses(); console.log('in', idx); break;
-        case 5: r = await selection.loadTakenCourses(); console.log('in', idx); break;
+        case 1: r = await selection.loadAllCourses(); break;
+        case 2: r = await selection.loadAppliedSelection(); break;
       }
       if(r !== false)rows.value = r
       loading.value = false
@@ -250,13 +252,18 @@ export default defineComponent({
       loading.value = false
     }
 
+    const showSelection = async (cid:string)=>{
+      console.log('in show selection')
+      if(!SelectionViewRef.value)return
+      SelectionViewRef.value.load(cid)
+    }
     return {
       cid, ctime, cname, classroom, teacher,
       showState, loading,
-      applyCourse, selectCourse, dropCourse, cancelCourseApplied,
-      showCourses, search,
+      pass, reject,
+      showCourses, search, showSelection, modifyCapacity,
       columns, appliedColumns,
-      rows,
+      rows, SelectionViewRef
     };
   },
 });

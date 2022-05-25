@@ -14,6 +14,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'my_course_list', component: () => import('pages/CourseListTeacher.vue') },
       { path: 'my_course_application', component: () => import('pages/CourseListApplicationTeacher.vue') },
       { path: 'selectable_course_list', component: () => import('pages/CourseListStudent.vue') },
+      { path: 'course_list_admin', component: () => import('pages/CourseListAdmin.vue') },
       { path: 'manage', component: () => import('pages/ManagePage.vue') },
     ],
   },

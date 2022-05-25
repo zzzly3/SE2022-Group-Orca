@@ -12,4 +12,7 @@ public interface ClassroomMapper extends BaseMapper<Classroom> {
 
     @Select("select * from classrooms")
     List<Classroom> findAll();
+
+    @Select("select capacity from classrooms where name=#{id}")
+    Integer getCapacity(String id);
 }

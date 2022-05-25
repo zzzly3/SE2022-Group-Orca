@@ -2,9 +2,10 @@
   <div class="q-pa-md column items-center">
     <q-table
       flat
-      style="width: 80%"
+      style="width: 100%"
       :rows="rows"
       :columns="columns"
+      :loading="loading"
       row-key="courseId"
     >
       <template v-slot:header="props">
@@ -32,6 +33,9 @@
           </q-td>
           <q-td>
             <q-btn-group spread flat>
+              <q-btn style="width: 5px" flat color="teal-10" size="sm" :icon="'info'"
+                     @click="showSelection(props.row.courseId)"
+              />
               <q-btn style="width: 5px" flat color="teal-10" size="sm" :icon="'edit'"
                 @click="editShow[props.rowIndex] = true"
               />
@@ -39,6 +43,7 @@
                 @click="deleteShow[props.rowIndex] = true"/>
             </q-btn-group>
             <!--CourseEditor-->
+            <SelectionViewer ref="SelectionViewRef"></SelectionViewer>
             <CourseDialog v-model="editShow[props.rowIndex]" :row="props.row" :isAdmin='false' :isAdd="false" :isEdit="true"/>
             <!-- courseDelete -->
             <q-dialog v-model="deleteShow[props.rowIndex]">
@@ -80,7 +85,9 @@
 <script lang="ts">
 import { defineComponent, ref} from 'vue';
 import { CourseApplicationInfo, CourseInfo, useCourseStore } from 'stores/course';
+import {useSelectionConditionsStore} from 'stores/selection-conditions';
 import CourseDialog from 'src/components/CourseDialog.vue';
+import SelectionViewer from 'components/SelectionViewer.vue';
 
 const columns = [
   {
@@ -138,25 +145,43 @@ const columns = [
     label: '课程容量',
     field: 'courseCapacity',
   },
+  {
+    name: 'selected',
+    align: 'center',
+    label: '选课人数',
+    field: 'selected',
+  },
 ];
 
 export default defineComponent({
   name: 'CourseList',
-  components: { CourseDialog},
+  components: { CourseDialog, SelectionViewer},
   setup() {
+    interface componentRef{
+      show: boolean;
+      load: (cid:string)=>void;
+    }
+    const SelectionViewRef = ref<componentRef|null>(null)
     const course = useCourseStore();
-    const rows = ref([] as CourseInfo[]);
-    course.load_course_lists_page_teacher().then((r) => (rows.value = r));
+    const selection = useSelectionConditionsStore();
+    const rows = ref([]);
+    selection.loadCoursesToTeach().then((r) => (rows.value = r));
     course.load_course_constants()
 
     const addShow = ref(false);
     const editShow = ref([false] as boolean[]);
     const deleteShow = ref([false] as boolean[]);
+    const loading = ref(false)
 
+    const showSelection = async (cid:string) =>{
+      console.log('in showSelection')
+      if(!SelectionViewRef.value)return
+      SelectionViewRef.value.load(cid)
+    }
     return {
       columns,
       rows,
-
+      showSelection, loading, SelectionViewRef,
       addShow,
       editShow,
       deleteShow,

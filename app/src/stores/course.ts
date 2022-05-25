@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { post } from 'boot/axios';
+import { post} from 'boot/axios';
 import { Notify } from 'quasar';
 import { useUserStore } from './user';
 
@@ -280,5 +280,14 @@ export const useCourseStore = defineStore('course', {
       }
       return false;
     },
+    async modifyCapacity({cid, capacity}:{cid:string, capacity:number}){
+      console.log('in modifyCapacity')
+      const r = await post('/course/update_course_capacity', {cid, capacity})
+      if(r !== false){
+        Notify.create({type:'positive', message:'成功'})
+        return true
+      }
+      return false
+    }
   },
 });

@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
 
 
 @RestController
@@ -230,5 +230,34 @@ public class CourseController {
         List<Course> courseList = courseUtils.getCourseListStudent(user, userMapper, courseMapper, majorMapper);
         List<CourseInfo> courseInfoList = courseUtils.getCourseInfoList(courseList, true, userMapper, majorMapper, collegeMapper);
         return Result.success(courseInfoList);
+    }
+
+    boolean update_course_capacity(String cid, Integer capacity){
+        Course course = courseMapper.selectById(cid);
+        String classroom = course.getCoursePlace();
+        Integer maxCap = classroomMapper.getCapacity(classroom);
+        if(maxCap < capacity)return false;
+        courseMapper.updateCourseCapacity(cid, capacity);
+        return true;
+    }
+
+    boolean increase_course_capacity(String cid, Integer change){
+        assert(change > 0);
+        return update_course_capacity(cid, courseMapper.getCourseCapacity(cid) + change);
+    }
+
+
+    @PostMapping("/update_course_capacity")
+    private Result<?> update_course_capacity(@RequestBody Map<String, String> pair, HttpServletRequest request){
+        ErrorCode err = courseChecker.checkAuthAdmin(request, userMapper);
+        if (err != null) return Result.error(err);
+        String cid = pair.get("cid"); Integer capacity = Integer.parseInt(pair.get("capacity"));
+        if(courseMapper.selectById(cid) == null)return Result.error(ErrorCode.E_302);
+        Course course = courseMapper.selectById(cid);
+        //bigger than selected
+        if(capacity < 0)return Result.error(ErrorCode.E_408);
+        if(capacity < course.getCourseCapacity() && capacity < course.getSelected())return Result.error(ErrorCode.E_407);
+        if(!update_course_capacity(cid, capacity))return Result.error(ErrorCode.E_212);
+        return Result.success();
     }
 }

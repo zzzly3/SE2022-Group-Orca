@@ -8,6 +8,7 @@ import com.orca.back.utils.common.Checker;
 import com.orca.back.utils.common.Result;
 
 import com.orca.back.utils.constants.ErrorCode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,6 +31,8 @@ public class AuthController {
     @Resource
     ConstantsMapper constantsMapper;
 
+    @Autowired
+    SelectionController selectionController = new SelectionController();
     Checker check = new Checker();
 
     private Result<?> checkAdmin(HttpServletRequest request) {
@@ -159,7 +162,9 @@ public class AuthController {
         System.out.print("in backend: modify_course_selection_state\n");
         Result<?> err1 = checkAdmin(request);
         if(err1 != null)return err1;
-        constantsMapper.updateCourseSelectionState(pair.get("value"));
-        return Result.success();
+        int state = pair.get("value");
+        constantsMapper.updateCourseSelectionState(state);
+        if(state == 2)return selectionController.first_round_end(request);
+        else return Result.success();
     }
 }
